@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "statistics-janitor", "stati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "transform-api-load-janitor", "transform-api-load-janitor\transform-api-load-janitor.csproj", "{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "edfi-api-client", "edfi-api-client\edfi-api-client.csproj", "{F92104FF-F171-4516-9877-2C2B9815E913}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F92104FF-F171-4516-9877-2C2B9815E913}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F92104FF-F171-4516-9877-2C2B9815E913}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F92104FF-F171-4516-9877-2C2B9815E913}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F92104FF-F171-4516-9877-2C2B9815E913}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
