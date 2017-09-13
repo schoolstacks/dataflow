@@ -14,9 +14,9 @@ namespace sftp_janitor
             string username;
             string password;
 
-            host = "example.com";
-            username = "user";
-            password = "pass";
+            host = "test.rebex.net";
+            username = "demo";
+            password = "password";
 
             try
             {
@@ -24,17 +24,17 @@ namespace sftp_janitor
                 client.Connect();
                 Console.WriteLine(client.ConnectionInfo.ServerVersion);
 
-                IEnumerable<SftpFile> fileList = client.ListDirectory("**directory**");
+                IEnumerable<SftpFile> fileList = client.ListDirectory("/");
                 foreach (SftpFile file in fileList)
                 {
-                    if (file.Name.Contains("**mask**"))
+                    Console.WriteLine(file.FullName);
+
+                    if (file.Name.Contains(".txt"))
                     {
-                        Console.WriteLine(file.FullName);
-                        string filename = @"**directory**" + file.Name;
+                        string filename = @".\" + file.Name;
                         Stream fileStream = File.OpenWrite(filename);
                         client.DownloadFile(file.FullName, fileStream);
                         fileStream.Close();
-
                     }
 
                     
