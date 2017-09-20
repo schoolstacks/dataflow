@@ -6,7 +6,13 @@
       <Value Profile="(Default)">sample-files</Value>
     </Setting>
     <Setting Name="StorageConnectionString" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">DefaultEndpointsProtocol=https;AccountName=dataflowdev;AccountKey=18IU2QEy3ed7ZEH/61hkQi17mxYEP5Q+1xkcofiE94f+tcfECVEIQHAj6N8rkXuoWBbjrYQCTdPv7bLfL10Hvw==;EndpointSuffix=core.windows.net</Value>
+      <Value Profile="(Default)">DefaultEndpointsProtocol=https;AccountName=dataflow;AccountKey=xXC4GJaa2ZbkigVk3a4a38Ol+42KQ4AiezibfgijShtBMeEz+CHHr3mceufm7DA8p9jl1wgCzAHFGaXH3ydupA==;EndpointSuffix=core.windows.net</Value>
+    </Setting>
+    <Setting Name="LocalDestinationDirectory" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\Test</Value>
+    </Setting>
+    <Setting Name="LocalSourceDirectory" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\TestSourceFiles</Value>
     </Setting>
   </Settings>
 </SettingsFile>

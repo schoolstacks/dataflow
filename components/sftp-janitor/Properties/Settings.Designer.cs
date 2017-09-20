@@ -34,12 +34,30 @@ namespace sftp_janitor.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("DefaultEndpointsProtocol=https;AccountName=dataflowdev;AccountKey=18IU2QEy3ed7ZEH" +
-            "/61hkQi17mxYEP5Q+1xkcofiE94f+tcfECVEIQHAj6N8rkXuoWBbjrYQCTdPv7bLfL10Hvw==;Endpoi" +
-            "ntSuffix=core.windows.net")]
+        [global::System.Configuration.DefaultSettingValueAttribute("DefaultEndpointsProtocol=https;AccountName=dataflow;AccountKey=xXC4GJaa2ZbkigVk3a" +
+            "4a38Ol+42KQ4AiezibfgijShtBMeEz+CHHr3mceufm7DA8p9jl1wgCzAHFGaXH3ydupA==;EndpointS" +
+            "uffix=core.windows.net")]
         public string StorageConnectionString {
             get {
                 return ((string)(this["StorageConnectionString"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Test")]
+        public string LocalDestinationDirectory {
+            get {
+                return ((string)(this["LocalDestinationDirectory"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\TestSourceFiles")]
+        public string LocalSourceDirectory {
+            get {
+                return ((string)(this["LocalSourceDirectory"]));
             }
         }
     }

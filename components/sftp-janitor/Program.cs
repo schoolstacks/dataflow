@@ -15,7 +15,8 @@ namespace sftp_janitor
         static void Main(string[] args)
         {
             //TestsFTP();
-            ListFiles();
+            //ListFiles();
+            WriteLocalFilesToAzureFileStorage();
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
         }
@@ -81,7 +82,7 @@ namespace sftp_janitor
                 foreach (var singleFile in currentDirectoryFiles)
                 {
                     Console.WriteLine(singleFile.Uri);
-                    string dir = @"C:\Test\";
+                    string dir = Properties.Settings.Default.LocalDestinationDirectory;
                     if (!Directory.Exists(dir))
                         Directory.CreateDirectory(dir);
                     string localFile = System.IO.Path.Combine(dir, singleFile.Parent.Name, singleFile.Name);
@@ -102,6 +103,21 @@ namespace sftp_janitor
                     Console.WriteLine("**********END OF {0}**********", singleFile.Name);
                     strReader.Close();
                 }
+            }
+        }
+
+        private static void WriteLocalFilesToAzureFileStorage()
+        {
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+                Properties.Settings.Default.StorageConnectionString);
+            CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
+            CloudFileShare fileShare = fileClient.GetShareReference(Properties.Settings.Default.FileShareName);
+            CloudFileDirectory fileDirectoryRoot = fileShare.GetRootDirectoryReference();
+            DirectoryInfo sourceDirInfo = new DirectoryInfo(Properties.Settings.Default.LocalSourceDirectory);
+            foreach (var singleFileInfo in sourceDirInfo.GetFiles())
+            {
+                var cloudFile = fileDirectoryRoot.GetFileReference(singleFileInfo.Name);
+                cloudFile.UploadFromFile(singleFileInfo.FullName);
             }
         }
     }
