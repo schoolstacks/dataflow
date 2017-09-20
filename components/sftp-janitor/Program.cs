@@ -3,12 +3,21 @@ using System.Collections.Generic;
 using System.IO;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
+using Microsoft.WindowsAzure.Storage;
 
 namespace sftp_janitor
 {
     class Program
     {
         static void Main(string[] args)
+        {
+            ConnectToSFTPServer();
+
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadLine();
+        }
+
+        protected static void ConnectToSFTPServer()
         {
             string host;
             string username;
@@ -37,7 +46,7 @@ namespace sftp_janitor
                         fileStream.Close();
                     }
 
-                    
+
                 }
 
                 client.Disconnect();
@@ -46,9 +55,13 @@ namespace sftp_janitor
             {
                 Console.WriteLine(ex);
             }
-
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadLine();
         }
+
+        protected static void PutFileOnAzureFileStorage()
+        {
+
+        }
+
+
     }
 }
