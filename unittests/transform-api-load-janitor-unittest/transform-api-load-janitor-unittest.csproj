@@ -59,6 +59,15 @@
       <Name>transform-api-load-janitor</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="sample-maps\schools.json" />
+    <None Include="sample-maps\schoolStudentAssociation.json" />
+    <None Include="sample-maps\studentAssessment.json" />
+    <None Include="sample-maps\students.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sample-maps\localEducationAgencies.json" />
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
