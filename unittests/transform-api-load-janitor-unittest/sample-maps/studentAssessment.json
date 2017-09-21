@@ -8,15 +8,15 @@
     "assessedGradeLevelDescriptor": {
       "data-type": "string",
       "source": "lookup_table",
-      "source_table": "grade_levels",
+      "source-table": "grade_levels",
       "source-column": "GRADE_LEVEL"
     },
-    "assessedGradeLevelDescriptor": {
+    "assessedGradeLevelDescriptor2": {
       "data-type": "string",
       "source": "lookup_api",
-      "source_url": "/enrollment/schools",
-      "source_field": "nameOfInstitution",
-      "return_field": "schoolId",
+      "source-url": "/enrollment/schools",
+      "source-field": "nameOfInstitution",
+      "return-field": "schoolId",
       "source-column": "SCHOOL_NAME"
     },
     "academicSubjectDescriptor": "string",
