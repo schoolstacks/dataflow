@@ -60,6 +60,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="sample-maps\schools.json" />
     <None Include="sample-maps\schoolStudentAssociation.json" />
     <None Include="sample-maps\studentAssessment.json" />
