@@ -7,49 +7,71 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage.File;
 using System.Linq;
+using System.Data;
+using System.Data.SqlClient;
+using System.Text.RegularExpressions;
+using System.Collections;
 
 namespace sftp_janitor
 {
     class Program
     {
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         static void Main(string[] args)
         {
+            _log.Info("SFTP Janitor starting");
+            string connectionString = GetSQLConnectionString();
+
+            if (connectionString == null)
+            {
+                _log.Error("Default SQL configuration is not specified.");
+            } else
+            {
+                SqlConnection conn = new SqlConnection(connectionString);
+                _log.Info("Connecting to database: " + conn.Database);
+                conn.Open();
+                SqlCommand cmd = new SqlCommand("SELECT * FROM [dataflow].[agent] WHERE Enabled=1", conn);
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    SFTPAgent agent = SFTPAgent.GetInstance((string)reader["Name"], (string)reader["URL"], (string)reader["Username"], (string)reader["Password"], (string)reader["Directory"], (string)reader["FilePattern"]);
+
+                    _log.Info("Processing agent name: " + agent.Name);
+
+                    List<string> fileList = GetFileListFromSFTP(agent);
+
+                    _log.Info("Items to process:" + fileList.Count.ToString());
+
+                }
+            }
+
             //TestsFTP();
-            WriteLocalFilesToAzureFileStorage();
-            Console.WriteLine("Press any key to continue...");
+            //WriteLocalFilesToAzureFileStorage();
+            _log.Info("SFTP Janitor exiting");
+
+            Console.WriteLine("\n\nPress any key to continue...");
             Console.ReadKey();
+
         }
 
-        private static void TestsFTP()
+        private static List<string> GetFileListFromSFTP(SFTPAgent agent)
         {
-            string host;
-            string username;
-            string password;
-
-            host = "test.rebex.net";
-            username = "demo";
-            password = "password";
+            List<string> list = new List<string>();
 
             try
             {
-                SftpClient client = new SftpClient(host, username, password);
+                _log.Info("Connecting to host: " + agent.URL);
+                SftpClient client = new SftpClient(agent.URL, agent.Username, agent.Password);
                 client.Connect();
-                Console.WriteLine(client.ConnectionInfo.ServerVersion);
+                _log.Info("Connected, server version: " + client.ConnectionInfo.ServerVersion);
 
-                IEnumerable<SftpFile> fileList = client.ListDirectory("/");
+                IEnumerable<SftpFile> fileList = client.ListDirectory(agent.Directory);
                 foreach (SftpFile file in fileList)
                 {
-                    Console.WriteLine(file.FullName);
-
-                    if (file.Name.Contains(".txt"))
-                    {
-                        string filename = @".\" + file.Name;
-                        Stream fileStream = File.OpenWrite(filename);
-                        client.DownloadFile(file.FullName, fileStream);
-                        fileStream.Close();
-                    }
-
-
+                    Boolean containsFilePattern = Regex.IsMatch(file.Name, WildCardToRegular(agent.FilePattern));
+                    if (containsFilePattern) { list.Add(file.FullName); }
                 }
 
                 client.Disconnect();
@@ -58,6 +80,18 @@ namespace sftp_janitor
             {
                 Console.WriteLine(ex);
             }
+
+            return list;
+        }
+
+        private static void GetFileFromSFTP()
+        {
+            //TODO:  implement
+
+            //string filename = @".\" + file.Name;
+            //Stream fileStream = File.OpenWrite(filename);
+            //client.DownloadFile(file.FullName, fileStream);
+            //fileStream.Close();
         }
 
         private static void WriteLocalFilesToAzureFileStorage()
@@ -74,5 +108,26 @@ namespace sftp_janitor
                 cloudFile.UploadFromFile(singleFileInfo.FullName);
             }
         }
+
+        private static string GetSQLConnectionString()
+        {
+            if (Environment.GetEnvironmentVariable("SQLAZURECONNSTR_defaultConnection") != null)
+            {
+                return Environment.GetEnvironmentVariable("SQLAZURECONNSTR_defaultConnection");
+            }
+            else if (System.Configuration.ConfigurationManager.ConnectionStrings["defaultConnection"] != null)
+            {
+                return System.Configuration.ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString;
+            }
+
+
+            return null;
+        }
+
+        private static String WildCardToRegular(String value)
+        {
+            return "^" + Regex.Escape(value).Replace("\\*", ".*") + "$";
+        }
+
     }
 }
