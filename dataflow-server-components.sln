@@ -28,6 +28,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "schema", "schema", "{EF12FA
 		dataflow-schema.sql = dataflow-schema.sql
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server-components-data-access", "components\server-components-data-access\server-components-data-access.csproj", "{1DB45F34-FA44-4C37-A240-E7B139D1BAFB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,6 +68,10 @@ Global
 		{31270CFD-B32F-4071-8C99-667BE7845BEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31270CFD-B32F-4071-8C99-667BE7845BEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31270CFD-B32F-4071-8C99-667BE7845BEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,5 +86,6 @@ Global
 		{416FB6D5-297B-4B4F-9DAC-0D9296CF8788} = {1E05F756-311F-42DD-A103-FD18E86D9A50}
 		{31270CFD-B32F-4071-8C99-667BE7845BEC} = {1E05F756-311F-42DD-A103-FD18E86D9A50}
 		{EF12FA5E-26F2-467E-84B9-61C2DC6230DE} = {B5629334-A329-4898-B88A-4BBF10EEC8BF}
+		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB} = {B5629334-A329-4898-B88A-4BBF10EEC8BF}
 	EndGlobalSection
 EndGlobal

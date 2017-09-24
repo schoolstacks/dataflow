@@ -11,11 +11,13 @@ namespace transform_api_load_janitor
 {
     class Program
     {
+        private static List<server_components_data_access.Dataflow.datamap> DataMapsList { get; set; } = null;
         static void Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Start();
+            LoadDataflowConfiguration();
             TransformFilesFromAzureFileStorage();
             watch.Stop();
             Console.WriteLine("Time Elapsed: {0}", watch.Elapsed.ToString());
@@ -26,6 +28,24 @@ namespace transform_api_load_janitor
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Console.WriteLine("An unhandled exception has occurred: " + ((Exception)e.ExceptionObject).ToString());
+        }
+
+        private static void LoadDataflowConfiguration()
+        {
+            using (server_components_data_access.Dataflow.DataFlowContext dfCtx = new server_components_data_access.Dataflow.DataFlowContext())
+            {
+                DataMapsList = dfCtx.datamaps.ToList();
+            }
+            DataMapsList.ForEach((singleDataMap) => 
+            {
+                switch (singleDataMap.Name)
+                {
+                    case "M:Class Progress - Student":
+                        DataMaps.Student.StudentDataMap studentDataMap =
+                        Newtonsoft.Json.JsonConvert.DeserializeObject<DataMaps.Student.StudentDataMap>(singleDataMap.Map);
+                        break;
+                }
+            });
         }
 
         private static void TransformFile(string filePath)

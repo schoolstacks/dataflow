@@ -1,0 +1,502 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="EdFi_DataFlow_SandboxModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012.Azure" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="agent">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="AgentTypeCode" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="URL" Type="varchar(max)" />
+          <Property Name="Username" Type="varchar(max)" />
+          <Property Name="Password" Type="varchar(max)" />
+          <Property Name="Directory" Type="varchar(max)" />
+          <Property Name="FilePattern" Type="varchar(max)" />
+          <Property Name="DataMapID" Type="int" />
+          <Property Name="QueueLocation" Type="varchar(max)" />
+          <Property Name="Custom" Type="varchar(max)" />
+          <Property Name="Enabled" Type="bit" Nullable="false" />
+          <Property Name="Created" Type="datetime" Nullable="false" />
+          <Property Name="LastExecuted" Type="datetime" />
+        </EntityType>
+        <EntityType Name="agent_schedule">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AgentID" Type="int" Nullable="false" />
+          <Property Name="Day" Type="int" Nullable="false" />
+          <Property Name="Hour" Type="int" Nullable="false" />
+          <Property Name="Minute" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="configuration">
+          <Key>
+            <PropertyRef Name="Key" />
+          </Key>
+          <Property Name="Key" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Category" Type="varchar" MaxLength="255" />
+          <Property Name="Type" Type="varchar" MaxLength="255" />
+          <Property Name="Value" Type="varchar(max)" />
+        </EntityType>
+        <EntityType Name="datamap">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="EntityID" Type="int" Nullable="false" />
+          <Property Name="Map" Type="varchar(max)" />
+          <Property Name="CreateDate" Type="datetime" />
+          <Property Name="UpdateDate" Type="datetime" />
+        </EntityType>
+        <EntityType Name="entity">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Namespace" Type="varchar(max)" />
+          <Property Name="URL" Type="varchar(max)" />
+          <Property Name="Family" Type="varchar(max)" />
+          <Property Name="Metadata" Type="varchar(max)" />
+          <Property Name="CreateDate" Type="date" />
+          <Property Name="UpdateDate" Type="date" />
+        </EntityType>
+        <EntityType Name="file">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Filename" Type="varchar(max)" Nullable="false" />
+          <Property Name="Content" Type="varbinary(max)" />
+          <Property Name="Metadata" Type="varchar(max)" />
+          <Property Name="CreateDate" Type="datetime" />
+          <Property Name="UpdateDate" Type="datetime" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="log_application">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="Date" />
+            <PropertyRef Name="Thread" />
+            <PropertyRef Name="Level" />
+            <PropertyRef Name="Logger" />
+            <PropertyRef Name="Message" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Date" Type="datetime" Nullable="false" />
+          <Property Name="Thread" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Level" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Logger" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Message" Type="varchar" MaxLength="4000" Nullable="false" />
+          <Property Name="Exception" Type="varchar" MaxLength="2000" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="log_ingestion">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="Level" />
+            <PropertyRef Name="Operation" />
+            <PropertyRef Name="Process" />
+            <PropertyRef Name="Result" />
+            <PropertyRef Name="Date" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="EducationOrganizationId" Type="uniqueidentifier" />
+          <Property Name="Level" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Operation" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="AgentID" Type="int" />
+          <Property Name="Process" Type="varchar(max)" Nullable="false" />
+          <Property Name="Filename" Type="varchar(max)" />
+          <Property Name="Result" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Message" Type="varchar(max)" />
+          <Property Name="RecordCount" Type="int" />
+          <Property Name="Date" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="lookup">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="GroupSet" Type="varchar" MaxLength="1024" Nullable="false" />
+          <Property Name="Key" Type="varchar" MaxLength="1024" Nullable="false" />
+          <Property Name="Value" Type="varchar" MaxLength="1024" Nullable="false" />
+        </EntityType>
+        <EntityType Name="statistic">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="EntityID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="EntityType" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="TermDescriptorId" Type="int" />
+          <Property Name="SchoolYear" Type="smallint" />
+          <Property Name="Measure" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="ValueInt" Type="int" />
+          <Property Name="ValueDecimal" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="ValueVarchar" Type="varchar(max)" />
+          <Property Name="InsertDate" Type="datetime" />
+          <Property Name="UpdateDate" Type="datetime" />
+        </EntityType>
+        <EntityContainer Name="EdFi_DataFlow_SandboxModelStoreContainer">
+          <EntitySet Name="agent" EntityType="Self.agent" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="agent_schedule" EntityType="Self.agent_schedule" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="configuration" EntityType="Self.configuration" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="datamap" EntityType="Self.datamap" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="entity" EntityType="Self.entity" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="file" EntityType="Self.file" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="lookup" EntityType="Self.lookup" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="statistic" EntityType="Self.statistic" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="log_application" EntityType="Self.log_application" store:Type="Tables" store:Schema="dataflow">
+            <DefiningQuery>SELECT 
+    [log_application].[ID] AS [ID], 
+    [log_application].[Date] AS [Date], 
+    [log_application].[Thread] AS [Thread], 
+    [log_application].[Level] AS [Level], 
+    [log_application].[Logger] AS [Logger], 
+    [log_application].[Message] AS [Message], 
+    [log_application].[Exception] AS [Exception]
+    FROM [dataflow].[log_application] AS [log_application]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="log_ingestion" EntityType="Self.log_ingestion" store:Type="Tables" store:Schema="dataflow">
+            <DefiningQuery>SELECT 
+    [log_ingestion].[ID] AS [ID], 
+    [log_ingestion].[EducationOrganizationId] AS [EducationOrganizationId], 
+    [log_ingestion].[Level] AS [Level], 
+    [log_ingestion].[Operation] AS [Operation], 
+    [log_ingestion].[AgentID] AS [AgentID], 
+    [log_ingestion].[Process] AS [Process], 
+    [log_ingestion].[Filename] AS [Filename], 
+    [log_ingestion].[Result] AS [Result], 
+    [log_ingestion].[Message] AS [Message], 
+    [log_ingestion].[RecordCount] AS [RecordCount], 
+    [log_ingestion].[Date] AS [Date]
+    FROM [dataflow].[log_ingestion] AS [log_ingestion]</DefiningQuery>
+          </EntitySet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="EdFi_DataFlow_SandboxModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="agent">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="AgentTypeCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="URL" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Username" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Password" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Directory" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="FilePattern" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="DataMapID" Type="Int32" />
+          <Property Name="QueueLocation" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Custom" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="Created" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="LastExecuted" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="agent_schedule">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AgentID" Type="Int32" Nullable="false" />
+          <Property Name="Day" Type="Int32" Nullable="false" />
+          <Property Name="Hour" Type="Int32" Nullable="false" />
+          <Property Name="Minute" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="configuration">
+          <Key>
+            <PropertyRef Name="Key" />
+          </Key>
+          <Property Name="Key" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Category" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Type" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Value" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="datamap">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="EntityID" Type="Int32" Nullable="false" />
+          <Property Name="Map" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CreateDate" Type="DateTime" Precision="3" />
+          <Property Name="UpdateDate" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="entity">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Namespace" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="URL" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Family" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Metadata" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CreateDate" Type="DateTime" Precision="0" />
+          <Property Name="UpdateDate" Type="DateTime" Precision="0" />
+        </EntityType>
+        <EntityType Name="file">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Filename" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Content" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="Metadata" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CreateDate" Type="DateTime" Precision="3" />
+          <Property Name="UpdateDate" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="lookup">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="GroupSet" Type="String" MaxLength="1024" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Key" Type="String" MaxLength="1024" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Value" Type="String" MaxLength="1024" FixedLength="false" Unicode="false" Nullable="false" />
+        </EntityType>
+        <EntityType Name="statistic">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EntityID" Type="Guid" Nullable="false" />
+          <Property Name="EntityType" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="TermDescriptorId" Type="Int32" />
+          <Property Name="SchoolYear" Type="Int16" />
+          <Property Name="Measure" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="ValueInt" Type="Int32" />
+          <Property Name="ValueDecimal" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="ValueVarchar" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="InsertDate" Type="DateTime" Precision="3" />
+          <Property Name="UpdateDate" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="log_application">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="Date" />
+            <PropertyRef Name="Thread" />
+            <PropertyRef Name="Level" />
+            <PropertyRef Name="Logger" />
+            <PropertyRef Name="Message" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Thread" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Level" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Logger" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Message" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Exception" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="log_ingestion">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="Level" />
+            <PropertyRef Name="Operation" />
+            <PropertyRef Name="Process" />
+            <PropertyRef Name="Result" />
+            <PropertyRef Name="Date" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EducationOrganizationId" Type="Guid" />
+          <Property Name="Level" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Operation" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="AgentID" Type="Int32" />
+          <Property Name="Process" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Filename" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Result" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Message" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="RecordCount" Type="Int32" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityContainer Name="DataFlowContext" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="agents" EntityType="Self.agent" />
+          <EntitySet Name="agent_schedule" EntityType="Self.agent_schedule" />
+          <EntitySet Name="configurations" EntityType="Self.configuration" />
+          <EntitySet Name="datamaps" EntityType="Self.datamap" />
+          <EntitySet Name="entities" EntityType="Self.entity" />
+          <EntitySet Name="files" EntityType="Self.file" />
+          <EntitySet Name="lookups" EntityType="Self.lookup" />
+          <EntitySet Name="statistics" EntityType="Self.statistic" />
+          <EntitySet Name="log_application" EntityType="Self.log_application" />
+          <EntitySet Name="log_ingestion" EntityType="Self.log_ingestion" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="EdFi_DataFlow_SandboxModelStoreContainer" CdmEntityContainer="DataFlowContext">
+          <EntitySetMapping Name="agents">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.agent">
+              <MappingFragment StoreEntitySet="agent">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="AgentTypeCode" ColumnName="AgentTypeCode" />
+                <ScalarProperty Name="URL" ColumnName="URL" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Directory" ColumnName="Directory" />
+                <ScalarProperty Name="FilePattern" ColumnName="FilePattern" />
+                <ScalarProperty Name="DataMapID" ColumnName="DataMapID" />
+                <ScalarProperty Name="QueueLocation" ColumnName="QueueLocation" />
+                <ScalarProperty Name="Custom" ColumnName="Custom" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="LastExecuted" ColumnName="LastExecuted" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="agent_schedule">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.agent_schedule">
+              <MappingFragment StoreEntitySet="agent_schedule">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="AgentID" ColumnName="AgentID" />
+                <ScalarProperty Name="Day" ColumnName="Day" />
+                <ScalarProperty Name="Hour" ColumnName="Hour" />
+                <ScalarProperty Name="Minute" ColumnName="Minute" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="configurations">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.configuration">
+              <MappingFragment StoreEntitySet="configuration">
+                <ScalarProperty Name="Key" ColumnName="Key" />
+                <ScalarProperty Name="Category" ColumnName="Category" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="Value" ColumnName="Value" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="datamaps">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.datamap">
+              <MappingFragment StoreEntitySet="datamap">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="EntityID" ColumnName="EntityID" />
+                <ScalarProperty Name="Map" ColumnName="Map" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="entities">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.entity">
+              <MappingFragment StoreEntitySet="entity">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Namespace" ColumnName="Namespace" />
+                <ScalarProperty Name="URL" ColumnName="URL" />
+                <ScalarProperty Name="Family" ColumnName="Family" />
+                <ScalarProperty Name="Metadata" ColumnName="Metadata" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="files">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.file">
+              <MappingFragment StoreEntitySet="file">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Filename" ColumnName="Filename" />
+                <ScalarProperty Name="Content" ColumnName="Content" />
+                <ScalarProperty Name="Metadata" ColumnName="Metadata" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="lookups">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.lookup">
+              <MappingFragment StoreEntitySet="lookup">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="GroupSet" ColumnName="GroupSet" />
+                <ScalarProperty Name="Key" ColumnName="Key" />
+                <ScalarProperty Name="Value" ColumnName="Value" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="statistics">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.statistic">
+              <MappingFragment StoreEntitySet="statistic">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="EntityID" ColumnName="EntityID" />
+                <ScalarProperty Name="EntityType" ColumnName="EntityType" />
+                <ScalarProperty Name="TermDescriptorId" ColumnName="TermDescriptorId" />
+                <ScalarProperty Name="SchoolYear" ColumnName="SchoolYear" />
+                <ScalarProperty Name="Measure" ColumnName="Measure" />
+                <ScalarProperty Name="ValueInt" ColumnName="ValueInt" />
+                <ScalarProperty Name="ValueDecimal" ColumnName="ValueDecimal" />
+                <ScalarProperty Name="ValueVarchar" ColumnName="ValueVarchar" />
+                <ScalarProperty Name="InsertDate" ColumnName="InsertDate" />
+                <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="log_application">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.log_application">
+              <MappingFragment StoreEntitySet="log_application">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="Thread" ColumnName="Thread" />
+                <ScalarProperty Name="Level" ColumnName="Level" />
+                <ScalarProperty Name="Logger" ColumnName="Logger" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="Exception" ColumnName="Exception" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="log_ingestion">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.log_ingestion">
+              <MappingFragment StoreEntitySet="log_ingestion">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="EducationOrganizationId" ColumnName="EducationOrganizationId" />
+                <ScalarProperty Name="Level" ColumnName="Level" />
+                <ScalarProperty Name="Operation" ColumnName="Operation" />
+                <ScalarProperty Name="AgentID" ColumnName="AgentID" />
+                <ScalarProperty Name="Process" ColumnName="Process" />
+                <ScalarProperty Name="Filename" ColumnName="Filename" />
+                <ScalarProperty Name="Result" ColumnName="Result" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="RecordCount" ColumnName="RecordCount" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
