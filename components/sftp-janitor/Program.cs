@@ -114,10 +114,9 @@ namespace sftp_janitor
             if (Environment.GetEnvironmentVariable("SQLAZURECONNSTR_defaultConnection") != null)
             {
                 return Environment.GetEnvironmentVariable("SQLAZURECONNSTR_defaultConnection");
-            }
-            else if (System.Configuration.ConfigurationManager.ConnectionStrings["defaultConnection"] != null)
+            } else
             {
-                return System.Configuration.ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString;
+                _log.Error("Environment variable (SQLAZURECONNSTR_defaultConnection) for default connection is not defined.");
             }
 
 
