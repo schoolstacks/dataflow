@@ -36,19 +36,18 @@ namespace sftp_janitor
 
                 while (reader.Read())
                 {
-                    SFTPAgent agent = SFTPAgent.GetInstance((string)reader["Name"], (string)reader["URL"], (string)reader["Username"], (string)reader["Password"], (string)reader["Directory"], (string)reader["FilePattern"]);
+                    SFTPAgent agent = SFTPAgent.GetInstance((string)reader["Name"], (string)reader["URL"], (string)reader["Username"], (string)reader["Password"], (string)reader["Directory"], (string)reader["FilePattern"], (string)reader["Queue"]);
 
                     _log.Info("Processing agent name: " + agent.Name);
 
                     List<string> fileList = GetFileListFromSFTP(agent);
+                    DownloadFilesFromSFTP(agent, fileList);
 
                     _log.Info("Items to process:" + fileList.Count.ToString());
 
                 }
             }
 
-            //TestsFTP();
-            //WriteLocalFilesToAzureFileStorage();
             _log.Info("SFTP Janitor exiting");
 
             Console.WriteLine("\n\nPress any key to continue...");
@@ -84,14 +83,9 @@ namespace sftp_janitor
             return list;
         }
 
-        private static void GetFileFromSFTP()
+        private static void DownloadFilesFromSFTP(SFTPAgent agent, List<string> fileList)
         {
-            //TODO:  implement
-
-            //string filename = @".\" + file.Name;
-            //Stream fileStream = File.OpenWrite(filename);
-            //client.DownloadFile(file.FullName, fileStream);
-            //fileStream.Close();
+            //TODO: implement download and log files for processing.
         }
 
         private static void WriteLocalFilesToAzureFileStorage()
