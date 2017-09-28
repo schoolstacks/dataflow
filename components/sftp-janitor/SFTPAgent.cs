@@ -15,8 +15,9 @@ namespace sftp_janitor
         public string Password { get; set; }
         public string Directory { get; set; }
         public string FilePattern { get; set; }
+        public System.Guid Queue { get; set; }
 
-        public static SFTPAgent GetInstance(string name, string url, string username, string password, string directory, string filePattern)
+        public static SFTPAgent GetInstance(string name, string url, string username, string password, string directory, string filePattern, System.Guid queue)
         {
             SFTPAgent agent = new SFTPAgent();
             agent.Name = name;
@@ -25,6 +26,7 @@ namespace sftp_janitor
             agent.Password = password;
             agent.Directory = directory;
             agent.FilePattern = filePattern;
+            agent.Queue = queue;
 
             return agent;
         }

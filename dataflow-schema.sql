@@ -11,6 +11,7 @@ CREATE TABLE [dataflow].[agent](
 	[Directory] [varchar](max) NULL,
 	[FilePattern] [varchar](max) NULL,
 	[DataMapID] [int] NULL,
+	[QueueLocation] [varchar](max) NULL,
 	[Custom] [varchar](max) NULL,
 	[Enabled] [bit] NOT NULL,
 	[Created] [datetime] NOT NULL CONSTRAINT [DF_agent_Created]  DEFAULT (getdate()),

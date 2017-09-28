@@ -22,10 +22,11 @@ namespace sftp_janitor
         {
             _log.Info("SFTP Janitor starting");
             string connectionString = GetSQLConnectionString();
+            string azureFileConnectionString = GetAzureFileConnectionString();
 
-            if (connectionString == null)
+            if (connectionString == null || azureFileConnectionString == null)
             {
-                _log.Error("Default SQL configuration is not specified.");
+                _log.Error("Default SQL configuration or Azure File connection is not specified.");
             } else
             {
                 SqlConnection conn = new SqlConnection(connectionString);
@@ -36,19 +37,20 @@ namespace sftp_janitor
 
                 while (reader.Read())
                 {
-                    SFTPAgent agent = SFTPAgent.GetInstance((string)reader["Name"], (string)reader["URL"], (string)reader["Username"], (string)reader["Password"], (string)reader["Directory"], (string)reader["FilePattern"]);
+                    SFTPAgent agent = SFTPAgent.GetInstance((string)reader["Name"], (string)reader["URL"], (string)reader["Username"], (string)reader["Password"], (string)reader["Directory"], (string)reader["FilePattern"], (System.Guid)reader["Queue"]);
 
                     _log.Info("Processing agent name: " + agent.Name);
-
                     List<string> fileList = GetFileListFromSFTP(agent);
-
                     _log.Info("Items to process:" + fileList.Count.ToString());
+                    TransferFilesFromSFTPToAzure(agent, azureFileConnectionString, fileList);
 
+                    SqlCommand cmdUpdate = new SqlCommand("UPDATE [dataflow].[agent] SET LastExecuted=@LastExecuted WHERE ID=@ID", conn);
+                    cmdUpdate.Parameters.AddWithValue("@LastExecuted", DateTime.Now);
+                    cmdUpdate.Parameters.AddWithValue("@ID", (int)reader["ID"]);
+                    cmdUpdate.ExecuteNonQuery();
                 }
             }
 
-            //TestsFTP();
-            //WriteLocalFilesToAzureFileStorage();
             _log.Info("SFTP Janitor exiting");
 
             Console.WriteLine("\n\nPress any key to continue...");
@@ -84,14 +86,30 @@ namespace sftp_janitor
             return list;
         }
 
-        private static void GetFileFromSFTP()
+        private static void TransferFilesFromSFTPToAzure(SFTPAgent agent, string azureFileConnectionString, List<string> fileList)
         {
-            //TODO:  implement
+            foreach (string file in fileList)
+            {
+                SftpClient client = new SftpClient(agent.URL, agent.Username, agent.Password);
+                client.Connect();
+                MemoryStream stream = new MemoryStream();
+                client.DownloadFile(file, stream);
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(azureFileConnectionString);
+                CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
+                CloudFileShare fileShare = fileClient.GetShareReference(Properties.Settings.Default.FileShareName);
 
-            //string filename = @".\" + file.Name;
-            //Stream fileStream = File.OpenWrite(filename);
-            //client.DownloadFile(file.FullName, fileStream);
-            //fileStream.Close();
+                if (!fileShare.Exists())
+                {
+                    _log.Error("Azure file share does not exist as expected.");
+                } else
+                {
+                    CloudFileDirectory fileDirectoryRoot = fileShare.GetRootDirectoryReference();
+                    CloudFileDirectory fileAgentDirectory = fileDirectoryRoot.GetDirectoryReference(agent.Queue.ToString());
+                    fileAgentDirectory.CreateIfNotExists();
+                    CloudFile cloudFile = fileAgentDirectory.GetFileReference(file);
+
+                }
+            }
         }
 
         private static void WriteLocalFilesToAzureFileStorage()
@@ -114,12 +132,24 @@ namespace sftp_janitor
             if (Environment.GetEnvironmentVariable("SQLAZURECONNSTR_defaultConnection") != null)
             {
                 return Environment.GetEnvironmentVariable("SQLAZURECONNSTR_defaultConnection");
-            }
-            else if (System.Configuration.ConfigurationManager.ConnectionStrings["defaultConnection"] != null)
+            } else
             {
-                return System.Configuration.ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString;
+                _log.Error("Environment variable (SQLAZURECONNSTR_defaultConnection) for default connection is not defined.");
             }
 
+            return null;
+        }
+
+        private static string GetAzureFileConnectionString()
+        {
+            if (Environment.GetEnvironmentVariable("CUSTOMCONNSTR_storageConnection") != null)
+            {
+                return Environment.GetEnvironmentVariable("CUSTOMCONNSTR_storageConnection");
+            }
+            else
+            {
+                _log.Error("Environment variable (CUSTOMCONNSTR_storageConnection) for default connection is not defined.");
+            }
 
             return null;
         }
