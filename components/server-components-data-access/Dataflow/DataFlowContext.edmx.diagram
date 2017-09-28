@@ -4,17 +4,21 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="983304872a2a4f98912974fe6dcda145" Name="Diagram1">
-        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.agent" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.agent_schedule" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.configuration" Width="1.5" PointX="2.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.datamap" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.entity" Width="1.5" PointX="4.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.file" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.lookup" Width="1.5" PointX="0.75" PointY="6.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.statistic" Width="1.5" PointX="6.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.log_application" Width="1.5" PointX="2.75" PointY="7.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.log_ingestion" Width="1.5" PointX="4.75" PointY="7.75" IsExpanded="true" />
+      <Diagram DiagramId="b18790d03a0c432596c5f3f35650491e" Name="Diagram1">
+        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.agent" Width="1.5" PointX="3" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.agent_schedule" Width="1.5" PointX="5.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.configuration" Width="1.5" PointX="7.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.datamap" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.datamap_agent" Width="1.5" PointX="5.25" PointY="1.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.entity" Width="1.5" PointX="0.75" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.file" Width="1.5" PointX="7.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.lookup" Width="1.5" PointX="5.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.statistic" Width="1.5" PointX="7.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.log_application" Width="1.5" PointX="9.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.log_ingestion" Width="1.5" PointX="9.75" PointY="4.75" IsExpanded="true" />
+        <AssociationConnector Association="EdFi_DataFlow_SandboxModel.FK_datamap_agent_agent" ManuallyRouted="false" />
+        <AssociationConnector Association="EdFi_DataFlow_SandboxModel.FK_datamap_agent_datamap" ManuallyRouted="false" />
+        <AssociationConnector Association="EdFi_DataFlow_SandboxModel.FK_datamap_Entity" ManuallyRouted="false" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

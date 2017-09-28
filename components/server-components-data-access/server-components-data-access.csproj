@@ -78,6 +78,9 @@
     <Compile Include="Dataflow\datamap.cs">
       <DependentUpon>DataFlowContext.tt</DependentUpon>
     </Compile>
+    <Compile Include="Dataflow\datamap_agent.cs">
+      <DependentUpon>DataFlowContext.tt</DependentUpon>
+    </Compile>
     <Compile Include="Dataflow\entity.cs">
       <DependentUpon>DataFlowContext.tt</DependentUpon>
     </Compile>

@@ -29,6 +29,7 @@ namespace server_components_data_access.Dataflow
         public virtual DbSet<agent_schedule> agent_schedule { get; set; }
         public virtual DbSet<configuration> configurations { get; set; }
         public virtual DbSet<datamap> datamaps { get; set; }
+        public virtual DbSet<datamap_agent> datamap_agent { get; set; }
         public virtual DbSet<entity> entities { get; set; }
         public virtual DbSet<file> files { get; set; }
         public virtual DbSet<lookup> lookups { get; set; }

@@ -14,11 +14,21 @@ namespace server_components_data_access.Dataflow
     
     public partial class datamap
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public datamap()
+        {
+            this.datamap_agent = new HashSet<datamap_agent>();
+        }
+    
         public int ID { get; set; }
         public string Name { get; set; }
         public int EntityID { get; set; }
         public string Map { get; set; }
         public Nullable<System.DateTime> CreateDate { get; set; }
         public Nullable<System.DateTime> UpdateDate { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<datamap_agent> datamap_agent { get; set; }
+        public virtual entity entity { get; set; }
     }
 }

@@ -14,6 +14,12 @@ namespace server_components_data_access.Dataflow
     
     public partial class agent
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public agent()
+        {
+            this.datamap_agent = new HashSet<datamap_agent>();
+        }
+    
         public int ID { get; set; }
         public string Name { get; set; }
         public string AgentTypeCode { get; set; }
@@ -22,11 +28,13 @@ namespace server_components_data_access.Dataflow
         public string Password { get; set; }
         public string Directory { get; set; }
         public string FilePattern { get; set; }
-        public Nullable<int> DataMapID { get; set; }
-        public string QueueLocation { get; set; }
+        public System.Guid Queue { get; set; }
         public string Custom { get; set; }
         public bool Enabled { get; set; }
         public System.DateTime Created { get; set; }
         public Nullable<System.DateTime> LastExecuted { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<datamap_agent> datamap_agent { get; set; }
     }
 }

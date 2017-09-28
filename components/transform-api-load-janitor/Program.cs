@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using transform_api_load_janitor.DataMaps.Interfaces;
 using transform_api_load_janitor.DataMaps.Student;
+using server_components_data_access.Dataflow;
 
 namespace transform_api_load_janitor
 {
@@ -20,12 +21,52 @@ namespace transform_api_load_janitor
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Start();
-            LoadDataflowConfiguration();
-            TransformFilesFromAzureFileStorage();
+            StartProcessing();
+            //LoadDataflowConfiguration();
+            //TransformFilesFromAzureFileStorage();
             watch.Stop();
             Console.WriteLine("Time Elapsed: {0}", watch.Elapsed.ToString());
             Console.WriteLine("Press any key to continue");
             Console.ReadKey();
+        }
+
+        private static void StartProcessing()
+        {
+            using (server_components_data_access.Dataflow.DataFlowContext ctx = 
+                new server_components_data_access.Dataflow.DataFlowContext())
+            {
+                var agents = ctx.agents.Include("datamap_agent").Include("datamap_agent.datamap").ToList();
+                foreach (var singleAgent in agents)
+                {
+                    foreach (var singleDataMapAgent in singleAgent.datamap_agent.OrderBy(p=>p.ProcessingOrder))
+                    {
+                        var entity = singleDataMapAgent.datamap.entity;
+                        ProcessEntity(entity: entity, dataMap: singleDataMapAgent.datamap, cloudFileUrl: "https://dataflow.file.core.windows.net/sample-files/set02/mcl-progress-monitoring.csv");
+                    }
+                }
+            }
+        }
+
+        private static void ProcessEntity(entity entity,datamap dataMap, string cloudFileUrl)
+        {
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+    Properties.Settings.Default.StorageConnectionString);
+            CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
+            CloudFileShare fileShare = fileClient.GetShareReference(Properties.Settings.Default.FileShareName);
+            CloudFile file = new CloudFile(new Uri(cloudFileUrl), storageAccount.Credentials);
+            string strFileText = file.DownloadText();
+            using (StringReader strReader = new StringReader(strFileText))
+            {
+                using (CsvHelper.CsvReader reader = new CsvHelper.CsvReader(strReader))
+                {
+                    while (reader.Read())
+                    {
+
+                    }
+                }
+
+            }
+
         }
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

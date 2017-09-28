@@ -14,6 +14,12 @@ namespace server_components_data_access.Dataflow
     
     public partial class entity
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public entity()
+        {
+            this.datamaps = new HashSet<datamap>();
+        }
+    
         public int ID { get; set; }
         public string Name { get; set; }
         public string Namespace { get; set; }
@@ -22,5 +28,8 @@ namespace server_components_data_access.Dataflow
         public string Metadata { get; set; }
         public Nullable<System.DateTime> CreateDate { get; set; }
         public Nullable<System.DateTime> UpdateDate { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<datamap> datamaps { get; set; }
     }
 }

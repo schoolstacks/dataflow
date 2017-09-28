@@ -17,8 +17,7 @@
           <Property Name="Password" Type="varchar(max)" />
           <Property Name="Directory" Type="varchar(max)" />
           <Property Name="FilePattern" Type="varchar(max)" />
-          <Property Name="DataMapID" Type="int" />
-          <Property Name="QueueLocation" Type="varchar(max)" />
+          <Property Name="Queue" Type="uniqueidentifier" Nullable="false" />
           <Property Name="Custom" Type="varchar(max)" />
           <Property Name="Enabled" Type="bit" Nullable="false" />
           <Property Name="Created" Type="datetime" Nullable="false" />
@@ -53,6 +52,15 @@
           <Property Name="Map" Type="varchar(max)" />
           <Property Name="CreateDate" Type="datetime" />
           <Property Name="UpdateDate" Type="datetime" />
+        </EntityType>
+        <EntityType Name="datamap_agent">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DataMapID" Type="int" Nullable="false" />
+          <Property Name="AgentID" Type="int" Nullable="false" />
+          <Property Name="ProcessingOrder" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="entity">
           <Key>
@@ -145,11 +153,48 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
           <Property Name="InsertDate" Type="datetime" />
           <Property Name="UpdateDate" Type="datetime" />
         </EntityType>
+        <Association Name="FK_datamap_agent_agent">
+          <End Role="agent" Type="Self.agent" Multiplicity="1" />
+          <End Role="datamap_agent" Type="Self.datamap_agent" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="agent">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="datamap_agent">
+              <PropertyRef Name="AgentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_datamap_agent_datamap">
+          <End Role="datamap" Type="Self.datamap" Multiplicity="1" />
+          <End Role="datamap_agent" Type="Self.datamap_agent" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="datamap">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="datamap_agent">
+              <PropertyRef Name="DataMapID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_datamap_Entity">
+          <End Role="entity" Type="Self.entity" Multiplicity="1" />
+          <End Role="datamap" Type="Self.datamap" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="entity">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="datamap">
+              <PropertyRef Name="EntityID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="EdFi_DataFlow_SandboxModelStoreContainer">
           <EntitySet Name="agent" EntityType="Self.agent" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="agent_schedule" EntityType="Self.agent_schedule" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="configuration" EntityType="Self.configuration" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="datamap" EntityType="Self.datamap" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="datamap_agent" EntityType="Self.datamap_agent" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="entity" EntityType="Self.entity" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="file" EntityType="Self.file" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="lookup" EntityType="Self.lookup" Schema="dataflow" store:Type="Tables" />
@@ -180,6 +225,18 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
     [log_ingestion].[Date] AS [Date]
     FROM [dataflow].[log_ingestion] AS [log_ingestion]</DefiningQuery>
           </EntitySet>
+          <AssociationSet Name="FK_datamap_agent_agent" Association="Self.FK_datamap_agent_agent">
+            <End Role="agent" EntitySet="agent" />
+            <End Role="datamap_agent" EntitySet="datamap_agent" />
+          </AssociationSet>
+          <AssociationSet Name="FK_datamap_agent_datamap" Association="Self.FK_datamap_agent_datamap">
+            <End Role="datamap" EntitySet="datamap" />
+            <End Role="datamap_agent" EntitySet="datamap_agent" />
+          </AssociationSet>
+          <AssociationSet Name="FK_datamap_Entity" Association="Self.FK_datamap_Entity">
+            <End Role="entity" EntitySet="entity" />
+            <End Role="datamap" EntitySet="datamap" />
+          </AssociationSet>
         </EntityContainer>
       </Schema>
     </edmx:StorageModels>
@@ -198,12 +255,12 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
           <Property Name="Password" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="Directory" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="FilePattern" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="DataMapID" Type="Int32" />
-          <Property Name="QueueLocation" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Queue" Type="Guid" Nullable="false" />
           <Property Name="Custom" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="Enabled" Type="Boolean" Nullable="false" />
           <Property Name="Created" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="LastExecuted" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="datamap_agent" Relationship="Self.FK_datamap_agent_agent" FromRole="agent" ToRole="datamap_agent" />
         </EntityType>
         <EntityType Name="agent_schedule">
           <Key>
@@ -234,6 +291,19 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
           <Property Name="Map" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="CreateDate" Type="DateTime" Precision="3" />
           <Property Name="UpdateDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="datamap_agent" Relationship="Self.FK_datamap_agent_datamap" FromRole="datamap" ToRole="datamap_agent" />
+          <NavigationProperty Name="entity" Relationship="Self.FK_datamap_Entity" FromRole="datamap" ToRole="entity" />
+        </EntityType>
+        <EntityType Name="datamap_agent">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DataMapID" Type="Int32" Nullable="false" />
+          <Property Name="AgentID" Type="Int32" Nullable="false" />
+          <Property Name="ProcessingOrder" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="agent" Relationship="Self.FK_datamap_agent_agent" FromRole="datamap_agent" ToRole="agent" />
+          <NavigationProperty Name="datamap" Relationship="Self.FK_datamap_agent_datamap" FromRole="datamap_agent" ToRole="datamap" />
         </EntityType>
         <EntityType Name="entity">
           <Key>
@@ -247,6 +317,7 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
           <Property Name="Metadata" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="CreateDate" Type="DateTime" Precision="0" />
           <Property Name="UpdateDate" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="datamaps" Relationship="Self.FK_datamap_Entity" FromRole="entity" ToRole="datamap" />
         </EntityType>
         <EntityType Name="file">
           <Key>
@@ -322,17 +393,66 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
           <Property Name="RecordCount" Type="Int32" />
           <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
         </EntityType>
+        <Association Name="FK_datamap_agent_agent">
+          <End Role="agent" Type="Self.agent" Multiplicity="1" />
+          <End Role="datamap_agent" Type="Self.datamap_agent" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="agent">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="datamap_agent">
+              <PropertyRef Name="AgentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_datamap_agent_datamap">
+          <End Role="datamap" Type="Self.datamap" Multiplicity="1" />
+          <End Role="datamap_agent" Type="Self.datamap_agent" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="datamap">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="datamap_agent">
+              <PropertyRef Name="DataMapID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_datamap_Entity">
+          <End Role="entity" Type="Self.entity" Multiplicity="1" />
+          <End Role="datamap" Type="Self.datamap" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="entity">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="datamap">
+              <PropertyRef Name="EntityID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="DataFlowContext" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="agents" EntityType="Self.agent" />
           <EntitySet Name="agent_schedule" EntityType="Self.agent_schedule" />
           <EntitySet Name="configurations" EntityType="Self.configuration" />
           <EntitySet Name="datamaps" EntityType="Self.datamap" />
+          <EntitySet Name="datamap_agent" EntityType="Self.datamap_agent" />
           <EntitySet Name="entities" EntityType="Self.entity" />
           <EntitySet Name="files" EntityType="Self.file" />
           <EntitySet Name="lookups" EntityType="Self.lookup" />
           <EntitySet Name="statistics" EntityType="Self.statistic" />
           <EntitySet Name="log_application" EntityType="Self.log_application" />
           <EntitySet Name="log_ingestion" EntityType="Self.log_ingestion" />
+          <AssociationSet Name="FK_datamap_agent_agent" Association="Self.FK_datamap_agent_agent">
+            <End Role="agent" EntitySet="agents" />
+            <End Role="datamap_agent" EntitySet="datamap_agent" />
+          </AssociationSet>
+          <AssociationSet Name="FK_datamap_agent_datamap" Association="Self.FK_datamap_agent_datamap">
+            <End Role="datamap" EntitySet="datamaps" />
+            <End Role="datamap_agent" EntitySet="datamap_agent" />
+          </AssociationSet>
+          <AssociationSet Name="FK_datamap_Entity" Association="Self.FK_datamap_Entity">
+            <End Role="entity" EntitySet="entities" />
+            <End Role="datamap" EntitySet="datamaps" />
+          </AssociationSet>
         </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
@@ -351,8 +471,7 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
                 <ScalarProperty Name="Password" ColumnName="Password" />
                 <ScalarProperty Name="Directory" ColumnName="Directory" />
                 <ScalarProperty Name="FilePattern" ColumnName="FilePattern" />
-                <ScalarProperty Name="DataMapID" ColumnName="DataMapID" />
-                <ScalarProperty Name="QueueLocation" ColumnName="QueueLocation" />
+                <ScalarProperty Name="Queue" ColumnName="Queue" />
                 <ScalarProperty Name="Custom" ColumnName="Custom" />
                 <ScalarProperty Name="Enabled" ColumnName="Enabled" />
                 <ScalarProperty Name="Created" ColumnName="Created" />
@@ -390,6 +509,16 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
                 <ScalarProperty Name="Map" ColumnName="Map" />
                 <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
                 <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="datamap_agent">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.datamap_agent">
+              <MappingFragment StoreEntitySet="datamap_agent">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="DataMapID" ColumnName="DataMapID" />
+                <ScalarProperty Name="AgentID" ColumnName="AgentID" />
+                <ScalarProperty Name="ProcessingOrder" ColumnName="ProcessingOrder" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
