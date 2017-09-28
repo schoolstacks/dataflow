@@ -30,6 +30,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "schema", "schema", "{EF12FA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server-components-data-access", "components\server-components-data-access\server-components-data-access.csproj", "{1DB45F34-FA44-4C37-A240-E7B139D1BAFB}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "db-dataflow", "components\db-dataflow\db-dataflow.sqlproj", "{46B021D3-6706-403E-AA0A-123500F60A1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,12 @@ Global
 		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46B021D3-6706-403E-AA0A-123500F60A1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46B021D3-6706-403E-AA0A-123500F60A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46B021D3-6706-403E-AA0A-123500F60A1F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{46B021D3-6706-403E-AA0A-123500F60A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46B021D3-6706-403E-AA0A-123500F60A1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46B021D3-6706-403E-AA0A-123500F60A1F}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,5 +95,6 @@ Global
 		{31270CFD-B32F-4071-8C99-667BE7845BEC} = {1E05F756-311F-42DD-A103-FD18E86D9A50}
 		{EF12FA5E-26F2-467E-84B9-61C2DC6230DE} = {B5629334-A329-4898-B88A-4BBF10EEC8BF}
 		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB} = {B5629334-A329-4898-B88A-4BBF10EEC8BF}
+		{46B021D3-6706-403E-AA0A-123500F60A1F} = {B5629334-A329-4898-B88A-4BBF10EEC8BF}
 	EndGlobalSection
 EndGlobal
