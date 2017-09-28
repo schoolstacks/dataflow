@@ -6,6 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using transform_api_load_janitor.DataMaps.Interfaces;
+using transform_api_load_janitor.DataMaps.Student;
 
 namespace transform_api_load_janitor
 {
@@ -43,9 +46,36 @@ namespace transform_api_load_janitor
                     case "M:Class Progress - Student":
                         DataMaps.Student.StudentDataMap studentDataMap =
                         Newtonsoft.Json.JsonConvert.DeserializeObject<DataMaps.Student.StudentDataMap>(singleDataMap.Map);
+
+                        ProcessDataMap<StudentDataMap>(JToken.Parse(singleDataMap.Map));
+                        //ProcessDataMap<StudentDataMap>(jStudentDataMap);
                         break;
                 }
             });
+        }
+
+        private static List<StudentDataMap> lstTest = new List<StudentDataMap>();
+        private static void ProcessDataMap<T>(JToken jStudentDataMap) where T: IDataMap
+        {
+            var jChildrenProperties = jStudentDataMap.Children<JProperty>();
+            foreach (var jSingleProperty in jChildrenProperties)
+            {
+                switch (jSingleProperty.Name)
+                {
+                    case "data-type":
+                        break;
+                    case "source":
+                        break;
+                    case "source-column":
+                        break;
+                    default:
+                        foreach(var jSingleChild in jSingleProperty.Children())
+                        {
+                            ProcessDataMap<T>(jSingleChild);
+                        }
+                        break;
+                }
+            }
         }
 
         private static void TransformFile(string filePath)
