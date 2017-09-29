@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using transform_api_load_janitor.DataMaps.Interfaces;
 using transform_api_load_janitor.DataMaps.Student;
 using server_components_data_access.Dataflow;
+using CsvHelper;
 
 namespace transform_api_load_janitor
 {
@@ -32,13 +33,13 @@ namespace transform_api_load_janitor
 
         private static void StartProcessing()
         {
-            using (server_components_data_access.Dataflow.DataFlowContext ctx = 
+            using (server_components_data_access.Dataflow.DataFlowContext ctx =
                 new server_components_data_access.Dataflow.DataFlowContext())
             {
                 var agents = ctx.agents.Include("datamap_agent").Include("datamap_agent.datamap").ToList();
                 foreach (var singleAgent in agents)
                 {
-                    foreach (var singleDataMapAgent in singleAgent.datamap_agent.OrderBy(p=>p.ProcessingOrder))
+                    foreach (var singleDataMapAgent in singleAgent.datamap_agent.OrderBy(p => p.ProcessingOrder))
                     {
                         var entity = singleDataMapAgent.datamap.entity;
                         ProcessEntity(entity: entity, dataMap: singleDataMapAgent.datamap, cloudFileUrl: "https://dataflow.file.core.windows.net/sample-files/set02/mcl-progress-monitoring.csv");
@@ -47,7 +48,8 @@ namespace transform_api_load_janitor
             }
         }
 
-        private static void ProcessEntity(entity entity,datamap dataMap, string cloudFileUrl)
+
+        private static void ProcessEntity(entity entity, datamap dataMap, string cloudFileUrl)
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
     Properties.Settings.Default.StorageConnectionString);
@@ -61,7 +63,7 @@ namespace transform_api_load_janitor
                 {
                     while (reader.Read())
                     {
-
+                        JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
                     }
                 }
 
@@ -69,52 +71,52 @@ namespace transform_api_load_janitor
 
         }
 
+        private static JToken ProcessCSVRow(entity entity, datamap dataMap, CsvReader reader)
+        {
+            JToken originalMap = JToken.Parse(dataMap.Map);
+            JToken result = originalMap.DeepClone();
+            TransformCSVRow(originalMap, ref result, reader);
+            return result;
+        }
+
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Console.WriteLine("An unhandled exception has occurred: " + ((Exception)e.ExceptionObject).ToString());
         }
 
-        private static void LoadDataflowConfiguration()
+        private static void TransformCSVRow(JToken originalMap, ref JToken outputData, CsvReader reader)
         {
-            using (server_components_data_access.Dataflow.DataFlowContext dfCtx = new server_components_data_access.Dataflow.DataFlowContext())
+            var jChildrenProperties = originalMap.Children<JProperty>();
+            string[] mappinHints = { "data-type", "source", "source-column" };
+            bool hasMappingHints = jChildrenProperties.Any(p => mappinHints.Contains(p.Name));
+            if (hasMappingHints)
             {
-                DataMapsList = dfCtx.datamaps.ToList();
-            }
-            DataMapsList.ForEach((singleDataMap) => 
-            {
-                switch (singleDataMap.Name)
+                var dataTypeField = jChildrenProperties.Where(p => p.Name == "data-type").FirstOrDefault();
+                var sourceField = jChildrenProperties.Where(p => p.Name == "source").FirstOrDefault();
+                var sourceColumnField = jChildrenProperties.Where(p => p.Name == "source-column").FirstOrDefault();
+                if (sourceField != null)
                 {
-                    case "M:Class Progress - Student":
-                        DataMaps.Student.StudentDataMap studentDataMap =
-                        Newtonsoft.Json.JsonConvert.DeserializeObject<DataMaps.Student.StudentDataMap>(singleDataMap.Map);
-
-                        ProcessDataMap<StudentDataMap>(JToken.Parse(singleDataMap.Map));
-                        //ProcessDataMap<StudentDataMap>(jStudentDataMap);
-                        break;
+                    switch (sourceField.Value.ToString())
+                    {
+                        case "column":
+                            string csvColumnName = sourceColumnField.Value.ToString();
+                            string csvValue = reader[csvColumnName];
+                            outputData[originalMap.Parent.Path] = csvValue;
+                            break;
+                        case "lookup_table":
+                            outputData[originalMap.Parent.Path] = "NOT IMPLEMENTED";
+                            break;
+                    }
                 }
-            });
-        }
-
-        private static List<StudentDataMap> lstTest = new List<StudentDataMap>();
-        private static void ProcessDataMap<T>(JToken jStudentDataMap) where T: IDataMap
-        {
-            var jChildrenProperties = jStudentDataMap.Children<JProperty>();
-            foreach (var jSingleProperty in jChildrenProperties)
+            }
+            else
             {
-                switch (jSingleProperty.Name)
+                foreach (var jSingleProperty in jChildrenProperties)
                 {
-                    case "data-type":
-                        break;
-                    case "source":
-                        break;
-                    case "source-column":
-                        break;
-                    default:
-                        foreach(var jSingleChild in jSingleProperty.Children())
-                        {
-                            ProcessDataMap<T>(jSingleChild);
-                        }
-                        break;
+                    foreach (var jSingleChild in jSingleProperty.Children())
+                    {
+                        TransformCSVRow(jSingleChild, ref outputData, reader);
+                    }
                 }
             }
         }
