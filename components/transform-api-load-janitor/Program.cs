@@ -47,7 +47,7 @@ namespace transform_api_load_janitor
             using (server_components_data_access.Dataflow.DataFlowContext ctx =
                 new server_components_data_access.Dataflow.DataFlowContext())
             {
-                List<server_components_data_access.Dataflow.log_ingestion> ingestionErrors = new List<log_ingestion>();
+                List<server_components_data_access.Dataflow.log_ingestion> lstIngestionMessages = new List<log_ingestion>();
                 var agents = ctx.agents.Include("datamap_agent").Include("datamap_agent.datamap").ToList();
                 MappingLookups = ctx.lookups.ToList();
                 foreach (var singleAgent in agents)
@@ -70,7 +70,7 @@ namespace transform_api_load_janitor
                 {
                     if (String.IsNullOrWhiteSpace(singleApiData.Key.Metadata))
                     {
-                        ingestionErrors.Add(new log_ingestion()
+                        lstIngestionMessages.Add(new log_ingestion()
                         {
                             Date = DateTime.UtcNow,
                             //Filename = singleApiData.Key
@@ -97,7 +97,17 @@ namespace transform_api_load_janitor
                                 break;
                             case System.Net.HttpStatusCode.Created:
                                 Console.WriteLine("Data Inserted on endpoint: {0}", endpointUrl);
-                                //record was inserted. No content message
+
+                                lstIngestionMessages.Add(new log_ingestion()
+                                {
+                                    Date = DateTime.UtcNow,
+                                    //Filename = singleApiData.Key
+                                    Result = "SUCCESS",
+                                    Message = string.Format("Record Created:\r\nData:\r\n{0}", singleApiData.Value.ToString()),
+                                    Level = "INFORMATION",
+                                    Operation = "TransformingData",
+                                    Process = "transform-api-load-janitor"
+                                });
                                 break;
                             default:
                                 string strError = await postResponse.Content.ReadAsStringAsync();
@@ -112,25 +122,25 @@ namespace transform_api_load_janitor
                                         Operation = "TransformingData",
                                         Process = "transform-api-load-janitor"
                                     };
-                                ingestionErrors.Add(singleIngestionError);
+                                lstIngestionMessages.Add(singleIngestionError);
                                 break;
                         }
                     }
-                }
-                if (ingestionErrors.Count > 0)
-                {
-                    try
+                    if (lstIngestionMessages.Count > 0)
                     {
-                        ctx.Configuration.AutoDetectChangesEnabled = true;
-                        ingestionErrors.ForEach((singleIngestionError) =>
+                        try
                         {
-                            ctx.log_ingestion.Add(singleIngestionError);
-                        });
-                        ctx.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
+                            lstIngestionMessages.ForEach((singleIngestionError) =>
+                            {
+                                ctx.log_ingestion.Add(singleIngestionError);
+                            });
+                            ctx.SaveChanges();
+                            lstIngestionMessages.Clear();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                        }
                     }
                 }
             }
