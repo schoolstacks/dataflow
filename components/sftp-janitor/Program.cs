@@ -90,6 +90,7 @@ namespace sftp_janitor
         {
             foreach (string file in fileList)
             {
+                string shortFileName = file.Substring(file.LastIndexOf('/') + 1);
                 SftpClient client = new SftpClient(agent.URL, agent.Username, agent.Password);
                 client.Connect();
                 MemoryStream stream = new MemoryStream();
@@ -103,11 +104,22 @@ namespace sftp_janitor
                     _log.Error("Azure file share does not exist as expected.");
                 } else
                 {
-                    CloudFileDirectory fileDirectoryRoot = fileShare.GetRootDirectoryReference();
-                    CloudFileDirectory fileAgentDirectory = fileDirectoryRoot.GetDirectoryReference(agent.Queue.ToString());
-                    fileAgentDirectory.CreateIfNotExists();
-                    CloudFile cloudFile = fileAgentDirectory.GetFileReference(file);
 
+                    try
+                    {
+                        CloudFileDirectory fileDirectoryRoot = fileShare.GetRootDirectoryReference();
+                        CloudFileDirectory fileAgentDirectory = fileDirectoryRoot.GetDirectoryReference(agent.Queue.ToString());
+                        fileAgentDirectory.CreateIfNotExists();
+                        CloudFile cloudFile = fileAgentDirectory.GetFileReference(shortFileName);
+                        cloudFile.UploadFromStream(stream);
+
+                        //TODO:  Log file success in log_ingestion   
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.Error("Unexpected error in TransferFilesFromSFTPToAzure for file: " + file + " on site: " + agent.URL, ex);
+                        //TODO:  Log file error in log_ingestion
+                    }          
                 }
             }
         }
