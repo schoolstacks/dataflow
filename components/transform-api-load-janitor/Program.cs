@@ -11,6 +11,7 @@ using transform_api_load_janitor.DataMaps.Interfaces;
 using transform_api_load_janitor.DataMaps.Student;
 using server_components_data_access.Dataflow;
 using CsvHelper;
+using System.Net.Http;
 
 namespace transform_api_load_janitor
 {
@@ -19,24 +20,36 @@ namespace transform_api_load_janitor
         private static List<server_components_data_access.Dataflow.datamap> DataMapsList { get; set; } = null;
         static void Main(string[] args)
         {
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-            watch.Start();
-            StartProcessing();
-            //LoadDataflowConfiguration();
-            //TransformFilesFromAzureFileStorage();
-            watch.Stop();
-            Console.WriteLine("Time Elapsed: {0}", watch.Elapsed.ToString());
-            Console.WriteLine("Press any key to continue");
-            Console.ReadKey();
+            try
+            {
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+                System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+                watch.Start();
+                var tsk = StartProcessing();
+                tsk.Wait();
+                //LoadDataflowConfiguration();
+                //TransformFilesFromAzureFileStorage();
+                watch.Stop();
+                Console.WriteLine("Time Elapsed: {0}", watch.Elapsed.ToString());
+                Console.WriteLine("Press any key to continue");
+                Console.ReadKey();
+            }
+            catch (AggregateException ex)
+            {
+
+            }
         }
 
-        private static void StartProcessing()
+        private static List<server_components_data_access.Dataflow.lookup> MappingLookups { get; set; }
+
+        private static async Task StartProcessing()
         {
             using (server_components_data_access.Dataflow.DataFlowContext ctx =
                 new server_components_data_access.Dataflow.DataFlowContext())
             {
+                List<server_components_data_access.Dataflow.log_ingestion> ingestionErrors = new List<log_ingestion>();
                 var agents = ctx.agents.Include("datamap_agent").Include("datamap_agent.datamap").ToList();
+                MappingLookups = ctx.lookups.ToList();
                 foreach (var singleAgent in agents)
                 {
                     foreach (var singleDataMapAgent in singleAgent.datamap_agent.OrderBy(p => p.ProcessingOrder))
@@ -45,8 +58,186 @@ namespace transform_api_load_janitor
                         ProcessEntity(entity: entity, dataMap: singleDataMapAgent.datamap, cloudFileUrl: "https://dataflow.file.core.windows.net/sample-files/set02/mcl-progress-monitoring.csv");
                     }
                 }
+                string authorizeUrl = GetAuthorizeUrl();
+                string accessTokenUrl = GetAccessTokenUrl();
+                string clientId = GetApiClientId();
+                string clientSecret = GetApiClientSecret();
+                string authCode = await RetrieveAuthorizationCode(authorizeUrl, clientId: clientId);
+                string accessToken = await RetrieveAccessToken(accessTokenUrl, clientId, clientSecret, authCode);
+                Console.WriteLine("Start of Api Insertion: {0} records", ApiData.Count);
+                int iCurrentRecord = 1;
+                foreach (var singleApiData in ApiData)
+                {
+                    if (String.IsNullOrWhiteSpace(singleApiData.Key.Metadata))
+                    {
+                        ingestionErrors.Add(new log_ingestion()
+                        {
+                            Date = DateTime.UtcNow,
+                            //Filename = singleApiData.Key
+                            Result = "ERROR",
+                            Message = string.Format("Entity has no Metadata. Entity ID: {0}", singleApiData.Key.ID),
+                            Level = "ERROR",
+                            Operation = "TransformingData",
+                            Process = "transform-api-load-janitor"
+                        });
+                        continue; // we will not process if we cannot read metadata
+                    }
+                    Console.WriteLine("Api Insertion Record: {0} of {1}", iCurrentRecord, ApiData.Count);
+                    iCurrentRecord++;
+                    string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata);
+                    using (HttpClient httpClient = new HttpClient())
+                    {
+                        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+                        StringContent strContent = new StringContent(singleApiData.Value.ToString());
+                        strContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                        var postResponse = await httpClient.PostAsync(endpointUrl, strContent);
+                        switch (postResponse.StatusCode)
+                        {
+                            case System.Net.HttpStatusCode.OK:
+                                break;
+                            case System.Net.HttpStatusCode.Created:
+                                Console.WriteLine("Data Inserted on endpoint: {0}", endpointUrl);
+                                //record was inserted. No content message
+                                break;
+                            default:
+                                string strError = await postResponse.Content.ReadAsStringAsync();
+                                var singleIngestionError =
+                                    new log_ingestion()
+                                    {
+                                        Date = DateTime.UtcNow,
+                                        //Filename = singleApiData.Key
+                                        Result = "ERROR",
+                                        Message = string.Format("Message: {0}\r\nData:\r\n{1}", strError, singleApiData.Value.ToString()),
+                                        Level = "ERROR",
+                                        Operation = "TransformingData",
+                                        Process = "transform-api-load-janitor"
+                                    };
+                                ingestionErrors.Add(singleIngestionError);
+                                break;
+                        }
+                    }
+                }
+                if (ingestionErrors.Count > 0)
+                {
+                    try
+                    {
+                        ctx.Configuration.AutoDetectChangesEnabled = true;
+                        ingestionErrors.ForEach((singleIngestionError) =>
+                        {
+                            ctx.log_ingestion.Add(singleIngestionError);
+                        });
+                        ctx.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+                }
             }
         }
+
+
+        private static string GetEnvironmentVariable(string name)
+        {
+            return System.Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User);
+        }
+
+        private static string GetApiBaseUrl()
+        {
+            return GetEnvironmentVariable("CloudOdsApiBaseUrl");
+        }
+        private static string GetAccessTokenUrl()
+        {
+            string baseUrl = GetApiBaseUrl();
+            return baseUrl +  "/oauth/token";
+        }
+
+        private static string GetAuthorizeUrl()
+        {
+            string baseUrl = GetApiBaseUrl();
+            return baseUrl +  "/oauth/authorize";
+        }
+
+        private static string GetApiClientSecret()
+        {
+            return GetEnvironmentVariable("CloudOdsApiClientSecret");
+        }
+
+        private static string GetApiClientId()
+        {
+            return GetEnvironmentVariable("CloudOdsApiClientId");
+        }
+
+        private static string RetrieveEndpointUrlFromMetadata(string metadata)
+        {
+            string strUrl = string.Empty;
+            try
+            {
+                JToken swaggerMetaData = JToken.Parse(metadata);
+                //string basePath = swaggerMetaData["basePath"].Value<string>();
+                string basePath = GetApiBaseUrl()+  "/api/v2.0/2017";
+                string resourcePath = swaggerMetaData["resourcePath"].Value<string>();
+                strUrl = string.Format("{0}{1}", basePath, resourcePath);
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return strUrl;
+        }
+
+        private static async Task<string> RetrieveAccessToken(string accessTokenUrl, string clientId, string clientSecret, string authCode)
+        {
+            string accessToken = string.Empty;
+            using (HttpClient httpClient = new HttpClient())
+            {
+                List<KeyValuePair<string, string>> lstParams = new List<KeyValuePair<string, string>>();
+                lstParams.Add(new KeyValuePair<string, string>("Client_id", clientId));
+                lstParams.Add(new KeyValuePair<string, string>("Client_secret", clientSecret));
+                lstParams.Add(new KeyValuePair<string, string>("Code", authCode));
+                lstParams.Add(new KeyValuePair<string, string>("Grant_type", "authorization_code"));
+                FormUrlEncodedContent contentParams = new FormUrlEncodedContent(lstParams);
+                var result = await httpClient.PostAsync(accessTokenUrl, contentParams);
+                switch (result.StatusCode)
+                {
+                    case System.Net.HttpStatusCode.OK:
+                        var jsonResult = await result.Content.ReadAsStringAsync();
+                        var jsonToken = JToken.Parse(jsonResult);
+                        accessToken = jsonToken["access_token"].ToString();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return accessToken;
+        }
+
+        private static async Task<string> RetrieveAuthorizationCode(string authorizeUrl, string clientId)
+        {
+            string code = string.Empty;
+            using (HttpClient httpClient = new HttpClient())
+            {
+                List<KeyValuePair<string, string>> lstParameters = new List<KeyValuePair<string, string>>();
+                lstParameters.Add(new KeyValuePair<string, string>("Client_id", clientId));
+                lstParameters.Add(new KeyValuePair<string, string>("Response_type", "code"));
+                FormUrlEncodedContent contentParams = new FormUrlEncodedContent(lstParameters);
+                var result = await httpClient.PostAsync(authorizeUrl, contentParams);
+                switch (result.StatusCode)
+                {
+                    case System.Net.HttpStatusCode.OK:
+                        var jsonResponse = await result.Content.ReadAsStringAsync();
+                        var jsonToken = JToken.Parse(jsonResponse);
+                        code = jsonToken["code"].ToString();
+                        break;
+                    default:
+                        throw new Exception(result.ReasonPhrase);
+                        break;
+                }
+            }
+            return code;
+        }
+
+        public static List<KeyValuePair<entity, JToken>> ApiData = new List<KeyValuePair<entity, JToken>>();
 
 
         private static void ProcessEntity(entity entity, datamap dataMap, string cloudFileUrl)
@@ -64,6 +255,9 @@ namespace transform_api_load_janitor
                     while (reader.Read())
                     {
                         JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
+                        ApiData.Add(
+                            new KeyValuePair<entity, JToken>(entity, generatedRow)
+                            );
                     }
                 }
 
@@ -93,6 +287,7 @@ namespace transform_api_load_janitor
             {
                 var dataTypeField = jChildrenProperties.Where(p => p.Name == "data-type").FirstOrDefault();
                 var sourceField = jChildrenProperties.Where(p => p.Name == "source").FirstOrDefault();
+                var sourceTable = jChildrenProperties.Where(p => p.Name == "source-table").FirstOrDefault();
                 var sourceColumnField = jChildrenProperties.Where(p => p.Name == "source-column").FirstOrDefault();
                 if (sourceField != null)
                 {
@@ -104,7 +299,8 @@ namespace transform_api_load_janitor
                             outputData[originalMap.Parent.Path] = csvValue;
                             break;
                         case "lookup_table":
-                            outputData[originalMap.Parent.Path] = "NOT IMPLEMENTED";
+                            //outputData[originalMap.Parent.Path] = "NOT IMPLEMENTED";
+                            outputData[originalMap.Parent.Path] = GetValueFromLookupTable(sourceTable.Value.ToString(), sourceColumnField.Value.ToString(), reader);
                             break;
                     }
                 }
@@ -119,6 +315,16 @@ namespace transform_api_load_janitor
                     }
                 }
             }
+        }
+
+        private static string GetValueFromLookupTable(string lookupTable, string lookupColumn, CsvReader csvRow)
+        {
+            string result = string.Empty;
+            string valueInCSV = csvRow[lookupColumn];
+            var matchingRecord = MappingLookups.Where(p => p.GroupSet == lookupTable && p.Key == valueInCSV).FirstOrDefault();
+            if (matchingRecord != null)
+                result = matchingRecord.Value;
+            return result;
         }
 
         private static void TransformFile(string filePath)

@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="EdFi_DataFlow_SandboxModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012.Azure" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="EdFi_DataFlow_SandboxModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012.Azure" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="agent">
           <Key>
             <PropertyRef Name="ID" />
@@ -105,16 +105,9 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' do
           <Property Name="Message" Type="varchar" MaxLength="4000" Nullable="false" />
           <Property Name="Exception" Type="varchar" MaxLength="2000" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="log_ingestion">
           <Key>
             <PropertyRef Name="ID" />
-            <PropertyRef Name="Level" />
-            <PropertyRef Name="Operation" />
-            <PropertyRef Name="Process" />
-            <PropertyRef Name="Result" />
-            <PropertyRef Name="Date" />
           </Key>
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="EducationOrganizationId" Type="uniqueidentifier" />
@@ -197,6 +190,7 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
           <EntitySet Name="datamap_agent" EntityType="Self.datamap_agent" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="entity" EntityType="Self.entity" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="file" EntityType="Self.file" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="log_ingestion" EntityType="Self.log_ingestion" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="lookup" EntityType="Self.lookup" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="statistic" EntityType="Self.statistic" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="log_application" EntityType="Self.log_application" store:Type="Tables" store:Schema="dataflow">
@@ -209,21 +203,6 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
     [log_application].[Message] AS [Message], 
     [log_application].[Exception] AS [Exception]
     FROM [dataflow].[log_application] AS [log_application]</DefiningQuery>
-          </EntitySet>
-          <EntitySet Name="log_ingestion" EntityType="Self.log_ingestion" store:Type="Tables" store:Schema="dataflow">
-            <DefiningQuery>SELECT 
-    [log_ingestion].[ID] AS [ID], 
-    [log_ingestion].[EducationOrganizationId] AS [EducationOrganizationId], 
-    [log_ingestion].[Level] AS [Level], 
-    [log_ingestion].[Operation] AS [Operation], 
-    [log_ingestion].[AgentID] AS [AgentID], 
-    [log_ingestion].[Process] AS [Process], 
-    [log_ingestion].[Filename] AS [Filename], 
-    [log_ingestion].[Result] AS [Result], 
-    [log_ingestion].[Message] AS [Message], 
-    [log_ingestion].[RecordCount] AS [RecordCount], 
-    [log_ingestion].[Date] AS [Date]
-    FROM [dataflow].[log_ingestion] AS [log_ingestion]</DefiningQuery>
           </EntitySet>
           <AssociationSet Name="FK_datamap_agent_agent" Association="Self.FK_datamap_agent_agent">
             <End Role="agent" EntitySet="agent" />
@@ -238,8 +217,7 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
             <End Role="datamap" EntitySet="datamap" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="EdFi_DataFlow_SandboxModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -372,27 +350,6 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
           <Property Name="Message" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="Exception" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="log_ingestion">
-          <Key>
-            <PropertyRef Name="ID" />
-            <PropertyRef Name="Level" />
-            <PropertyRef Name="Operation" />
-            <PropertyRef Name="Process" />
-            <PropertyRef Name="Result" />
-            <PropertyRef Name="Date" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="EducationOrganizationId" Type="Guid" />
-          <Property Name="Level" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="Operation" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="AgentID" Type="Int32" />
-          <Property Name="Process" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="Filename" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="Result" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="Message" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="RecordCount" Type="Int32" />
-          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
-        </EntityType>
         <Association Name="FK_datamap_agent_agent">
           <End Role="agent" Type="Self.agent" Multiplicity="1" />
           <End Role="datamap_agent" Type="Self.datamap_agent" Multiplicity="*" />
@@ -440,7 +397,6 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
           <EntitySet Name="lookups" EntityType="Self.lookup" />
           <EntitySet Name="statistics" EntityType="Self.statistic" />
           <EntitySet Name="log_application" EntityType="Self.log_application" />
-          <EntitySet Name="log_ingestion" EntityType="Self.log_ingestion" />
           <AssociationSet Name="FK_datamap_agent_agent" Association="Self.FK_datamap_agent_agent">
             <End Role="agent" EntitySet="agents" />
             <End Role="datamap_agent" EntitySet="datamap_agent" />
@@ -453,7 +409,24 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
             <End Role="entity" EntitySet="entities" />
             <End Role="datamap" EntitySet="datamaps" />
           </AssociationSet>
+          <EntitySet Name="log_ingestion" EntityType="EdFi_DataFlow_SandboxModel.log_ingestion" />
         </EntityContainer>
+        <EntityType Name="log_ingestion">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EducationOrganizationId" Type="Guid" />
+          <Property Name="Level" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Operation" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="AgentID" Type="Int32" />
+          <Property Name="Process" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Filename" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Result" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Message" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="RecordCount" Type="Int32" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -591,17 +564,17 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_ingestion' does
           <EntitySetMapping Name="log_ingestion">
             <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.log_ingestion">
               <MappingFragment StoreEntitySet="log_ingestion">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="EducationOrganizationId" ColumnName="EducationOrganizationId" />
-                <ScalarProperty Name="Level" ColumnName="Level" />
-                <ScalarProperty Name="Operation" ColumnName="Operation" />
-                <ScalarProperty Name="AgentID" ColumnName="AgentID" />
-                <ScalarProperty Name="Process" ColumnName="Process" />
-                <ScalarProperty Name="Filename" ColumnName="Filename" />
-                <ScalarProperty Name="Result" ColumnName="Result" />
-                <ScalarProperty Name="Message" ColumnName="Message" />
-                <ScalarProperty Name="RecordCount" ColumnName="RecordCount" />
                 <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="RecordCount" ColumnName="RecordCount" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="Result" ColumnName="Result" />
+                <ScalarProperty Name="Filename" ColumnName="Filename" />
+                <ScalarProperty Name="Process" ColumnName="Process" />
+                <ScalarProperty Name="AgentID" ColumnName="AgentID" />
+                <ScalarProperty Name="Operation" ColumnName="Operation" />
+                <ScalarProperty Name="Level" ColumnName="Level" />
+                <ScalarProperty Name="EducationOrganizationId" ColumnName="EducationOrganizationId" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
