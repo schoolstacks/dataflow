@@ -41,6 +41,7 @@ namespace transform_api_load_janitor
         }
 
         private static List<server_components_data_access.Dataflow.lookup> MappingLookups { get; set; }
+        private static List<KeyValuePair<string, string>> InsertedIds { get; set; } = new List<KeyValuePair<string, string>>();
 
         private static async Task StartProcessing()
         {
@@ -88,16 +89,38 @@ namespace transform_api_load_janitor
                     using (HttpClient httpClient = new HttpClient())
                     {
                         httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+                        string strId = string.Empty;
+                        string strIdName = string.Empty;
+                        switch (singleApiData.Key.Name)
+                        {
+                            case "students":
+                                strIdName = "studentUniqueId";
+                                strId = singleApiData.Value[strIdName].ToString();
+                                break;
+                            default:
+                                break;
+                        }
                         StringContent strContent = new StringContent(singleApiData.Value.ToString());
                         strContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-                        var postResponse = await httpClient.PostAsync(endpointUrl, strContent);
-                        switch (postResponse.StatusCode)
+                        HttpResponseMessage response = null;
+                        if (!string.IsNullOrWhiteSpace(strIdName) && !string.IsNullOrWhiteSpace(strId))
+                        {
+                            var recordExistsResult = await RecordExists(strIdName, strId, endpointUrl, accessToken);
+                            if (recordExistsResult.Key == false)
+                                response = await httpClient.PostAsync(endpointUrl, strContent);
+                            else
+                            {
+                                endpointUrl += string.Format("?{0}={1}", strIdName, recordExistsResult.Value);
+                                response = await httpClient.PutAsync(endpointUrl, strContent);
+                            }
+                        }
+                        switch (response.StatusCode)
                         {
                             case System.Net.HttpStatusCode.OK:
                                 break;
                             case System.Net.HttpStatusCode.Created:
                                 Console.WriteLine("Data Inserted on endpoint: {0}", endpointUrl);
-
+                                InsertedIds.Add(new KeyValuePair<string, string>(strIdName, strId));
                                 lstIngestionMessages.Add(new log_ingestion()
                                 {
                                     Date = DateTime.UtcNow,
@@ -110,7 +133,7 @@ namespace transform_api_load_janitor
                                 });
                                 break;
                             default:
-                                string strError = await postResponse.Content.ReadAsStringAsync();
+                                string strError = await response.Content.ReadAsStringAsync();
                                 var singleIngestionError =
                                     new log_ingestion()
                                     {
@@ -146,6 +169,27 @@ namespace transform_api_load_janitor
             }
         }
 
+        private static async Task<KeyValuePair<bool, string>> RecordExists(string strIdName, string strId, string endpointUrl, string accessToken)
+        {
+            bool result = false;
+            string recordId = string.Empty;
+            using (HttpClient httpClient = new HttpClient())
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+                string endpontUrlWithQueryString = endpointUrl + String.Format("?{0}={1}", strIdName, strId);
+                var response = await httpClient.GetAsync(endpontUrlWithQueryString);
+                switch (response.StatusCode)
+                {
+                    case System.Net.HttpStatusCode.OK:
+                        result = true;
+                        string jsonResult = await response.Content.ReadAsStringAsync();
+                        var jToken = JToken.Parse(jsonResult);
+                        recordId = jToken[strIdName].Value<string>();
+                        break;
+                }
+            }
+            return new KeyValuePair<bool, string>(result, recordId);
+        }
 
         private static string GetEnvironmentVariable(string name)
         {
@@ -159,13 +203,13 @@ namespace transform_api_load_janitor
         private static string GetAccessTokenUrl()
         {
             string baseUrl = GetApiBaseUrl();
-            return baseUrl +  "/oauth/token";
+            return baseUrl + "/oauth/token";
         }
 
         private static string GetAuthorizeUrl()
         {
             string baseUrl = GetApiBaseUrl();
-            return baseUrl +  "/oauth/authorize";
+            return baseUrl + "/oauth/authorize";
         }
 
         private static string GetApiClientSecret()
@@ -185,7 +229,7 @@ namespace transform_api_load_janitor
             {
                 JToken swaggerMetaData = JToken.Parse(metadata);
                 //string basePath = swaggerMetaData["basePath"].Value<string>();
-                string basePath = GetApiBaseUrl()+  "/api/v2.0/2017";
+                string basePath = GetApiBaseUrl() + "/api/v2.0/2017";
                 string resourcePath = swaggerMetaData["resourcePath"].Value<string>();
                 strUrl = string.Format("{0}{1}", basePath, resourcePath);
             }
