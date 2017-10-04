@@ -53,11 +53,8 @@ namespace transform_api_load_janitor
                 MappingLookups = ctx.lookups.ToList();
                 foreach (var singleAgent in agents)
                 {
-                    foreach (var singleDataMapAgent in singleAgent.datamap_agent.OrderBy(p => p.ProcessingOrder))
-                    {
-                        var entity = singleDataMapAgent.datamap.entity;
-                        ProcessEntity(entity: entity, dataMap: singleDataMapAgent.datamap, cloudFileUrl: "https://dataflow.file.core.windows.net/sample-files/set02/mcl-progress-monitoring.csv");
-                    }
+                    var dataMapAgents = singleAgent.datamap_agent.OrderBy(p => p.ProcessingOrder);
+                    ProcessDataMapAgent(dataMapAgents, cloudFileUrl: "https://dataflow.file.core.windows.net/sample-files/set02/mcl-progress-monitoring.csv");
                 }
                 string authorizeUrl = GetAuthorizeUrl();
                 string accessTokenUrl = GetAccessTokenUrl();
@@ -86,6 +83,7 @@ namespace transform_api_load_janitor
                     Console.WriteLine("Api Insertion Record: {0} of {1}", iCurrentRecord, ApiData.Count);
                     iCurrentRecord++;
                     string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata);
+                    HttpMethod method = HttpMethod.Post;
                     using (HttpClient httpClient = new HttpClient())
                     {
                         httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
@@ -97,6 +95,28 @@ namespace transform_api_load_janitor
                                 strIdName = "studentUniqueId";
                                 strId = singleApiData.Value[strIdName].ToString();
                                 break;
+                            //case "studentAssessments":
+                            //    break;
+                            //case "studentSchoolAssociations":
+                            //    break;
+                            //case "studentSectionAssociations":
+                            //    break;
+                            //case "staffs":
+                            //    break;
+                            //case "assessments":
+                            //    break;
+                            //case "staffSchoolAssociations":
+                            //    break;
+                            //case "staffSectionAssociations":
+                            //    break;
+                            //case "schools":
+                            //    break;
+                            //case "localEducationAgencies":
+                            //    break;
+                            //case "sections":
+                            //    break;
+                            //case "assessmentItem":
+                            //    break;
                             default:
                                 break;
                         }
@@ -107,12 +127,21 @@ namespace transform_api_load_janitor
                         {
                             var recordExistsResult = await RecordExists(strIdName, strId, endpointUrl, accessToken);
                             if (recordExistsResult.Key == false)
+                            {
+                                method = HttpMethod.Post;
                                 response = await httpClient.PostAsync(endpointUrl, strContent);
+                            }
                             else
                             {
+                                method = HttpMethod.Put;
                                 endpointUrl += string.Format("?{0}={1}", strIdName, recordExistsResult.Value);
                                 response = await httpClient.PutAsync(endpointUrl, strContent);
                             }
+                        }
+                        else
+                        {
+                            method = HttpMethod.Post;
+                            response = await httpClient.PostAsync(endpointUrl, strContent);
                         }
                         switch (response.StatusCode)
                         {
@@ -140,7 +169,7 @@ namespace transform_api_load_janitor
                                         Date = DateTime.UtcNow,
                                         //Filename = singleApiData.Key
                                         Result = "ERROR",
-                                        Message = string.Format("Message: {0}\r\nData:\r\n{1}", strError, singleApiData.Value.ToString()),
+                                        Message = string.Format("Message: {0}. Method:{1}. EndPoint Url: {2}\r\nData:\r\n{3}", strError, method.Method, endpointUrl, singleApiData.Value.ToString()),
                                         Level = "ERROR",
                                         Operation = "TransformingData",
                                         Process = "transform-api-load-janitor"
@@ -185,6 +214,12 @@ namespace transform_api_load_janitor
                         string jsonResult = await response.Content.ReadAsStringAsync();
                         var jToken = JToken.Parse(jsonResult);
                         recordId = jToken[strIdName].Value<string>();
+                        break;
+                    case System.Net.HttpStatusCode.NotFound:
+                        result = false;
+                        break;
+                    default:
+                        var message = await response.Content.ReadAsStringAsync();
                         break;
                 }
             }
@@ -294,7 +329,7 @@ namespace transform_api_load_janitor
         public static List<KeyValuePair<entity, JToken>> ApiData = new List<KeyValuePair<entity, JToken>>();
 
 
-        private static void ProcessEntity(entity entity, datamap dataMap, string cloudFileUrl)
+        private static void ProcessDataMapAgent(IOrderedEnumerable<datamap_agent> dataMapAgents, string cloudFileUrl)
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
     Properties.Settings.Default.StorageConnectionString);
@@ -308,10 +343,18 @@ namespace transform_api_load_janitor
                 {
                     while (reader.Read())
                     {
-                        JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
-                        ApiData.Add(
-                            new KeyValuePair<entity, JToken>(entity, generatedRow)
-                            );
+                        foreach (var singleDataMapAgent in dataMapAgents)
+                        {
+                            var entity = singleDataMapAgent.datamap.entity;
+                            //if (entity.Name != "studentAssessments")
+                            //if (entity.Name != "students")
+                            //continue;
+                            var dataMap = singleDataMapAgent.datamap;
+                            JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
+                            ApiData.Add(
+                                new KeyValuePair<entity, JToken>(entity, generatedRow)
+                                );
+                        }
                     }
                 }
 
@@ -335,7 +378,7 @@ namespace transform_api_load_janitor
         private static void TransformCSVRow(JToken originalMap, ref JToken outputData, CsvReader reader)
         {
             var jChildrenProperties = originalMap.Children<JProperty>();
-            string[] mappinHints = { "data-type", "source", "source-column" };
+            string[] mappinHints = { "data-type", "source", "source-column", "source-table", "value" };
             bool hasMappingHints = jChildrenProperties.Any(p => mappinHints.Contains(p.Name));
             if (hasMappingHints)
             {
@@ -343,18 +386,57 @@ namespace transform_api_load_janitor
                 var sourceField = jChildrenProperties.Where(p => p.Name == "source").FirstOrDefault();
                 var sourceTable = jChildrenProperties.Where(p => p.Name == "source-table").FirstOrDefault();
                 var sourceColumnField = jChildrenProperties.Where(p => p.Name == "source-column").FirstOrDefault();
+                var valueField = jChildrenProperties.Where(p => p.Name == "value").FirstOrDefault();
                 if (sourceField != null)
                 {
+                    JToken initialOutputData = null;
+                    string[] splittedPath = null;
+                    splittedPath = originalMap.Path.Split('.');
+                    if (splittedPath.Length > 0)
+                    {
+                        initialOutputData = RetrieveValueBySplittingPath(outputData, splittedPath);
+                    }
                     switch (sourceField.Value.ToString())
                     {
                         case "column":
                             string csvColumnName = sourceColumnField.Value.ToString();
                             string csvValue = reader[csvColumnName];
-                            outputData[originalMap.Parent.Path] = csvValue;
+                            if (splittedPath.Length > 0)
+                            {
+                                initialOutputData[splittedPath[splittedPath.Length - 1]] = ConvertDataType(dataTypeField, csvValue);
+                            }
+                            else
+                            {
+                                outputData[originalMap.Parent.Path] = ConvertDataType(dataTypeField, csvValue);
+                            }
                             break;
                         case "lookup_table":
+                        case "lookup-table":
                             //outputData[originalMap.Parent.Path] = "NOT IMPLEMENTED";
-                            outputData[originalMap.Parent.Path] = GetValueFromLookupTable(sourceTable.Value.ToString(), sourceColumnField.Value.ToString(), reader);
+                            if (splittedPath.Length > 0)
+                            {
+                                initialOutputData[splittedPath[splittedPath.Length - 1]] = 
+                                    ConvertDataType(dataTypeField,
+                                    GetValueFromLookupTable(sourceTable.Value.ToString(), sourceColumnField.Value.ToString(), reader));
+                            }
+                            else
+                            {
+                                outputData[originalMap.Parent.Path] = 
+                                    ConvertDataType(dataTypeField,
+                                    GetValueFromLookupTable(sourceTable.Value.ToString(), sourceColumnField.Value.ToString(), reader));
+                            }
+                            break;
+                        case "static":
+                            if (splittedPath.Length > 0)
+                            {
+                                initialOutputData[splittedPath[splittedPath.Length - 1]] = ConvertDataType(dataTypeField, valueField.Value.ToString());
+                            }
+                            else
+                            {
+                                outputData[originalMap.Parent.Path] = ConvertDataType(dataTypeField, valueField.Value.ToString());
+                            }
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -363,6 +445,10 @@ namespace transform_api_load_janitor
             {
                 foreach (var jSingleProperty in jChildrenProperties)
                 {
+                    if (jSingleProperty.Type == JTokenType.Array)
+                    {
+
+                    }
                     foreach (var jSingleChild in jSingleProperty.Children())
                     {
                         TransformCSVRow(jSingleChild, ref outputData, reader);
@@ -371,11 +457,60 @@ namespace transform_api_load_janitor
             }
         }
 
+        private static JToken ConvertDataType(JProperty dataTypeField, string csvValue)
+        {
+            object result = null;
+            if (dataTypeField != null)
+            {
+                switch (dataTypeField.Value.ToString())
+                {
+                    case "string":
+                        result = csvValue;
+                        break;
+                    case "integer":
+                        result= Convert.ToInt32(csvValue);
+                        break;
+                    case "date-time":
+                        result = csvValue;
+                        break;
+                    case "boolean":
+                        try
+                        {
+                            result = Convert.ToBoolean(csvValue);
+                        }
+                        catch (Exception bConvEx)
+                        {
+                            result = csvValue;
+                        }
+                        break;
+                    default:
+                        Console.WriteLine("");
+
+                        break;
+                }
+            }
+            else
+                result = csvValue;
+            return JToken.FromObject(result);
+        }
+
+        private static JToken RetrieveValueBySplittingPath(JToken outputData, string[] splittedPath)
+        {
+            var initialOutputData = outputData;
+            for (int i = 0; i < splittedPath.Length; i++)
+            {
+                if (i < splittedPath.Length - 1)
+                    initialOutputData = initialOutputData[splittedPath[i]];
+            }
+
+            return initialOutputData;
+        }
+
         private static string GetValueFromLookupTable(string lookupTable, string lookupColumn, CsvReader csvRow)
         {
             string result = string.Empty;
             string valueInCSV = csvRow[lookupColumn];
-            var matchingRecord = MappingLookups.Where(p => p.GroupSet == lookupTable && p.Key == valueInCSV).FirstOrDefault();
+            var matchingRecord = MappingLookups.Where(p => p.GroupSet == lookupTable && p.Key.Trim() == valueInCSV).FirstOrDefault();
             if (matchingRecord != null)
                 result = matchingRecord.Value;
             return result;
