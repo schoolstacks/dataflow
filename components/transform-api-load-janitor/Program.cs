@@ -375,8 +375,19 @@ namespace transform_api_load_janitor
             Console.WriteLine("An unhandled exception has occurred: " + ((Exception)e.ExceptionObject).ToString());
         }
 
-        private static void TransformCSVRow(JToken originalMap, ref JToken outputData, CsvReader reader)
+        private static void TransformCSVRow(JToken originalMap, ref JToken outputData, CsvReader reader,
+            int? posInArray = null, JArray originalArray = null)
         {
+            if (originalMap.Type == JTokenType.Array)
+            {
+                JArray jArray = JArray.FromObject(originalMap);
+                int iPos = 0;
+                foreach (var singleItem in jArray)
+                {
+                    TransformCSVRow(singleItem, ref outputData, reader, posInArray: iPos, originalArray: jArray );
+                    iPos++;
+                }
+            }
             var jChildrenProperties = originalMap.Children<JProperty>();
             string[] mappinHints = { "data-type", "source", "source-column", "source-table", "value" };
             bool hasMappingHints = jChildrenProperties.Any(p => mappinHints.Contains(p.Name));
@@ -387,6 +398,7 @@ namespace transform_api_load_janitor
                 var sourceTable = jChildrenProperties.Where(p => p.Name == "source-table").FirstOrDefault();
                 var sourceColumnField = jChildrenProperties.Where(p => p.Name == "source-column").FirstOrDefault();
                 var valueField = jChildrenProperties.Where(p => p.Name == "value").FirstOrDefault();
+                var defaultValueField = jChildrenProperties.Where(p => p.Name == "default").FirstOrDefault();
                 if (sourceField != null)
                 {
                     JToken initialOutputData = null;
@@ -394,46 +406,85 @@ namespace transform_api_load_janitor
                     splittedPath = originalMap.Path.Split('.');
                     if (splittedPath.Length > 0)
                     {
-                        initialOutputData = RetrieveValueBySplittingPath(outputData, splittedPath);
+                        try
+                        {
+                            if (posInArray.HasValue && originalArray != null)
+                            {
+                                var t = originalArray.SelectToken(originalMap.Path);
+                                initialOutputData = t.Parent;
+                            }
+                            else
+                            {
+                                initialOutputData = RetrieveValueBySplittingPath(outputData, splittedPath);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
                     }
                     switch (sourceField.Value.ToString())
                     {
                         case "column":
                             string csvColumnName = sourceColumnField.Value.ToString();
                             string csvValue = reader[csvColumnName];
-                            if (splittedPath.Length > 0)
+                            if (originalArray != null)
                             {
-                                initialOutputData[splittedPath[splittedPath.Length - 1]] = ConvertDataType(dataTypeField, csvValue);
+                                JProperty prop = (JProperty)JProperty.FromObject(initialOutputData);
+                                prop.Value = ConvertDataType(dataTypeField, csvValue, defaultValueField);
                             }
                             else
                             {
-                                outputData[originalMap.Parent.Path] = ConvertDataType(dataTypeField, csvValue);
+                                if (splittedPath.Length > 0)
+                                {
+                                    initialOutputData[splittedPath[splittedPath.Length - 1]] = ConvertDataType(dataTypeField, csvValue, defaultValueField);
+                                }
+                                else
+                                {
+                                    outputData[originalMap.Parent.Path] = ConvertDataType(dataTypeField, csvValue, defaultValueField);
+                                }
                             }
                             break;
                         case "lookup_table":
                         case "lookup-table":
-                            //outputData[originalMap.Parent.Path] = "NOT IMPLEMENTED";
-                            if (splittedPath.Length > 0)
+                            if (originalArray != null)
                             {
-                                initialOutputData[splittedPath[splittedPath.Length - 1]] = 
-                                    ConvertDataType(dataTypeField,
-                                    GetValueFromLookupTable(sourceTable.Value.ToString(), sourceColumnField.Value.ToString(), reader));
+                                JProperty prop = (JProperty)JProperty.FromObject(initialOutputData);
+                                prop.Value = ConvertDataType(dataTypeField,
+                                        GetValueFromLookupTable(sourceTable.Value.ToString(), sourceColumnField.Value.ToString(), reader), defaultValueField);
                             }
                             else
                             {
-                                outputData[originalMap.Parent.Path] = 
-                                    ConvertDataType(dataTypeField,
-                                    GetValueFromLookupTable(sourceTable.Value.ToString(), sourceColumnField.Value.ToString(), reader));
+                                if (splittedPath.Length > 0)
+                                {
+                                    initialOutputData[splittedPath[splittedPath.Length - 1]] =
+                                        ConvertDataType(dataTypeField,
+                                        GetValueFromLookupTable(sourceTable.Value.ToString(), sourceColumnField.Value.ToString(), reader), defaultValueField);
+                                }
+                                else
+                                {
+                                    outputData[originalMap.Parent.Path] =
+                                        ConvertDataType(dataTypeField,
+                                        GetValueFromLookupTable(sourceTable.Value.ToString(), sourceColumnField.Value.ToString(), reader), defaultValueField);
+                                }
                             }
                             break;
                         case "static":
-                            if (splittedPath.Length > 0)
+                            if (originalArray != null)
                             {
-                                initialOutputData[splittedPath[splittedPath.Length - 1]] = ConvertDataType(dataTypeField, valueField.Value.ToString());
+                                JProperty prop = (JProperty)JProperty.FromObject(initialOutputData);
+                                prop.Value = ConvertDataType(dataTypeField, valueField.Value.ToString(), defaultValueField);
                             }
                             else
                             {
-                                outputData[originalMap.Parent.Path] = ConvertDataType(dataTypeField, valueField.Value.ToString());
+                                if (splittedPath.Length > 0)
+                                {
+                                    initialOutputData[splittedPath[splittedPath.Length - 1]] = ConvertDataType(dataTypeField, valueField.Value.ToString(), defaultValueField);
+                                }
+                                else
+                                {
+                                    outputData[originalMap.Parent.Path] = ConvertDataType(dataTypeField, valueField.Value.ToString(), defaultValueField);
+                                }
                             }
                             break;
                         default:
@@ -451,13 +502,13 @@ namespace transform_api_load_janitor
                     }
                     foreach (var jSingleChild in jSingleProperty.Children())
                     {
-                        TransformCSVRow(jSingleChild, ref outputData, reader);
+                        TransformCSVRow(jSingleChild, ref outputData, reader, posInArray: posInArray, originalArray: originalArray);
                     }
                 }
             }
         }
 
-        private static JToken ConvertDataType(JProperty dataTypeField, string csvValue)
+        private static JToken ConvertDataType(JProperty dataTypeField, string csvValue, JProperty defaultValueField)
         {
             object result = null;
             if (dataTypeField != null)
@@ -484,13 +535,17 @@ namespace transform_api_load_janitor
                         }
                         break;
                     default:
-                        Console.WriteLine("");
-
                         break;
                 }
             }
             else
                 result = csvValue;
+            if (
+                (result == null || (result != null && String.IsNullOrWhiteSpace(result.ToString()))) && 
+                defaultValueField != null)
+            {
+                result = defaultValueField.Value.ToString();
+            }
             return JToken.FromObject(result);
         }
 
