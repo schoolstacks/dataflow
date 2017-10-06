@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server-components-data-acce
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "db-dataflow", "components\db-dataflow\db-dataflow.sqlproj", "{46B021D3-6706-403E-AA0A-123500F60A1F}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "chrome-extension-receiver", "components\chrome-extension-receiver\chrome-extension-receiver.xproj", "{F799CB6E-3F2C-497F-B5FD-02ECD4A69DF5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,10 @@ Global
 		{46B021D3-6706-403E-AA0A-123500F60A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46B021D3-6706-403E-AA0A-123500F60A1F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{46B021D3-6706-403E-AA0A-123500F60A1F}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{F799CB6E-3F2C-497F-B5FD-02ECD4A69DF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F799CB6E-3F2C-497F-B5FD-02ECD4A69DF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F799CB6E-3F2C-497F-B5FD-02ECD4A69DF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F799CB6E-3F2C-497F-B5FD-02ECD4A69DF5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -96,5 +102,6 @@ Global
 		{EF12FA5E-26F2-467E-84B9-61C2DC6230DE} = {B5629334-A329-4898-B88A-4BBF10EEC8BF}
 		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB} = {B5629334-A329-4898-B88A-4BBF10EEC8BF}
 		{46B021D3-6706-403E-AA0A-123500F60A1F} = {B5629334-A329-4898-B88A-4BBF10EEC8BF}
+		{F799CB6E-3F2C-497F-B5FD-02ECD4A69DF5} = {B5629334-A329-4898-B88A-4BBF10EEC8BF}
 	EndGlobalSection
 EndGlobal
