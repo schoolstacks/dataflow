@@ -347,8 +347,16 @@ namespace transform_api_load_janitor
                         {
                             var entity = singleDataMapAgent.datamap.entity;
                             //if (entity.Name != "studentAssessments")
+                            //    continue;
+                            //if (entity.Name != "studentAssessments")
                             //if (entity.Name != "students")
                             //continue;
+                            if (entity.Name != "assessments")
+                                continue;
+                            //if (entity.Name != "studentAssessments")
+                            //    continue;
+                            //if (entity.Name == "students")
+                            //    continue;
                             var dataMap = singleDataMapAgent.datamap;
                             JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
                             ApiData.Add(
@@ -376,7 +384,7 @@ namespace transform_api_load_janitor
         }
 
         private static void TransformCSVRow(JToken originalMap, ref JToken outputData, CsvReader reader,
-            int? posInArray = null, JArray originalArray = null)
+            JArray originalArray = null, bool? hasArrayElementBeingProcessed = null, string arrayItemName = null, int? arrayPos = null)
         {
             if (originalMap.Type == JTokenType.Array)
             {
@@ -384,7 +392,7 @@ namespace transform_api_load_janitor
                 int iPos = 0;
                 foreach (var singleItem in jArray)
                 {
-                    TransformCSVRow(singleItem, ref outputData, reader, posInArray: iPos, originalArray: jArray );
+                    TransformCSVRow(singleItem, ref outputData, reader, originalArray: jArray, hasArrayElementBeingProcessed: hasArrayElementBeingProcessed, arrayItemName: originalMap.Path, arrayPos:iPos);
                     iPos++;
                 }
             }
@@ -408,10 +416,12 @@ namespace transform_api_load_janitor
                     {
                         try
                         {
-                            if (posInArray.HasValue && originalArray != null)
+                            if (originalArray != null && hasArrayElementBeingProcessed.GetValueOrDefault() == false)
                             {
-                                var t = originalArray.SelectToken(originalMap.Path);
+                                string path = string.Format("{0}{1}", arrayItemName, originalMap.Path);
+                                var t = outputData.SelectToken(path);
                                 initialOutputData = t.Parent;
+                                hasArrayElementBeingProcessed = true;
                             }
                             else
                             {
@@ -428,16 +438,33 @@ namespace transform_api_load_janitor
                         case "column":
                             string csvColumnName = sourceColumnField.Value.ToString();
                             string csvValue = reader[csvColumnName];
-                            if (originalArray != null)
+                            if (originalArray != null && hasArrayElementBeingProcessed.GetValueOrDefault() == false)
                             {
-                                JProperty prop = (JProperty)JProperty.FromObject(initialOutputData);
+                                JProperty parentProperty = (JProperty)originalMap.Parent;
+                                JProperty prop = (JProperty)initialOutputData;
                                 prop.Value = ConvertDataType(dataTypeField, csvValue, defaultValueField);
+                                hasArrayElementBeingProcessed = true;
                             }
                             else
                             {
                                 if (splittedPath.Length > 0)
                                 {
-                                    initialOutputData[splittedPath[splittedPath.Length - 1]] = ConvertDataType(dataTypeField, csvValue, defaultValueField);
+                                    try
+                                    {
+                                        if (initialOutputData.Type == JTokenType.Property)
+                                        {
+                                            JProperty prop = (JProperty)initialOutputData;
+                                            prop.Value = ConvertDataType(dataTypeField, csvValue, defaultValueField);
+                                        }
+                                        else
+                                        {
+                                            initialOutputData[splittedPath[splittedPath.Length - 1]] = ConvertDataType(dataTypeField, csvValue, defaultValueField);
+                                        }
+                                    }
+                                    catch (Exception ex1)
+                                    {
+
+                                    }
                                 }
                                 else
                                 {
@@ -447,19 +474,29 @@ namespace transform_api_load_janitor
                             break;
                         case "lookup_table":
                         case "lookup-table":
-                            if (originalArray != null)
+                            if (originalArray != null && hasArrayElementBeingProcessed.GetValueOrDefault() == false)
                             {
                                 JProperty prop = (JProperty)JProperty.FromObject(initialOutputData);
                                 prop.Value = ConvertDataType(dataTypeField,
                                         GetValueFromLookupTable(sourceTable.Value.ToString(), sourceColumnField.Value.ToString(), reader), defaultValueField);
+                                hasArrayElementBeingProcessed = true;
                             }
                             else
                             {
                                 if (splittedPath.Length > 0)
                                 {
-                                    initialOutputData[splittedPath[splittedPath.Length - 1]] =
-                                        ConvertDataType(dataTypeField,
-                                        GetValueFromLookupTable(sourceTable.Value.ToString(), sourceColumnField.Value.ToString(), reader), defaultValueField);
+                                    if (initialOutputData.Type == JTokenType.Property)
+                                    {
+                                        JProperty prop = (JProperty)initialOutputData;
+                                        prop.Value = ConvertDataType(dataTypeField,
+                                            GetValueFromLookupTable(sourceTable.Value.ToString(), sourceColumnField.Value.ToString(), reader), defaultValueField);
+                                    }
+                                    else
+                                    {
+                                        initialOutputData[splittedPath[splittedPath.Length - 1]] =
+                                            ConvertDataType(dataTypeField,
+                                            GetValueFromLookupTable(sourceTable.Value.ToString(), sourceColumnField.Value.ToString(), reader), defaultValueField);
+                                    }
                                 }
                                 else
                                 {
@@ -470,16 +507,25 @@ namespace transform_api_load_janitor
                             }
                             break;
                         case "static":
-                            if (originalArray != null)
+                            if (originalArray != null && hasArrayElementBeingProcessed.GetValueOrDefault() == false)
                             {
                                 JProperty prop = (JProperty)JProperty.FromObject(initialOutputData);
                                 prop.Value = ConvertDataType(dataTypeField, valueField.Value.ToString(), defaultValueField);
+                                hasArrayElementBeingProcessed = true;
                             }
                             else
                             {
                                 if (splittedPath.Length > 0)
                                 {
-                                    initialOutputData[splittedPath[splittedPath.Length - 1]] = ConvertDataType(dataTypeField, valueField.Value.ToString(), defaultValueField);
+                                    if (initialOutputData.Type == JTokenType.Property)
+                                    {
+                                        JProperty prop = (JProperty)initialOutputData;
+                                        prop.Value = ConvertDataType(dataTypeField, valueField.Value.ToString(), defaultValueField);
+                                    }
+                                    else
+                                    {
+                                        initialOutputData[splittedPath[splittedPath.Length - 1]] = ConvertDataType(dataTypeField, valueField.Value.ToString(), defaultValueField);
+                                    }
                                 }
                                 else
                                 {
@@ -496,13 +542,9 @@ namespace transform_api_load_janitor
             {
                 foreach (var jSingleProperty in jChildrenProperties)
                 {
-                    if (jSingleProperty.Type == JTokenType.Array)
-                    {
-
-                    }
                     foreach (var jSingleChild in jSingleProperty.Children())
                     {
-                        TransformCSVRow(jSingleChild, ref outputData, reader, posInArray: posInArray, originalArray: originalArray);
+                        TransformCSVRow(jSingleChild, ref outputData, reader, originalArray: originalArray, hasArrayElementBeingProcessed: hasArrayElementBeingProcessed, arrayItemName:arrayItemName, arrayPos:arrayPos);
                     }
                 }
             }
@@ -519,7 +561,7 @@ namespace transform_api_load_janitor
                         result = csvValue;
                         break;
                     case "integer":
-                        result= Convert.ToInt32(csvValue);
+                        result = Convert.ToInt32(csvValue);
                         break;
                     case "date-time":
                         result = csvValue;
@@ -541,7 +583,7 @@ namespace transform_api_load_janitor
             else
                 result = csvValue;
             if (
-                (result == null || (result != null && String.IsNullOrWhiteSpace(result.ToString()))) && 
+                (result == null || (result != null && String.IsNullOrWhiteSpace(result.ToString()))) &&
                 defaultValueField != null)
             {
                 result = defaultValueField.Value.ToString();
