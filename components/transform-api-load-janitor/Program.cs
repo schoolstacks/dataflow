@@ -12,6 +12,7 @@ using transform_api_load_janitor.DataMaps.Student;
 using server_components_data_access.Dataflow;
 using CsvHelper;
 using System.Net.Http;
+using System.Data.Entity.Core.EntityClient;
 
 namespace transform_api_load_janitor
 {
@@ -43,10 +44,22 @@ namespace transform_api_load_janitor
         private static List<server_components_data_access.Dataflow.lookup> MappingLookups { get; set; }
         private static List<KeyValuePair<string, string>> InsertedIds { get; set; } = new List<KeyValuePair<string, string>>();
 
+        private static EntityConnection BuildEntityConnection()
+        {
+            System.Data.SqlClient.SqlConnectionStringBuilder sqlConnStringBuilder =
+    new System.Data.SqlClient.SqlConnectionStringBuilder(Properties.Settings.Default.DbDataflowConnectionString);
+            EntityConnectionStringBuilder entityConnStringBuilder = new EntityConnectionStringBuilder();
+            entityConnStringBuilder.Metadata = "res://*/Dataflow.DataFlowContext.csdl|res://*/Dataflow.DataFlowContext.ssdl|res://*/Dataflow.DataFlowContext.msl";
+            entityConnStringBuilder.ProviderConnectionString = sqlConnStringBuilder.ToString();
+            entityConnStringBuilder.Provider = "System.Data.SqlClient";
+            EntityConnection entityConn = new EntityConnection(entityConnStringBuilder.ToString());
+            return entityConn;
+        }
         private static async Task StartProcessing()
         {
+            string connString = Properties.Settings.Default.DbDataflowConnectionString;
             using (server_components_data_access.Dataflow.DataFlowContext ctx =
-                new server_components_data_access.Dataflow.DataFlowContext())
+                new server_components_data_access.Dataflow.DataFlowContext(BuildEntityConnection()))
             {
                 List<server_components_data_access.Dataflow.log_ingestion> lstIngestionMessages = new List<log_ingestion>();
                 var agents = ctx.agents.Include("datamap_agent").Include("datamap_agent.datamap").ToList();
