@@ -364,9 +364,9 @@ namespace transform_api_load_janitor
                             //if (entity.Name != "studentAssessments")
                             //if (entity.Name != "students")
                             //continue;
-                            if (entity.Name != "assessments")
-                                continue;
-                            //if (entity.Name != "studentAssessments")
+                            //if (entity.Name != "assessments")
+                            //    continue;
+                            //if (entity.Name != "assessmentItem")
                             //    continue;
                             //if (entity.Name == "students")
                             //    continue;
