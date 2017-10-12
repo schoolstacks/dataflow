@@ -18,6 +18,8 @@ namespace server_components_data_access.Dataflow
         public agent()
         {
             this.datamap_agent = new HashSet<datamap_agent>();
+            this.log_ingestion = new HashSet<log_ingestion>();
+            this.files = new HashSet<file>();
         }
     
         public int ID { get; set; }
@@ -36,5 +38,9 @@ namespace server_components_data_access.Dataflow
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<datamap_agent> datamap_agent { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<log_ingestion> log_ingestion { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<file> files { get; set; }
     }
 }

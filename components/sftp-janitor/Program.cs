@@ -4,15 +4,11 @@ using System.IO;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage.File;
 using System.Linq;
 using System.Data;
-using System.Data.SqlClient;
 using System.Text.RegularExpressions;
-using System.Collections;
 using server_components_data_access.Dataflow;
-using System.Data.Entity;
 
 namespace sftp_janitor
 {
@@ -38,12 +34,18 @@ namespace sftp_janitor
 
                     foreach (var sftpagent in agents)
                     {
-                        Console.WriteLine(sftpagent.Name);
                         _log.Info("Processing agent name: " + sftpagent.Name);
 
                         List<string> fileList = GetFileListFromSFTP(sftpagent);
                         _log.Info("Items to process:" + fileList.Count.ToString());
-                        TransferFilesFromSFTPToAzure(sftpagent, azureFileConnectionString, fileList);
+
+                        foreach (string file in fileList)
+                        {
+                            // Check the file log to see if the file already exists, if not, upload to Azure
+                            if (!DoesFileExistInLog(sftpagent.ID, file)) {
+                                TransferFileFromSFTPToAzure(sftpagent, azureFileConnectionString, file);
+                            }
+                        }
 
                         sftpagent.LastExecuted = DateTime.Now;
                     }
@@ -81,72 +83,76 @@ namespace sftp_janitor
             return list;
         }
 
-        private static void TransferFilesFromSFTPToAzure(agent sftpagent, string azureFileConnectionString, List<string> fileList)
+        private static bool DoesFileExistInLog(int agentId, string file)
         {
-            foreach (string file in fileList)
+            bool fileFound = false;
+
+            using (DataFlowContext ctx = new DataFlowContext())
             {
-                string shortFileName = file.Substring(file.LastIndexOf('/') + 1);
-                SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, sftpagent.Password);
-                client.Connect();
-                MemoryStream stream = new MemoryStream();
-                client.DownloadFile(file, stream);
-                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(azureFileConnectionString);
-                CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-                CloudFileShare fileShare = fileClient.GetShareReference(Properties.Settings.Default.FileShareName);
+                int fileCount = ctx.files
+                    .Where(f => f.AgentID == agentId)
+                    .Where(f => f.Filename == file)
+                    .Count();
 
-                if (!fileShare.Exists())
+                if (fileCount == 0) { fileFound = false; } else { fileFound = true; }
+            }
+
+            return fileFound;
+        }
+
+        private static void TransferFileFromSFTPToAzure(agent sftpagent, string azureFileConnectionString, string file)
+        {
+            string shortFileName = file.Substring(file.LastIndexOf('/') + 1);
+            SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, sftpagent.Password);
+            client.Connect();
+            MemoryStream stream = new MemoryStream();
+            client.DownloadFile(file, stream);
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(azureFileConnectionString);
+            CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
+            CloudFileShare fileShare = fileClient.GetShareReference(Properties.Settings.Default.FileShareName);
+
+            if (!fileShare.Exists())
+            {
+                _log.Error("Azure file share does not exist as expected.  Connection string: " + azureFileConnectionString);
+            } else
+            {
+
+                try
                 {
-                    _log.Error("Azure file share does not exist as expected.");
-                } else
-                {
+                    CloudFileDirectory fileDirectoryRoot = fileShare.GetRootDirectoryReference();
+                    CloudFileDirectory fileAgentDirectory = fileDirectoryRoot.GetDirectoryReference(sftpagent.Queue.ToString());
+                    fileAgentDirectory.CreateIfNotExists();
+                    CloudFile cloudFile = fileAgentDirectory.GetFileReference(shortFileName);
+                    stream.Seek(0, SeekOrigin.Begin);
+                    cloudFile.UploadFromStream(stream);
+                    stream.Seek(0, SeekOrigin.Begin);
+                    int recordCount = TotalLines(stream);
 
-                    try
-                    {
-                        CloudFileDirectory fileDirectoryRoot = fileShare.GetRootDirectoryReference();
-                        CloudFileDirectory fileAgentDirectory = fileDirectoryRoot.GetDirectoryReference(sftpagent.Queue.ToString());
-                        fileAgentDirectory.CreateIfNotExists();
-                        CloudFile cloudFile = fileAgentDirectory.GetFileReference(shortFileName);
-                        stream.Seek(0, SeekOrigin.Begin);
-                        cloudFile.UploadFromStream(stream);
-                        stream.Seek(0, SeekOrigin.Begin);
-                        int recordCount = TotalLines(stream);
-
-                        using (DataFlowContext ctx = new DataFlowContext())
-                        {
-                            log_ingestion log = new log_ingestion();
-                            log.AgentID = sftpagent.ID;
-                            log.Date = DateTime.UtcNow;
-                            log.Result = "SUCCESS";
-                            log.Message = "File successfully updated: " + file;
-                            log.Filename = cloudFile.StorageUri.PrimaryUri.ToString();
-                            log.Operation = "SFTPFileTransfer";
-                            log.Process = "sftp-janitor";
-                            log.Level = "INFO";
-                            log.RecordCount = recordCount;
-                            ctx.log_ingestion.Add(log);
-                            ctx.SaveChanges();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.Error("Unexpected error in TransferFilesFromSFTPToAzure for file: " + file + " on site: " + sftpagent.URL, ex);
-                        using (DataFlowContext ctx = new DataFlowContext())
-                        {
-                            log_ingestion log = new log_ingestion();
-                            log.AgentID = sftpagent.ID;
-                            log.Date = DateTime.UtcNow;
-                            log.Result = "ERROR";
-                            log.Filename = file;
-                            log.Message = "File failed with the error message: " + ex.ToString();
-                            log.Operation = "SFTPFileTransfer";
-                            log.Process = "sftp-janitor";
-                            log.Level = "ERROR";
-                            ctx.log_ingestion.Add(log);
-                            ctx.SaveChanges();
-                        }
-                        //TODO:  Log file error in log_ingestion
-                    }          
+                    LogFile(sftpagent.ID, file, cloudFile.StorageUri.PrimaryUri.ToString(), "UPLOADED", recordCount);
+                    _log.Info("Successfully transfered file " + shortFileName + " to " + cloudFile.StorageUri.PrimaryUri.ToString() + " by agent ID: " + sftpagent.ID.ToString());
                 }
+                catch (Exception ex)
+                {
+                    _log.Error("Unexpected error in TransferFilesFromSFTPToAzure for file: " + file + " on site: " + sftpagent.URL, ex);
+                    LogFile(sftpagent.ID, file, "", "ERROR_UPLOAD", 0);
+                }          
+            }
+
+        }
+
+        private static void LogFile(int agentId, string fileName, string URL, string status, int rows)
+        {
+            using (DataFlowContext ctx = new DataFlowContext())
+            {
+                file fileLog = new file();
+                fileLog.AgentID = agentId;
+                fileLog.Filename = fileName;
+                fileLog.URL = URL;
+                fileLog.Rows = rows;
+                fileLog.Status = status;
+                fileLog.CreateDate = DateTime.UtcNow;
+                ctx.files.Add(fileLog);
+                ctx.SaveChanges();
             }
         }
 
@@ -159,7 +165,6 @@ namespace sftp_janitor
                 return i;
             }
         }
-
 
         private static void WriteLocalFilesToAzureFileStorage()
         {

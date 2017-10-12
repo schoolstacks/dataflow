@@ -87,6 +87,9 @@
     <Compile Include="Dataflow\file.cs">
       <DependentUpon>DataFlowContext.tt</DependentUpon>
     </Compile>
+    <Compile Include="Dataflow\file_status.cs">
+      <DependentUpon>DataFlowContext.tt</DependentUpon>
+    </Compile>
     <Compile Include="Dataflow\log_application.cs">
       <DependentUpon>DataFlowContext.tt</DependentUpon>
     </Compile>

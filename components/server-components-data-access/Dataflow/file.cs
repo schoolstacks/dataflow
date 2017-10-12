@@ -16,9 +16,15 @@ namespace server_components_data_access.Dataflow
     {
         public int ID { get; set; }
         public string Filename { get; set; }
-        public byte[] Content { get; set; }
-        public string Metadata { get; set; }
+        public string URL { get; set; }
+        public int AgentID { get; set; }
+        public string Status { get; set; }
+        public string Message { get; set; }
+        public Nullable<int> Rows { get; set; }
         public Nullable<System.DateTime> CreateDate { get; set; }
         public Nullable<System.DateTime> UpdateDate { get; set; }
+    
+        public virtual agent agent { get; set; }
+        public virtual file_status file_status { get; set; }
     }
 }

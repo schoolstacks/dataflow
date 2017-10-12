@@ -31,10 +31,11 @@ namespace server_components_data_access.Dataflow
         public virtual DbSet<datamap> datamaps { get; set; }
         public virtual DbSet<datamap_agent> datamap_agent { get; set; }
         public virtual DbSet<entity> entities { get; set; }
-        public virtual DbSet<file> files { get; set; }
         public virtual DbSet<lookup> lookups { get; set; }
         public virtual DbSet<statistic> statistics { get; set; }
-        public virtual DbSet<log_application> log_application { get; set; }
         public virtual DbSet<log_ingestion> log_ingestion { get; set; }
+        public virtual DbSet<log_application> log_application { get; set; }
+        public virtual DbSet<file> files { get; set; }
+        public virtual DbSet<file_status> file_status { get; set; }
     }
 }

@@ -25,5 +25,7 @@ namespace server_components_data_access.Dataflow
         public string Message { get; set; }
         public Nullable<int> RecordCount { get; set; }
         public System.DateTime Date { get; set; }
+    
+        public virtual agent agent { get; set; }
     }
 }
