@@ -11,6 +11,8 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using System.Collections;
+using server_components_data_access.Dataflow;
+using System.Data.Entity;
 
 namespace sftp_janitor
 {
@@ -27,52 +29,45 @@ namespace sftp_janitor
             if (connectionString == null || azureFileConnectionString == null)
             {
                 _log.Error("Default SQL configuration or Azure File connection is not specified.");
-            } else
+            }
+            else
             {
-                SqlConnection conn = new SqlConnection(connectionString);
-                _log.Info("Connecting to database: " + conn.Database);
-                conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT * FROM [dataflow].[agent] WHERE Enabled=1", conn);
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                using (DataFlowContext ctx = new DataFlowContext())
                 {
-                    SFTPAgent agent = SFTPAgent.GetInstance((string)reader["Name"], (string)reader["URL"], (string)reader["Username"], (string)reader["Password"], (string)reader["Directory"], (string)reader["FilePattern"], (System.Guid)reader["Queue"]);
+                    var agents = ctx.agents.Where(agent => agent.Enabled == true);
 
-                    _log.Info("Processing agent name: " + agent.Name);
-                    List<string> fileList = GetFileListFromSFTP(agent);
-                    _log.Info("Items to process:" + fileList.Count.ToString());
-                    TransferFilesFromSFTPToAzure(agent, azureFileConnectionString, fileList);
+                    foreach (var sftpagent in agents)
+                    {
+                        Console.WriteLine(sftpagent.Name);
+                        _log.Info("Processing agent name: " + sftpagent.Name);
 
-                    SqlCommand cmdUpdate = new SqlCommand("UPDATE [dataflow].[agent] SET LastExecuted=@LastExecuted WHERE ID=@ID", conn);
-                    cmdUpdate.Parameters.AddWithValue("@LastExecuted", DateTime.Now);
-                    cmdUpdate.Parameters.AddWithValue("@ID", (int)reader["ID"]);
-                    cmdUpdate.ExecuteNonQuery();
+                        List<string> fileList = GetFileListFromSFTP(sftpagent);
+                        _log.Info("Items to process:" + fileList.Count.ToString());
+                        TransferFilesFromSFTPToAzure(sftpagent, azureFileConnectionString, fileList);
+
+                        sftpagent.LastExecuted = DateTime.Now;
+                    }
+
+                    ctx.SaveChanges();
                 }
             }
-
-            _log.Info("SFTP Janitor exiting");
-
-            Console.WriteLine("\n\nPress any key to continue...");
-            Console.ReadKey();
-
         }
 
-        private static List<string> GetFileListFromSFTP(SFTPAgent agent)
+        private static List<string> GetFileListFromSFTP(agent sftpagent)
         {
             List<string> list = new List<string>();
 
             try
             {
-                _log.Info("Connecting to host: " + agent.URL);
-                SftpClient client = new SftpClient(agent.URL, agent.Username, agent.Password);
+                _log.Info("Connecting to host: " + sftpagent.URL);
+                SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, sftpagent.Password);
                 client.Connect();
                 _log.Info("Connected, server version: " + client.ConnectionInfo.ServerVersion);
 
-                IEnumerable<SftpFile> fileList = client.ListDirectory(agent.Directory);
+                IEnumerable<SftpFile> fileList = client.ListDirectory(sftpagent.Directory);
                 foreach (SftpFile file in fileList)
                 {
-                    Boolean containsFilePattern = Regex.IsMatch(file.Name, WildCardToRegular(agent.FilePattern));
+                    Boolean containsFilePattern = Regex.IsMatch(file.Name, WildCardToRegular(sftpagent.FilePattern));
                     if (containsFilePattern) { list.Add(file.FullName); }
                 }
 
@@ -86,12 +81,12 @@ namespace sftp_janitor
             return list;
         }
 
-        private static void TransferFilesFromSFTPToAzure(SFTPAgent agent, string azureFileConnectionString, List<string> fileList)
+        private static void TransferFilesFromSFTPToAzure(agent sftpagent, string azureFileConnectionString, List<string> fileList)
         {
             foreach (string file in fileList)
             {
                 string shortFileName = file.Substring(file.LastIndexOf('/') + 1);
-                SftpClient client = new SftpClient(agent.URL, agent.Username, agent.Password);
+                SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, sftpagent.Password);
                 client.Connect();
                 MemoryStream stream = new MemoryStream();
                 client.DownloadFile(file, stream);
@@ -108,21 +103,63 @@ namespace sftp_janitor
                     try
                     {
                         CloudFileDirectory fileDirectoryRoot = fileShare.GetRootDirectoryReference();
-                        CloudFileDirectory fileAgentDirectory = fileDirectoryRoot.GetDirectoryReference(agent.Queue.ToString());
+                        CloudFileDirectory fileAgentDirectory = fileDirectoryRoot.GetDirectoryReference(sftpagent.Queue.ToString());
                         fileAgentDirectory.CreateIfNotExists();
                         CloudFile cloudFile = fileAgentDirectory.GetFileReference(shortFileName);
+                        stream.Seek(0, SeekOrigin.Begin);
                         cloudFile.UploadFromStream(stream);
+                        stream.Seek(0, SeekOrigin.Begin);
+                        int recordCount = TotalLines(stream);
 
-                        //TODO:  Log file success in log_ingestion   
+                        using (DataFlowContext ctx = new DataFlowContext())
+                        {
+                            log_ingestion log = new log_ingestion();
+                            log.AgentID = sftpagent.ID;
+                            log.Date = DateTime.UtcNow;
+                            log.Result = "SUCCESS";
+                            log.Message = "File successfully updated: " + file;
+                            log.Filename = cloudFile.StorageUri.PrimaryUri.ToString();
+                            log.Operation = "SFTPFileTransfer";
+                            log.Process = "sftp-janitor";
+                            log.Level = "INFO";
+                            log.RecordCount = recordCount;
+                            ctx.log_ingestion.Add(log);
+                            ctx.SaveChanges();
+                        }
                     }
                     catch (Exception ex)
                     {
-                        _log.Error("Unexpected error in TransferFilesFromSFTPToAzure for file: " + file + " on site: " + agent.URL, ex);
+                        _log.Error("Unexpected error in TransferFilesFromSFTPToAzure for file: " + file + " on site: " + sftpagent.URL, ex);
+                        using (DataFlowContext ctx = new DataFlowContext())
+                        {
+                            log_ingestion log = new log_ingestion();
+                            log.AgentID = sftpagent.ID;
+                            log.Date = DateTime.UtcNow;
+                            log.Result = "ERROR";
+                            log.Filename = file;
+                            log.Message = "File failed with the error message: " + ex.ToString();
+                            log.Operation = "SFTPFileTransfer";
+                            log.Process = "sftp-janitor";
+                            log.Level = "ERROR";
+                            ctx.log_ingestion.Add(log);
+                            ctx.SaveChanges();
+                        }
                         //TODO:  Log file error in log_ingestion
                     }          
                 }
             }
         }
+
+        private static int TotalLines(Stream stream)
+        {
+            using (StreamReader r = new StreamReader(stream))
+            {
+                int i = 0;
+                while (r.ReadLine() != null) { i++; }
+                return i;
+            }
+        }
+
 
         private static void WriteLocalFilesToAzureFileStorage()
         {
