@@ -103,6 +103,7 @@
     <Compile Include="Dataflow\statistic.cs">
       <DependentUpon>DataFlowContext.tt</DependentUpon>
     </Compile>
+    <Compile Include="Enums\FileStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

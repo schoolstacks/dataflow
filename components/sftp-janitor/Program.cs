@@ -9,6 +9,7 @@ using System.Linq;
 using System.Data;
 using System.Text.RegularExpressions;
 using server_components_data_access.Dataflow;
+using server_components_data_access.Enums;
 
 namespace sftp_janitor
 {
@@ -128,13 +129,13 @@ namespace sftp_janitor
                     stream.Seek(0, SeekOrigin.Begin);
                     int recordCount = TotalLines(stream);
 
-                    LogFile(sftpagent.ID, file, cloudFile.StorageUri.PrimaryUri.ToString(), "UPLOADED", recordCount);
+                    LogFile(sftpagent.ID, file, cloudFile.StorageUri.PrimaryUri.ToString(), FileStatus.UPLOADED, recordCount);
                     _log.Info("Successfully transfered file " + shortFileName + " to " + cloudFile.StorageUri.PrimaryUri.ToString() + " by agent ID: " + sftpagent.ID.ToString());
                 }
                 catch (Exception ex)
                 {
                     _log.Error("Unexpected error in TransferFilesFromSFTPToAzure for file: " + file + " on site: " + sftpagent.URL, ex);
-                    LogFile(sftpagent.ID, file, "", "ERROR_UPLOAD", 0);
+                    LogFile(sftpagent.ID, file, "", FileStatus.ERROR_UPLOAD, 0);
                 }          
             }
 
