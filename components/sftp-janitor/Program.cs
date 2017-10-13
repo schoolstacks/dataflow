@@ -42,6 +42,7 @@ namespace sftp_janitor
 
                         foreach (string file in fileList)
                         {
+                            _log.Info("Processing: " + file);
                             // Check the file log to see if the file already exists, if not, upload to Azure
                             if (!DoesFileExistInLog(sftpagent.ID, file)) {
                                 TransferFileFromSFTPToAzure(sftpagent, azureFileConnectionString, file);
@@ -54,6 +55,10 @@ namespace sftp_janitor
                     ctx.SaveChanges();
                 }
             }
+
+            _log.Info("SFTP Janitor exiting");
+
+            Console.ReadLine();
         }
 
         private static List<string> GetFileListFromSFTP(agent sftpagent)
@@ -78,7 +83,7 @@ namespace sftp_janitor
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                _log.Error("Unexpected exception in GetFileListFromSFTP(): ", ex);
             }
 
             return list;
@@ -97,6 +102,8 @@ namespace sftp_janitor
 
                 if (fileCount == 0) { fileFound = false; } else { fileFound = true; }
             }
+
+            _log.Info("DoesFileExistInLog: " + file + " is: " + fileFound.ToString());
 
             return fileFound;
         }
