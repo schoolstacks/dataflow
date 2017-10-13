@@ -57,8 +57,6 @@ namespace sftp_janitor
             }
 
             _log.Info("SFTP Janitor exiting");
-
-            Console.ReadLine();
         }
 
         private static List<string> GetFileListFromSFTP(agent sftpagent)
