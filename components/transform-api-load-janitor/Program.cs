@@ -147,7 +147,7 @@ namespace transform_api_load_janitor
                             else
                             {
                                 method = HttpMethod.Put;
-                                endpointUrl += string.Format("?{0}={1}", strIdName, recordExistsResult.Value);
+                                endpointUrl += string.Format("/{0}", recordExistsResult.Value);
                                 response = await httpClient.PutAsync(endpointUrl, strContent);
                             }
                         }
@@ -405,7 +405,7 @@ namespace transform_api_load_janitor
                 int iPos = 0;
                 foreach (var singleItem in jArray)
                 {
-                    TransformCSVRow(singleItem, ref outputData, reader, originalArray: jArray, hasArrayElementBeingProcessed: hasArrayElementBeingProcessed, arrayItemName: originalMap.Path, arrayPos:iPos);
+                    TransformCSVRow(singleItem, ref outputData, reader, originalArray: jArray, hasArrayElementBeingProcessed: hasArrayElementBeingProcessed, arrayItemName: originalMap.Path, arrayPos: iPos);
                     iPos++;
                 }
             }
@@ -557,7 +557,7 @@ namespace transform_api_load_janitor
                 {
                     foreach (var jSingleChild in jSingleProperty.Children())
                     {
-                        TransformCSVRow(jSingleChild, ref outputData, reader, originalArray: originalArray, hasArrayElementBeingProcessed: hasArrayElementBeingProcessed, arrayItemName:arrayItemName, arrayPos:arrayPos);
+                        TransformCSVRow(jSingleChild, ref outputData, reader, originalArray: originalArray, hasArrayElementBeingProcessed: hasArrayElementBeingProcessed, arrayItemName: arrayItemName, arrayPos: arrayPos);
                     }
                 }
             }

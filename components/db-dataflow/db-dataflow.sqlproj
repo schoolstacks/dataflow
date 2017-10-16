@@ -62,6 +62,8 @@
     <Folder Include="dataflow\" />
     <Folder Include="dataflow\Tables\" />
     <Folder Include="Security\" />
+    <Folder Include="Scripts" />
+    <Folder Include="Scripts\Post-Deployment" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dataflow\Tables\agent_schedule.sql" />
@@ -76,5 +78,20 @@
     <Build Include="dataflow\Tables\agent.sql" />
     <Build Include="dataflow\Tables\datamap_agent.sql" />
     <Build Include="Security\dataflow.sql" />
+    <None Include="Scripts\Post-Deployment\InitialData_Lookups.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Scripts\Post-Deployment\Script.PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\Post-Deployment\InitialData_Agent.sql" />
+    <None Include="Scripts\Post-Deployment\InitialData_AgentSchedule.sql" />
+    <None Include="Scripts\Post-Deployment\InitialData_Configuration.sql" />
+    <None Include="Scripts\Post-Deployment\InitialData_DataMap.sql" />
+    <None Include="Scripts\Post-Deployment\InitialData_DataMapAgent.sql" />
+    <None Include="Scripts\Post-Deployment\InitialData_Entity.sql" />
+    <None Include="Scripts\Post-Deployment\InitialData_File.sql" />
+    <None Include="Scripts\Post-Deployment\Status.sql" />
+    <None Include="Scripts\Post-Deployment\InitialData_FileStatus.sql" />
   </ItemGroup>
 </Project>
