@@ -81,21 +81,23 @@
           </Key>
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Filename" Type="varchar(max)" Nullable="false" />
-          <Property Name="Content" Type="varbinary(max)" />
-          <Property Name="Metadata" Type="varchar(max)" />
+          <Property Name="URL" Type="varchar(max)" />
+          <Property Name="AgentID" Type="int" Nullable="false" />
+          <Property Name="Status" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Message" Type="varchar(max)" />
+          <Property Name="Rows" Type="int" />
           <Property Name="CreateDate" Type="datetime" />
           <Property Name="UpdateDate" Type="datetime" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="file_status">
+          <Key>
+            <PropertyRef Name="Value" />
+          </Key>
+          <Property Name="Value" Type="varchar" MaxLength="255" Nullable="false" />
+        </EntityType>
         <EntityType Name="log_application">
           <Key>
             <PropertyRef Name="ID" />
-            <PropertyRef Name="Date" />
-            <PropertyRef Name="Thread" />
-            <PropertyRef Name="Level" />
-            <PropertyRef Name="Logger" />
-            <PropertyRef Name="Message" />
           </Key>
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Date" Type="datetime" Nullable="false" />
@@ -182,6 +184,42 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' do
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_file_agent">
+          <End Role="agent" Type="Self.agent" Multiplicity="1" />
+          <End Role="file" Type="Self.file" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="agent">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="file">
+              <PropertyRef Name="AgentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_file_file_status">
+          <End Role="file_status" Type="Self.file_status" Multiplicity="1" />
+          <End Role="file" Type="Self.file" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="file_status">
+              <PropertyRef Name="Value" />
+            </Principal>
+            <Dependent Role="file">
+              <PropertyRef Name="Status" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_log_ingestion_agent">
+          <End Role="agent" Type="Self.agent" Multiplicity="0..1" />
+          <End Role="log_ingestion" Type="Self.log_ingestion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="agent">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="log_ingestion">
+              <PropertyRef Name="AgentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="EdFi_DataFlow_SandboxModelStoreContainer">
           <EntitySet Name="agent" EntityType="Self.agent" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="agent_schedule" EntityType="Self.agent_schedule" Schema="dataflow" store:Type="Tables" />
@@ -190,20 +228,11 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' do
           <EntitySet Name="datamap_agent" EntityType="Self.datamap_agent" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="entity" EntityType="Self.entity" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="file" EntityType="Self.file" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="file_status" EntityType="Self.file_status" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="log_application" EntityType="Self.log_application" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="log_ingestion" EntityType="Self.log_ingestion" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="lookup" EntityType="Self.lookup" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="statistic" EntityType="Self.statistic" Schema="dataflow" store:Type="Tables" />
-          <EntitySet Name="log_application" EntityType="Self.log_application" store:Type="Tables" store:Schema="dataflow">
-            <DefiningQuery>SELECT 
-    [log_application].[ID] AS [ID], 
-    [log_application].[Date] AS [Date], 
-    [log_application].[Thread] AS [Thread], 
-    [log_application].[Level] AS [Level], 
-    [log_application].[Logger] AS [Logger], 
-    [log_application].[Message] AS [Message], 
-    [log_application].[Exception] AS [Exception]
-    FROM [dataflow].[log_application] AS [log_application]</DefiningQuery>
-          </EntitySet>
           <AssociationSet Name="FK_datamap_agent_agent" Association="Self.FK_datamap_agent_agent">
             <End Role="agent" EntitySet="agent" />
             <End Role="datamap_agent" EntitySet="datamap_agent" />
@@ -215,6 +244,18 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' do
           <AssociationSet Name="FK_datamap_Entity" Association="Self.FK_datamap_Entity">
             <End Role="entity" EntitySet="entity" />
             <End Role="datamap" EntitySet="datamap" />
+          </AssociationSet>
+          <AssociationSet Name="FK_file_agent" Association="Self.FK_file_agent">
+            <End Role="agent" EntitySet="agent" />
+            <End Role="file" EntitySet="file" />
+          </AssociationSet>
+          <AssociationSet Name="FK_file_file_status" Association="Self.FK_file_file_status">
+            <End Role="file_status" EntitySet="file_status" />
+            <End Role="file" EntitySet="file" />
+          </AssociationSet>
+          <AssociationSet Name="FK_log_ingestion_agent" Association="Self.FK_log_ingestion_agent">
+            <End Role="agent" EntitySet="agent" />
+            <End Role="log_ingestion" EntitySet="log_ingestion" />
           </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -239,6 +280,8 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' do
           <Property Name="Created" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="LastExecuted" Type="DateTime" Precision="3" />
           <NavigationProperty Name="datamap_agent" Relationship="Self.FK_datamap_agent_agent" FromRole="agent" ToRole="datamap_agent" />
+          <NavigationProperty Name="log_ingestion" Relationship="EdFi_DataFlow_SandboxModel.FK_log_ingestion_agent" FromRole="agent" ToRole="log_ingestion" />
+          <NavigationProperty Name="files" Relationship="EdFi_DataFlow_SandboxModel.FK_file_agent" FromRole="agent" ToRole="file" />
         </EntityType>
         <EntityType Name="agent_schedule">
           <Key>
@@ -297,17 +340,6 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' do
           <Property Name="UpdateDate" Type="DateTime" Precision="0" />
           <NavigationProperty Name="datamaps" Relationship="Self.FK_datamap_Entity" FromRole="entity" ToRole="datamap" />
         </EntityType>
-        <EntityType Name="file">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Filename" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="Content" Type="Binary" MaxLength="Max" FixedLength="false" />
-          <Property Name="Metadata" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="CreateDate" Type="DateTime" Precision="3" />
-          <Property Name="UpdateDate" Type="DateTime" Precision="3" />
-        </EntityType>
         <EntityType Name="lookup">
           <Key>
             <PropertyRef Name="ID" />
@@ -332,23 +364,6 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' do
           <Property Name="ValueVarchar" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="InsertDate" Type="DateTime" Precision="3" />
           <Property Name="UpdateDate" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="log_application">
-          <Key>
-            <PropertyRef Name="ID" />
-            <PropertyRef Name="Date" />
-            <PropertyRef Name="Thread" />
-            <PropertyRef Name="Level" />
-            <PropertyRef Name="Logger" />
-            <PropertyRef Name="Message" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="Thread" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="Level" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="Logger" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="Message" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="Exception" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_datamap_agent_agent">
           <End Role="agent" Type="Self.agent" Multiplicity="1" />
@@ -393,10 +408,8 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' do
           <EntitySet Name="datamaps" EntityType="Self.datamap" />
           <EntitySet Name="datamap_agent" EntityType="Self.datamap_agent" />
           <EntitySet Name="entities" EntityType="Self.entity" />
-          <EntitySet Name="files" EntityType="Self.file" />
           <EntitySet Name="lookups" EntityType="Self.lookup" />
           <EntitySet Name="statistics" EntityType="Self.statistic" />
-          <EntitySet Name="log_application" EntityType="Self.log_application" />
           <AssociationSet Name="FK_datamap_agent_agent" Association="Self.FK_datamap_agent_agent">
             <End Role="agent" EntitySet="agents" />
             <End Role="datamap_agent" EntitySet="datamap_agent" />
@@ -410,6 +423,21 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' do
             <End Role="datamap" EntitySet="datamaps" />
           </AssociationSet>
           <EntitySet Name="log_ingestion" EntityType="EdFi_DataFlow_SandboxModel.log_ingestion" />
+          <EntitySet Name="log_application" EntityType="EdFi_DataFlow_SandboxModel.log_application" />
+          <AssociationSet Name="FK_log_ingestion_agent" Association="EdFi_DataFlow_SandboxModel.FK_log_ingestion_agent">
+            <End Role="agent" EntitySet="agents" />
+            <End Role="log_ingestion" EntitySet="log_ingestion" />
+          </AssociationSet>
+          <EntitySet Name="files" EntityType="EdFi_DataFlow_SandboxModel.file" />
+          <AssociationSet Name="FK_file_agent" Association="EdFi_DataFlow_SandboxModel.FK_file_agent">
+            <End Role="agent" EntitySet="agents" />
+            <End Role="file" EntitySet="files" />
+          </AssociationSet>
+          <EntitySet Name="file_status" EntityType="EdFi_DataFlow_SandboxModel.file_status" />
+          <AssociationSet Name="FK_file_file_status" Association="EdFi_DataFlow_SandboxModel.FK_file_file_status">
+            <End Role="file_status" EntitySet="file_status" />
+            <End Role="file" EntitySet="files" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="log_ingestion">
           <Key>
@@ -426,7 +454,79 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' do
           <Property Name="Message" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="RecordCount" Type="Int32" />
           <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="agent" Relationship="EdFi_DataFlow_SandboxModel.FK_log_ingestion_agent" FromRole="log_ingestion" ToRole="agent" />
         </EntityType>
+        <EntityType Name="log_application">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Thread" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Level" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Logger" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Message" Type="String" Nullable="false" MaxLength="4000" FixedLength="false" Unicode="false" />
+          <Property Name="Exception" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <Association Name="FK_log_ingestion_agent">
+          <End Type="EdFi_DataFlow_SandboxModel.agent" Role="agent" Multiplicity="0..1" />
+          <End Type="EdFi_DataFlow_SandboxModel.log_ingestion" Role="log_ingestion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="agent">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="log_ingestion">
+              <PropertyRef Name="AgentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="file">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Filename" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="URL" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="AgentID" Type="Int32" Nullable="false" />
+          <Property Name="Status" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Message" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Rows" Type="Int32" />
+          <Property Name="CreateDate" Type="DateTime" Precision="3" />
+          <Property Name="UpdateDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="agent" Relationship="EdFi_DataFlow_SandboxModel.FK_file_agent" FromRole="file" ToRole="agent" />
+          <NavigationProperty Name="file_status" Relationship="EdFi_DataFlow_SandboxModel.FK_file_file_status" FromRole="file" ToRole="file_status" />
+        </EntityType>
+        <Association Name="FK_file_agent">
+          <End Type="EdFi_DataFlow_SandboxModel.agent" Role="agent" Multiplicity="1" />
+          <End Type="EdFi_DataFlow_SandboxModel.file" Role="file" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="agent">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="file">
+              <PropertyRef Name="AgentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="file_status">
+          <Key>
+            <PropertyRef Name="Value" />
+          </Key>
+          <Property Name="Value" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="files" Relationship="EdFi_DataFlow_SandboxModel.FK_file_file_status" FromRole="file_status" ToRole="file" />
+        </EntityType>
+        <Association Name="FK_file_file_status">
+          <End Type="EdFi_DataFlow_SandboxModel.file_status" Role="file_status" Multiplicity="1" />
+          <End Type="EdFi_DataFlow_SandboxModel.file" Role="file" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="file_status">
+              <PropertyRef Name="Value" />
+            </Principal>
+            <Dependent Role="file">
+              <PropertyRef Name="Status" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -509,18 +609,6 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' do
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="files">
-            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.file">
-              <MappingFragment StoreEntitySet="file">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="Filename" ColumnName="Filename" />
-                <ScalarProperty Name="Content" ColumnName="Content" />
-                <ScalarProperty Name="Metadata" ColumnName="Metadata" />
-                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
-                <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="lookups">
             <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.lookup">
               <MappingFragment StoreEntitySet="lookup">
@@ -548,19 +636,6 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' do
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="log_application">
-            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.log_application">
-              <MappingFragment StoreEntitySet="log_application">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="Date" ColumnName="Date" />
-                <ScalarProperty Name="Thread" ColumnName="Thread" />
-                <ScalarProperty Name="Level" ColumnName="Level" />
-                <ScalarProperty Name="Logger" ColumnName="Logger" />
-                <ScalarProperty Name="Message" ColumnName="Message" />
-                <ScalarProperty Name="Exception" ColumnName="Exception" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="log_ingestion">
             <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.log_ingestion">
               <MappingFragment StoreEntitySet="log_ingestion">
@@ -575,6 +650,41 @@ warning 6002: The table/view 'EdFi_DataFlow_Sandbox.dataflow.log_application' do
                 <ScalarProperty Name="Level" ColumnName="Level" />
                 <ScalarProperty Name="EducationOrganizationId" ColumnName="EducationOrganizationId" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="log_application">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.log_application">
+              <MappingFragment StoreEntitySet="log_application">
+                <ScalarProperty Name="Exception" ColumnName="Exception" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="Logger" ColumnName="Logger" />
+                <ScalarProperty Name="Level" ColumnName="Level" />
+                <ScalarProperty Name="Thread" ColumnName="Thread" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="files">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.file">
+              <MappingFragment StoreEntitySet="file">
+                <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="Rows" ColumnName="Rows" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="AgentID" ColumnName="AgentID" />
+                <ScalarProperty Name="URL" ColumnName="URL" />
+                <ScalarProperty Name="Filename" ColumnName="Filename" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="file_status">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.file_status">
+              <MappingFragment StoreEntitySet="file_status">
+                <ScalarProperty Name="Value" ColumnName="Value" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

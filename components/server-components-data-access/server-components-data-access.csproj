@@ -87,6 +87,9 @@
     <Compile Include="Dataflow\file.cs">
       <DependentUpon>DataFlowContext.tt</DependentUpon>
     </Compile>
+    <Compile Include="Dataflow\file_status.cs">
+      <DependentUpon>DataFlowContext.tt</DependentUpon>
+    </Compile>
     <Compile Include="Dataflow\log_application.cs">
       <DependentUpon>DataFlowContext.tt</DependentUpon>
     </Compile>
@@ -100,6 +103,7 @@
     <Compile Include="Dataflow\statistic.cs">
       <DependentUpon>DataFlowContext.tt</DependentUpon>
     </Compile>
+    <Compile Include="Enums\FileStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
