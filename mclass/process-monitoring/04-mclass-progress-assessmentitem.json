@@ -1,0 +1,29 @@
+{
+  "assessmentReference": {
+    "title": {
+      "data-type": "string",
+      "source": "column",
+      "source-column": "Assessment"
+    },
+    "assessedGradeLevelDescriptor": {
+      "data-type": "string",
+      "source": "static",
+      "value": "Twelfth grade"
+    },
+    "academicSubjectDescriptor": {
+      "data-type": "string",
+      "source": "static",
+      "value": "Reading"
+    },
+    "version": {
+      "data-type": "integer",
+      "source": "static",
+      "value": 1
+    }
+  },
+  "identificationCode": {
+    "data-type": "string",
+    "source": "column",
+    "source-column": "Measure"
+  }
+}

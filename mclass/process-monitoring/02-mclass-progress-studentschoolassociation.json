@@ -1,0 +1,29 @@
+{
+  "schoolReference": {
+    "schoolId": {
+      "data-type": "integer",
+      "source": "lookup-table",
+      "source-table": "mclass-progress-schools",
+      "source-column": "School Name"
+    }
+  },
+  "studentReference": {
+    "studentUniqueId": {
+      "data-type": "string",
+      "source": "column",
+      "source-column": "Student Primary ID"
+    }
+  },
+  "entryDate": {
+    "data-type": "date-time",
+    "source": "column",
+    "source-column": "Enrollment Date"
+  },
+  "entryGradeLevelDescriptor": {
+    "data-type": "string",
+    "source": "lookup-table",
+    "source-table": "mclass-progress-grades",
+    "source-column": "Grade",
+    "default": "Twelfth grade"
+  }
+}
