@@ -1,0 +1,78 @@
+{
+  "assessmentReference": {
+    "title": {
+      "data-type": "string",
+      "source": "column",
+      "source-column": "Assessment"
+    },
+    "assessedGradeLevelDescriptor": {
+      "data-type": "string",
+      "source": "lookup-table",
+      "source-table": "mclass-grade",
+      "source-column": "Assessment Grade"
+    },
+    "academicSubjectDescriptor": {
+      "data-type": "string",
+      "source": "static",
+      "value": "Reading"
+    },
+    "version": {
+      "data-type": "integer",
+      "source": "static",
+      "value": "1"
+    }
+  },
+  "studentReference": {
+    "studentUniqueId": {
+      "data-type": "string",
+      "source": "column",
+      "source-column": "StudentID"
+    }
+  },
+  "administrationDate": {
+    "data-type": "date-time",
+    "source": "column",
+    "source-column": "DateGiven"
+  },
+  "items": [
+    {
+      "assessmentItemReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "static",
+          "value": "AIMSWeb"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Unknown"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Measure"
+        }
+      },
+      "assessmentItemResultType": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-Composite Score-Levels"
+      },
+      "rawScoreResult": {
+        "data-type": "integer",
+        "source": "column",
+        "source-column": "Corrects"
+      }
+    }
+  ]
+}
