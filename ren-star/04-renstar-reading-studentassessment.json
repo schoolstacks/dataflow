@@ -1,0 +1,319 @@
+{
+  "assessmentReference": {
+    "title": {
+      "data-type": "string",
+      "source": "column",
+      "source-column": "Assessment"
+    },
+    "assessedGradeLevelDescriptor": {
+      "data-type": "string",
+      "source": "lookup-table",
+      "source-table": "mclass-grade",
+      "source-column": "Assessment Grade"
+    },
+    "academicSubjectDescriptor": {
+      "data-type": "string",
+      "source": "static",
+      "value": "Reading"
+    },
+    "version": {
+      "data-type": "integer",
+      "source": "static",
+      "value": "1"
+    }
+  },
+  "studentReference": {
+    "studentUniqueId": {
+      "data-type": "string",
+      "source": "column",
+      "source-column": "Student Primary ID"
+    }
+  },
+  "administrationDate": {
+    "data-type": "date-time",
+    "source": "column",
+    "source-column": "Probe Clientdate"
+  },
+  "items": [
+    {
+      "assessmentItemReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Measure"
+        }
+      },
+      "assessmentItemResultType": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-Composite Score-Levels"
+      },
+      "rawScoreResult": {
+        "data-type": "integer",
+        "source": "column",
+        "source-column": "Assessment Measure-Composite Score-Score"
+      }
+    },
+    {
+      "assessmentItemReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Measure"
+        }
+      },
+      "assessmentItemResultType": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-Composite Score-Levels"
+      },
+      "rawScoreResult": {
+        "data-type": "integer",
+        "source": "column",
+        "source-column": "Assessment Measure-Composite Score-Score"
+      }
+    },
+    {
+      "assessmentItemReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Measure"
+        }
+      },
+      "assessmentItemResultType": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-FSF-Levels"
+      },
+      "rawScoreResult": {
+        "data-type": "integer",
+        "source": "column",
+        "source-column": "Assessment Measure-FSF-Score"
+      }
+    },
+    {
+      "assessmentItemReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Measure"
+        }
+      },
+      "assessmentItemResultType": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-LNF-Levels"
+      },
+      "rawScoreResult": {
+        "data-type": "integer",
+        "source": "column",
+        "source-column": "Assessment Measure-LNF-Score"
+      }
+    },
+    {
+      "assessmentItemReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Measure"
+        }
+      },
+      "assessmentItemResultType": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-PSF-Levels"
+      },
+      "rawScoreResult": {
+        "data-type": "integer",
+        "source": "column",
+        "source-column": "Assessment Measure-PSF-Score"
+      }
+    },
+    {
+      "assessmentItemReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Measure"
+        }
+      },
+      "assessmentItemResultType": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-NWF (CLS)-Levels"
+      },
+      "rawScoreResult": {
+        "data-type": "integer",
+        "source": "column",
+        "source-column": "Assessment Measure-NWF (CLS)-Score"
+      }
+    },
+    {
+      "assessmentItemReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Measure"
+        }
+      },
+      "assessmentItemResultType": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-NWF (WWR)-Levels"
+      },
+      "rawScoreResult": {
+        "data-type": "integer",
+        "source": "column",
+        "source-column": "Assessment Measure-NWF (WWR)-Score"
+      }
+    }
+  ]
+}
