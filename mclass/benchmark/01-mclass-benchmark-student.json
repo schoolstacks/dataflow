@@ -2,7 +2,7 @@
     "studentUniqueId": {
         "data-type": "string",
         "source": "column",
-        "source-column": "Student Primary ID"
+        "source-column": "Primary ID - Student ID (State ID)"
     },
 	"firstName": {
 	    "data-type": "string",
@@ -30,7 +30,7 @@
 	"hispanicLatinoEthnicity": {
 	    "data-type": "boolean",
         "source": "lookup_table",
-        "source-table": "mclass-hispanic",
+        "source-table": "mclass-progress-hispanic",
         "source-column": "RACE",
         "default": "false"
 	}

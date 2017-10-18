@@ -8,7 +8,7 @@
       "assessedGradeLevelDescriptor": {
         "data-type": "string",
         "source": "lookup-table",
-        "source-table": "mclass-progress-grade",
+        "source-table": "mclass-grade",
         "source-column": "Assessment Grade",
         "default": "Twelfth grade"
       },
@@ -51,7 +51,7 @@
           "assessedGradeLevelDescriptor": {
             "data-type": "string",
             "source": "lookup-table",
-            "source-table": "mclass-progress-grade",
+            "source-table": "mclass-grade",
             "source-column": "Assessment Grade",
             "default": "Twelfth grade"
           },
