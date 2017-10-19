@@ -73,7 +73,8 @@
         "data-type": "integer",
         "source": "column",
         "source-column": "Assessment Measure-Composite Score-Score"
-      }
+      },
+      "_optional": "true"
     },
     {
       "assessmentItemReference": {
@@ -113,7 +114,8 @@
         "data-type": "integer",
         "source": "column",
         "source-column": "Assessment Measure-Composite Score-Score"
-      }
+      },
+      "_optional": "true"
     },
     {
       "assessmentItemReference": {
@@ -153,7 +155,8 @@
         "data-type": "integer",
         "source": "column",
         "source-column": "Assessment Measure-FSF-Score"
-      }
+      },
+      "_optional": "true"
     },
     {
       "assessmentItemReference": {
@@ -193,7 +196,8 @@
         "data-type": "integer",
         "source": "column",
         "source-column": "Assessment Measure-LNF-Score"
-      }
+      },
+      "_optional": "true"
     },
     {
       "assessmentItemReference": {
@@ -233,7 +237,8 @@
         "data-type": "integer",
         "source": "column",
         "source-column": "Assessment Measure-PSF-Score"
-      }
+      },
+      "_optional": "true"
     },
     {
       "assessmentItemReference": {
@@ -273,7 +278,8 @@
         "data-type": "integer",
         "source": "column",
         "source-column": "Assessment Measure-NWF (CLS)-Score"
-      }
+      },
+      "_optional": "true"
     },
     {
       "assessmentItemReference": {
@@ -313,9 +319,9 @@
         "data-type": "integer",
         "source": "column",
         "source-column": "Assessment Measure-NWF (WWR)-Score"
-      }
+      },
+      "_optional": "true"
     },
-
     {
       "assessmentItemReference": {
         "assessmentTitle": {
@@ -354,7 +360,8 @@
         "data-type": "integer",
         "source": "column",
         "source-column": "Assessment Measure-DORF (Fluency)-Score"
-      }
+      },
+      "_optional": "true"
     },
     {
       "assessmentItemReference": {
@@ -394,7 +401,8 @@
         "data-type": "integer",
         "source": "column",
         "source-column": "Assessment Measure-DORF (Accuracy)-Score"
-      }
+      },
+      "_optional": "true"
     },
     {
       "assessmentItemReference": {
@@ -434,7 +442,8 @@
         "data-type": "integer",
         "source": "column",
         "source-column": "Assessment Measure-DORF (Retell)-Score"
-      }
+      },
+      "_optional": "true"
     },
     {
       "assessmentItemReference": {
@@ -474,7 +483,8 @@
         "data-type": "integer",
         "source": "column",
         "source-column": "Assessment Measure-DORF (Retell Quality)-Score"
-      }
+      },
+      "_optional": "true"
     },
     {
       "assessmentItemReference": {
@@ -514,7 +524,8 @@
         "data-type": "integer",
         "source": "column",
         "source-column": "Assessment Measure-Daze-Score"
-      }
-    },
+      },
+      "_optional": "true"
+    }
   ]
 }
