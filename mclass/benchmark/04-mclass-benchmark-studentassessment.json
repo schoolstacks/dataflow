@@ -314,6 +314,207 @@
         "source": "column",
         "source-column": "Assessment Measure-NWF (WWR)-Score"
       }
-    }
+    },
+
+    {
+      "assessmentItemReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Measure"
+        }
+      },
+      "assessmentItemResultType": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-DORF (Fluency)-Levels"
+      },
+      "rawScoreResult": {
+        "data-type": "integer",
+        "source": "column",
+        "source-column": "Assessment Measure-DORF (Fluency)-Score"
+      }
+    },
+    {
+      "assessmentItemReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Measure"
+        }
+      },
+      "assessmentItemResultType": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-DORF (Accuracy)-Levels"
+      },
+      "rawScoreResult": {
+        "data-type": "integer",
+        "source": "column",
+        "source-column": "Assessment Measure-DORF (Accuracy)-Score"
+      }
+    },
+    {
+      "assessmentItemReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Measure"
+        }
+      },
+      "assessmentItemResultType": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-DORF (Retell)-Levels"
+      },
+      "rawScoreResult": {
+        "data-type": "integer",
+        "source": "column",
+        "source-column": "Assessment Measure-DORF (Retell)-Score"
+      }
+    },
+    {
+      "assessmentItemReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Measure"
+        }
+      },
+      "assessmentItemResultType": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-DORF (Retell Quality)-Levels"
+      },
+      "rawScoreResult": {
+        "data-type": "integer",
+        "source": "column",
+        "source-column": "Assessment Measure-DORF (Retell Quality)-Score"
+      }
+    },
+    {
+      "assessmentItemReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Measure"
+        }
+      },
+      "assessmentItemResultType": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-Daze-Levels"
+      },
+      "rawScoreResult": {
+        "data-type": "integer",
+        "source": "column",
+        "source-column": "Assessment Measure-Daze-Score"
+      }
+    },
   ]
 }
