@@ -19,6 +19,7 @@ namespace transform_api_load_janitor
     class Program
     {
         private static List<server_components_data_access.Dataflow.datamap> DataMapsList { get; set; } = null;
+        private const string DATAFLOW_CONNECTIONSTRINGKEY = "SQLAZURECONNSTR_defaultConnection";
         static void Main(string[] args)
         {
             try
@@ -33,21 +34,29 @@ namespace transform_api_load_janitor
                 watch.Stop();
                 Console.WriteLine("Time Elapsed: {0}", watch.Elapsed.ToString());
                 Console.WriteLine("Press any key to continue");
-                Console.ReadKey();
             }
             catch (AggregateException ex)
             {
-
+                Console.WriteLine("AggregateException Exception");
+                Console.WriteLine(ex.ToString());
+                foreach (var singleInnerException in ex.InnerExceptions)
+                {
+                    Console.WriteLine(singleInnerException.ToString());
+                }
             }
         }
 
         private static List<server_components_data_access.Dataflow.lookup> MappingLookups { get; set; }
         private static List<KeyValuePair<string, string>> InsertedIds { get; set; } = new List<KeyValuePair<string, string>>();
 
+        private static string GetDataFlowConnectionString()
+        {
+            return GetEnvironmentVariable(DATAFLOW_CONNECTIONSTRINGKEY);
+        }
         private static EntityConnection BuildEntityConnection()
         {
             System.Data.SqlClient.SqlConnectionStringBuilder sqlConnStringBuilder =
-    new System.Data.SqlClient.SqlConnectionStringBuilder(Properties.Settings.Default.DbDataflowConnectionString);
+    new System.Data.SqlClient.SqlConnectionStringBuilder(GetDataFlowConnectionString());
             EntityConnectionStringBuilder entityConnStringBuilder = new EntityConnectionStringBuilder();
             entityConnStringBuilder.Metadata = "res://*/Dataflow.DataFlowContext.csdl|res://*/Dataflow.DataFlowContext.ssdl|res://*/Dataflow.DataFlowContext.msl";
             entityConnStringBuilder.ProviderConnectionString = sqlConnStringBuilder.ToString();
@@ -57,7 +66,6 @@ namespace transform_api_load_janitor
         }
         private static async Task StartProcessing()
         {
-            string connString = Properties.Settings.Default.DbDataflowConnectionString;
             using (server_components_data_access.Dataflow.DataFlowContext ctx =
                 new server_components_data_access.Dataflow.DataFlowContext(BuildEntityConnection()))
             {
@@ -67,7 +75,11 @@ namespace transform_api_load_janitor
                 foreach (var singleAgent in agents)
                 {
                     var dataMapAgents = singleAgent.datamap_agent.OrderBy(p => p.ProcessingOrder);
-                    ProcessDataMapAgent(dataMapAgents, cloudFileUrl: "https://dataflow.file.core.windows.net/sample-files/set02/mcl-progress-monitoring.csv");
+                    foreach (var singleFile in singleAgent.files)
+                    {
+                        ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.URL);
+                        //ProcessDataMapAgent(dataMapAgents, cloudFileUrl: "https://dataflow.file.core.windows.net/sample-files/set02/mcl-progress-monitoring.csv");
+                    }
                 }
                 string authorizeUrl = GetAuthorizeUrl();
                 string accessTokenUrl = GetAccessTokenUrl();
@@ -136,26 +148,7 @@ namespace transform_api_load_janitor
                         StringContent strContent = new StringContent(singleApiData.Value.ToString());
                         strContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
                         HttpResponseMessage response = null;
-                        if (!string.IsNullOrWhiteSpace(strIdName) && !string.IsNullOrWhiteSpace(strId))
-                        {
-                            var recordExistsResult = await RecordExists(strIdName, strId, endpointUrl, accessToken);
-                            if (recordExistsResult.Key == false)
-                            {
-                                method = HttpMethod.Post;
-                                response = await httpClient.PostAsync(endpointUrl, strContent);
-                            }
-                            else
-                            {
-                                method = HttpMethod.Put;
-                                endpointUrl += string.Format("/{0}", recordExistsResult.Value);
-                                response = await httpClient.PutAsync(endpointUrl, strContent);
-                            }
-                        }
-                        else
-                        {
-                            method = HttpMethod.Post;
-                            response = await httpClient.PostAsync(endpointUrl, strContent);
-                        }
+                        response = await httpClient.PostAsync(endpointUrl, strContent);
                         switch (response.StatusCode)
                         {
                             case System.Net.HttpStatusCode.OK:
@@ -241,7 +234,7 @@ namespace transform_api_load_janitor
 
         private static string GetEnvironmentVariable(string name)
         {
-            return System.Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User);
+            return System.Environment.GetEnvironmentVariable(name);
         }
 
         private static string GetApiBaseUrl()

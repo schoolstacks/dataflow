@@ -60,17 +60,5 @@ namespace transform_api_load_janitor.Properties {
                 return ((string)(this["LocalSourceDirectory"]));
             }
         }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=edfiodssql-xm4wsvuqhyvva.database.windows.net;Initial Catalog=EdFi_Da" +
-            "taFlow_Sandbox;Persist Security Info=True;User ID=dataflow_devadmin;Password=Nor" +
-            "thWest2000!")]
-        public string DbDataflowConnectionString {
-            get {
-                return ((string)(this["DbDataflowConnectionString"]));
-            }
-        }
     }
 }
