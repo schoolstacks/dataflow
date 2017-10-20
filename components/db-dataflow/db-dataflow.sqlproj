@@ -93,5 +93,7 @@
     <None Include="Scripts\Post-Deployment\InitialData_File.sql" />
     <None Include="Scripts\Post-Deployment\Status.sql" />
     <None Include="Scripts\Post-Deployment\InitialData_FileStatus.sql" />
+    <None Include="Scripts\Post-Deployment\InitialData_AddSchools.sql" />
+    <None Include="Scripts\Post-Deployment\InitialData_AddAssessments.sql" />
   </ItemGroup>
 </Project>

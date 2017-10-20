@@ -161,7 +161,7 @@ namespace transform_api_load_janitor
                                     Date = DateTime.UtcNow,
                                     //Filename = singleApiData.Key
                                     Result = "SUCCESS",
-                                    Message = string.Format("Record Created:\r\nData:\r\n{0}", singleApiData.Value.ToString()),
+                                    Message = string.Format("Record Created:\r\nEndPoint Url: {0}\r\nData:\r\n{1}",endpointUrl, singleApiData.Value.ToString()),
                                     Level = "INFORMATION",
                                     Operation = "TransformingData",
                                     Process = "transform-api-load-janitor"
