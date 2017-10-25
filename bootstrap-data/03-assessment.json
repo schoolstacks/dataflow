@@ -7,8 +7,8 @@
         "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
         "identificationCodes": [
             {
-                "assessmentIdentificationSystemDescriptor": "School",
-                "identificationCode": "101"
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "mCLASS:DIBELS"
             }
         ]
     },
@@ -20,8 +20,8 @@
         "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
         "identificationCodes": [
             {
-                "assessmentIdentificationSystemDescriptor": "School",
-                "identificationCode": "101"
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "mCLASS:DIBELS"
             }
         ]
     },
@@ -33,8 +33,8 @@
         "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
         "identificationCodes": [
             {
-                "assessmentIdentificationSystemDescriptor": "School",
-                "identificationCode": "101"
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "mCLASS:DIBELS"
             }
         ]
     },
@@ -46,8 +46,8 @@
         "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
         "identificationCodes": [
             {
-                "assessmentIdentificationSystemDescriptor": "School",
-                "identificationCode": "101"
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "mCLASS:DIBELS"
             }
         ]
     },
@@ -59,8 +59,8 @@
         "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
         "identificationCodes": [
             {
-                "assessmentIdentificationSystemDescriptor": "School",
-                "identificationCode": "101"
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "mCLASS:DIBELS"
             }
         ]
     },
@@ -72,8 +72,8 @@
         "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
         "identificationCodes": [
             {
-                "assessmentIdentificationSystemDescriptor": "School",
-                "identificationCode": "101"
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "mCLASS:DIBELS"
             }
         ]
     },
@@ -85,8 +85,8 @@
         "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
         "identificationCodes": [
             {
-                "assessmentIdentificationSystemDescriptor": "School",
-                "identificationCode": "101"
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "mCLASS:DIBELS"
             }
         ]
     },
@@ -98,8 +98,8 @@
         "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
         "identificationCodes": [
             {
-                "assessmentIdentificationSystemDescriptor": "School",
-                "identificationCode": "101"
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "mCLASS:DIBELS"
             }
         ]
     },
@@ -111,8 +111,8 @@
         "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
         "identificationCodes": [
             {
-                "assessmentIdentificationSystemDescriptor": "School",
-                "identificationCode": "101"
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "mCLASS:DIBELS"
             }
         ]
     },
@@ -124,8 +124,8 @@
         "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
         "identificationCodes": [
             {
-                "assessmentIdentificationSystemDescriptor": "School",
-                "identificationCode": "101"
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "mCLASS:DIBELS"
             }
         ]
     },
@@ -137,8 +137,8 @@
         "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
         "identificationCodes": [
             {
-                "assessmentIdentificationSystemDescriptor": "School",
-                "identificationCode": "101"
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "mCLASS:DIBELS"
             }
         ]
     },
@@ -150,8 +150,8 @@
         "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
         "identificationCodes": [
             {
-                "assessmentIdentificationSystemDescriptor": "School",
-                "identificationCode": "101"
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "mCLASS:DIBELS"
             }
         ]
     },
@@ -163,8 +163,8 @@
         "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
         "identificationCodes": [
             {
-                "assessmentIdentificationSystemDescriptor": "School",
-                "identificationCode": "101"
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "mCLASS:DIBELS"
             }
         ]
     }
