@@ -1,0 +1,85 @@
+{
+    "id": "string",
+    "localEducationAgencyReference": {
+      "localEducationAgencyId": 0,
+      "link": {
+        "rel": "string",
+        "href": "string"
+      }
+    },
+    "charterApprovalSchoolYearTypeReference": {
+      "schoolYear": 0,
+      "link": {
+        "rel": "string",
+        "href": "string"
+      }
+    },
+    "schoolId": 0,
+    "stateOrganizationId": "string",
+    "nameOfInstitution": "string",
+    "shortNameOfInstitution": "string",
+    "webSite": "string",
+    "operationalStatusType": "string",
+    "type": "string",
+    "charterStatusType": "string",
+    "titleIPartASchoolDesignationType": "string",
+    "magnetSpecialProgramEmphasisSchoolType": "string",
+    "administrativeFundingControlDescriptor": "string",
+    "internetAccessType": "string",
+    "charterApprovalAgencyType": "string",
+    "addresses": [
+      {
+        "addressType": "string",
+        "streetNumberName": "string",
+        "apartmentRoomSuiteNumber": "string",
+        "buildingSiteNumber": "string",
+        "city": "string",
+        "stateAbbreviationType": "string",
+        "postalCode": "string",
+        "nameOfCounty": "string",
+        "countyFIPSCode": "string",
+        "latitude": "string",
+        "longitude": "string"
+      }
+    ],
+    "educationOrganizationCategories": [
+      {
+        "type": "string"
+      }
+    ],
+    "identificationCodes": [
+      {
+        "educationOrganizationIdentificationSystemDescriptor": "string",
+        "identificationCode": "string"
+      }
+    ],
+    "institutionTelephones": [
+      {
+        "institutionTelephoneNumberType": "string",
+        "telephoneNumber": "string"
+      }
+    ],
+    "internationalAddresses": [
+      {
+        "addressType": "string",
+        "addressLine1": "string",
+        "addressLine2": "string",
+        "addressLine3": "string",
+        "addressLine4": "string",
+        "latitude": "string",
+        "longitude": "string",
+        "countryDescriptor": "string"
+      }
+    ],
+    "schoolCategories": [
+      {
+        "type": "string"
+      }
+    ],
+    "gradeLevels": [
+      {
+        "gradeLevelDescriptor": "string"
+      }
+    ],
+    "_etag": "string"
+  }
