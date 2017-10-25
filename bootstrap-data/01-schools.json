@@ -1,85 +1,83 @@
-{
-    "id": "string",
+[
+  {
     "localEducationAgencyReference": {
-      "localEducationAgencyId": 0,
-      "link": {
-        "rel": "string",
-        "href": "string"
-      }
+      "localEducationAgencyId": 255901
     },
-    "charterApprovalSchoolYearTypeReference": {
-      "schoolYear": 0,
-      "link": {
-        "rel": "string",
-        "href": "string"
-      }
-    },
-    "schoolId": 0,
-    "stateOrganizationId": "string",
-    "nameOfInstitution": "string",
-    "shortNameOfInstitution": "string",
-    "webSite": "string",
-    "operationalStatusType": "string",
-    "type": "string",
-    "charterStatusType": "string",
-    "titleIPartASchoolDesignationType": "string",
-    "magnetSpecialProgramEmphasisSchoolType": "string",
-    "administrativeFundingControlDescriptor": "string",
-    "internetAccessType": "string",
-    "charterApprovalAgencyType": "string",
+    "schoolId": 101101001,
+    "stateOrganizationId": "101101001",
+    "nameOfInstitution": "Winterfell Elementary",
+    "shortNameOfInstitution": "WFE",
+    "webSite": "http://wfelementary.org",
     "addresses": [
       {
-        "addressType": "string",
-        "streetNumberName": "string",
-        "apartmentRoomSuiteNumber": "string",
-        "buildingSiteNumber": "string",
-        "city": "string",
-        "stateAbbreviationType": "string",
-        "postalCode": "string",
-        "nameOfCounty": "string",
-        "countyFIPSCode": "string",
-        "latitude": "string",
-        "longitude": "string"
-      }
-    ],
-    "educationOrganizationCategories": [
-      {
-        "type": "string"
+        "addressType": "Mailing",
+        "streetNumberName": "1232 Main Street",
+        "city": "Notown",
+        "stateAbbreviationType": "TX",
+        "postalCode": "11111"
       }
     ],
     "identificationCodes": [
       {
-        "educationOrganizationIdentificationSystemDescriptor": "string",
-        "identificationCode": "string"
-      }
-    ],
-    "institutionTelephones": [
-      {
-        "institutionTelephoneNumberType": "string",
-        "telephoneNumber": "string"
-      }
-    ],
-    "internationalAddresses": [
-      {
-        "addressType": "string",
-        "addressLine1": "string",
-        "addressLine2": "string",
-        "addressLine3": "string",
-        "addressLine4": "string",
-        "latitude": "string",
-        "longitude": "string",
-        "countryDescriptor": "string"
-      }
-    ],
-    "schoolCategories": [
-      {
-        "type": "string"
+        "educationOrganizationIdentificationSystemDescriptor": "School",
+        "identificationCode": "101101001"
       }
     ],
     "gradeLevels": [
       {
-        "gradeLevelDescriptor": "string"
+        "gradeLevelDescriptor": "Kindergarten"
+      },
+      {
+        "gradeLevelDescriptor": "First grade"
+      },
+      {
+        "gradeLevelDescriptor": "Second grade"
+      },
+      {
+        "gradeLevelDescriptor": "Third grade"
+      },
+      {
+        "gradeLevelDescriptor": "Fourth grade"
+      },
+      {
+        "gradeLevelDescriptor": "Fifth grade"
+      }
+    ]
+  },
+  {
+    "localEducationAgencyReference": {
+      "localEducationAgencyId": 255901
+    },
+    "schoolId": 101101002,
+    "stateOrganizationId": "101101002",
+    "nameOfInstitution": "Winterfell Middle",
+    "shortNameOfInstitution": "WFM",
+    "webSite": "http://wfmiddle.org",
+    "addresses": [
+      {
+        "addressType": "Mailing",
+        "streetNumberName": "4123 Main Street",
+        "city": "Notown",
+        "stateAbbreviationType": "TX",
+        "postalCode": "11111"
       }
     ],
-    "_etag": "string"
+    "identificationCodes": [
+      {
+        "educationOrganizationIdentificationSystemDescriptor": "School",
+        "identificationCode": "101101002"
+      }
+    ],
+    "gradeLevels": [
+      {
+        "gradeLevelDescriptor": "Sixth grade"
+      },
+      {
+        "gradeLevelDescriptor": "Seventh grade"
+      },
+      {
+        "gradeLevelDescriptor": "Eighth grade"
+      }
+    ]
   }
+]
