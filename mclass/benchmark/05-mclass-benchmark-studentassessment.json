@@ -1,0 +1,602 @@
+{
+  "assessmentReference": {
+    "title": {
+      "data-type": "string",
+      "source": "column",
+      "value": "Assessment"
+    },
+    "assessedGradeLevelDescriptor": {
+      "data-type": "string",
+      "source": "lookup-table",
+      "source-table": "mclass-grade",
+      "source-column": "Assessment Grade"
+    },
+    "academicSubjectDescriptor": {
+      "data-type": "string",
+      "source": "static",
+      "value": "Reading"
+    },
+    "version": {
+      "data-type": "integer",
+      "source": "static",
+      "value": "1"
+    }
+  },
+  "studentReference": {
+    "studentUniqueId": {
+      "data-type": "string",
+      "source": "column",
+      "source-column": "Student Primary ID"
+    }
+  },
+  "administrationDate": {
+    "data-type": "date-time",
+    "source": "column",
+    "source-column": "Probe Clientdate"
+  },
+  "performanceLevels": [
+    {
+      "performanceLevelDescriptor": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-Composite Score-Levels"
+      }
+    }
+  ],
+  "scoreResults": [
+    {
+      "assessmentReportingMethodType": {
+        "data-type": "string",
+        "source": "static",
+        "value": "Number score"
+      },
+      "result": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "Assessment Measure-Composite Score-Score"
+      }
+    }
+  ],
+  "studentObjectiveAssessments": [
+    {
+      "objectiveAssessmentReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "value": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "static",
+          "value": "mCLASS:DIBELS-FSF"
+        }
+      },
+      "performanceLevels": [
+        {
+          "performanceLevelDescriptor": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-FSF-Levels"
+          }
+        }
+      ],
+      "scoreResults": [
+        {
+          "assessmentReportingMethodType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Number score"
+          },
+          "result": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-FSF-Score"
+          }
+        }
+      ],
+      "_optional": "true"
+    },
+    {
+      "objectiveAssessmentReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "value": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "static",
+          "value": "mCLASS:DIBELS-LNF"
+        }
+      },
+      "performanceLevels": [
+        {
+          "performanceLevelDescriptor": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-LNF-Levels"
+          }
+        }
+      ],
+      "scoreResults": [
+        {
+          "assessmentReportingMethodType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Number score"
+          },
+          "result": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-LNF-Score"
+          }
+        }
+      ],
+      "_optional": "true"
+    },
+    {
+      "objectiveAssessmentReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "value": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "static",
+          "value": "mCLASS:DIBELS-PSF"
+        }
+      },
+      "performanceLevels": [
+        {
+          "performanceLevelDescriptor": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-PSF-Levels"
+          }
+        }
+      ],
+      "scoreResults": [
+        {
+          "assessmentReportingMethodType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Number score"
+          },
+          "result": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-PSF-Score"
+          }
+        }
+      ],
+      "_optional": "true"
+    },
+    {
+      "objectiveAssessmentReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "value": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "static",
+          "value": "mCLASS:DIBELS-NWF (CLS)"
+        }
+      },
+      "performanceLevels": [
+        {
+          "performanceLevelDescriptor": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-NWF (CLS)-Levels"
+          }
+        }
+      ],
+      "scoreResults": [
+        {
+          "assessmentReportingMethodType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Number score"
+          },
+          "result": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-NWF (CLS)-Score"
+          }
+        }
+      ],
+      "_optional": "true"
+    },
+    {
+      "objectiveAssessmentReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "value": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "static",
+          "value": "mCLASS:DIBELS-NWF (WWR)"
+        }
+      },
+      "performanceLevels": [
+        {
+          "performanceLevelDescriptor": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-NWF (WWR)-Levels"
+          }
+        }
+      ],
+      "scoreResults": [
+        {
+          "assessmentReportingMethodType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Number score"
+          },
+          "result": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-NWF (WWR)-Score"
+          }
+        }
+      ],
+      "_optional": "true"
+    },
+    {
+      "objectiveAssessmentReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "value": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "static",
+          "value": "mCLASS:DIBELS-DORF (Fluency)"
+        }
+      },
+      "performanceLevels": [
+        {
+          "performanceLevelDescriptor": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-DORF (Fluency)-Levels"
+          }
+        }
+      ],
+      "scoreResults": [
+        {
+          "assessmentReportingMethodType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Number score"
+          },
+          "result": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-DORF (Fluency)-Score"
+          }
+        }
+      ],
+      "_optional": "true"
+    },
+    {
+      "objectiveAssessmentReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "value": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "static",
+          "value": "mCLASS:DIBELS-DORF (Accuracy)"
+        }
+      },
+      "performanceLevels": [
+        {
+          "performanceLevelDescriptor": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-DORF (Accuracy)-Levels"
+          }
+        }
+      ],
+      "scoreResults": [
+        {
+          "assessmentReportingMethodType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Number score"
+          },
+          "result": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-DORF (Accuracy)-Score"
+          }
+        }
+      ],
+      "_optional": "true"
+    },
+    {
+      "objectiveAssessmentReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "value": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "static",
+          "value": "mCLASS:DIBELS-DORF (Retell)"
+        }
+      },
+      "performanceLevels": [
+        {
+          "performanceLevelDescriptor": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-DORF (Retell)-Levels"
+          }
+        }
+      ],
+      "scoreResults": [
+        {
+          "assessmentReportingMethodType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Number score"
+          },
+          "result": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-DORF (Retell)-Score"
+          }
+        }
+      ],
+      "_optional": "true"
+    },
+    {
+      "objectiveAssessmentReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "value": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "static",
+          "value": "mCLASS:DIBELS-DORF (Retell Quality)"
+        }
+      },
+      "performanceLevels": [
+        {
+          "performanceLevelDescriptor": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-DORF (Retell Quality)-Levels"
+          }
+        }
+      ],
+      "scoreResults": [
+        {
+          "assessmentReportingMethodType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Number score"
+          },
+          "result": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-DORF (Retell Quality)-Score"
+          }
+        }
+      ],
+      "_optional": "true"
+    },
+    {
+      "objectiveAssessmentReference": {
+        "assessmentTitle": {
+          "data-type": "string",
+          "source": "column",
+          "value": "Assessment"
+        },
+        "academicSubjectDescriptor": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Reading"
+        },
+        "assessedGradeLevelDescriptor": {
+          "data-type": "string",
+          "source": "lookup-table",
+          "source-table": "mclass-grade",
+          "source-column": "Assessment Grade"
+        },
+        "version": {
+          "data-type": "integer",
+          "source": "static",
+          "value": "1"
+        },
+        "identificationCode": {
+          "data-type": "string",
+          "source": "static",
+          "value": "mCLASS:DIBELS-Daze"
+        }
+      },
+      "performanceLevels": [
+        {
+          "performanceLevelDescriptor": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-Daze-Levels"
+          }
+        }
+      ],
+      "scoreResults": [
+        {
+          "assessmentReportingMethodType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Number score"
+          },
+          "result": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Assessment Measure-Daze-Score"
+          }
+        }
+      ],
+      "_optional": "true"
+    }
+  ]
+}

@@ -5,9 +5,11 @@
         "source-column": "Assessment"
     },
     "assessedGradeLevelDescriptor": {
-        "data-type": "string",
-        "source": "static",
-        "value": "Twelfth grade"
+      "data-type": "string",
+      "source": "lookup-table",
+      "source-table": "mclass-grade",
+      "source-column": "Assessment Grade",
+      "default": "Twelfth grade"
     },
     "academicSubjectDescriptor": {
         "data-type": "string",
