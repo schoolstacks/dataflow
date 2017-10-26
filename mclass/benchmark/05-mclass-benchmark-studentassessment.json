@@ -31,8 +31,9 @@
   },
   "administrationDate": {
     "data-type": "date-time",
-    "source": "column",
-    "source-column": "Probe Clientdate"
+    "source": "lookup-table",
+    "source-table": "mclass-testdate",
+    "source-column": "Benchmark Period"
   },
   "performanceLevels": [
     {
