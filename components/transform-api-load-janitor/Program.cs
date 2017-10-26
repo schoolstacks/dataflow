@@ -13,6 +13,7 @@ using server_components_data_access.Dataflow;
 using CsvHelper;
 using System.Net.Http;
 using System.Data.Entity.Core.EntityClient;
+using server_components_data_access.Enums;
 
 namespace transform_api_load_janitor
 {
@@ -42,6 +43,15 @@ namespace transform_api_load_janitor
                 foreach (var singleInnerException in ex.InnerExceptions)
                 {
                     Console.WriteLine(singleInnerException.ToString());
+                }
+            }
+            finally
+            {
+                if (String.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME")))
+                {
+                    //if environment variable exists application is running under App Service. Otherwise is probably IIS or Visual Studio
+                    Console.WriteLine("Press any key to exist");
+                    Console.ReadKey();
                 }
             }
         }
@@ -75,10 +85,13 @@ namespace transform_api_load_janitor
                 foreach (var singleAgent in agents)
                 {
                     var dataMapAgents = singleAgent.datamap_agent.OrderBy(p => p.ProcessingOrder);
-                    foreach (var singleFile in singleAgent.files)
+                    foreach (var singleFile in singleAgent.files.Where(p => p.Status.ToUpper() ==
+                    FileStatus.UPLOADED))
                     {
-                        ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.URL);
+                        Console.WriteLine("Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
+                        ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.URL, fileEntity: singleFile);
                         //ProcessDataMapAgent(dataMapAgents, cloudFileUrl: "https://dataflow.file.core.windows.net/sample-files/set02/mcl-progress-monitoring.csv");
+                        Console.WriteLine("Finished Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
                     }
                 }
                 string authorizeUrl = GetAuthorizeUrl();
@@ -89,119 +102,143 @@ namespace transform_api_load_janitor
                 string accessToken = await RetrieveAccessToken(accessTokenUrl, clientId, clientSecret, authCode);
                 Console.WriteLine("Start of Api Insertion: {0} records", ApiData.Count);
                 int iCurrentRecord = 1;
-                foreach (var singleApiData in ApiData)
+                List<file> lstErroredFiles = new List<file>();
+                iCurrentRecord = await ProcessApiData(ctx, lstIngestionMessages, accessToken, iCurrentRecord, lstErroredFiles);
+                foreach (var singleErrorFile in lstErroredFiles)
                 {
-                    if (String.IsNullOrWhiteSpace(singleApiData.Key.Metadata))
+                    singleErrorFile.Status = FileStatus.ERROR_TRANSFORM;
+                }
+                var transformedFiles = ApiData.Where(p=>lstErroredFiles.Contains(p.FileEntity)==false).Select(p => p.FileEntity).ToList();
+                foreach(var singleTransformedFile in transformedFiles.Distinct())
+                {
+                    singleTransformedFile.Status = FileStatus.TRANSFORMED;
+                }
+                ctx.SaveChanges();
+            }
+        }
+
+        private static async Task<int> ProcessApiData(DataFlowContext ctx, List<log_ingestion> lstIngestionMessages, string accessToken, int iCurrentRecord, List<file> lstErroredFiles)
+        {
+            Console.WriteLine("Processing ApiData.");
+            foreach (var singleApiData in ApiData)
+            {
+                Console.WriteLine("Inserting Data For File {0}", singleApiData.FileEntity.URL);
+                if (String.IsNullOrWhiteSpace(singleApiData.Key.Metadata))
+                {
+                    lstIngestionMessages.Add(new log_ingestion()
                     {
-                        lstIngestionMessages.Add(new log_ingestion()
-                        {
-                            Date = DateTime.UtcNow,
-                            //Filename = singleApiData.Key
-                            Result = "ERROR",
-                            Message = string.Format("Entity has no Metadata. Entity ID: {0}", singleApiData.Key.ID),
-                            Level = "ERROR",
-                            Operation = "TransformingData",
-                            Process = "transform-api-load-janitor"
-                        });
-                        continue; // we will not process if we cannot read metadata
+                        Date = DateTime.UtcNow,
+                        //Filename = singleApiData.Key
+                        Result = "ERROR",
+                        Message = string.Format("Entity has no Metadata. Entity ID: {0}", singleApiData.Key.ID),
+                        Level = "ERROR",
+                        Operation = "TransformingData",
+                        Process = "transform-api-load-janitor"
+                    });
+                    if (!lstErroredFiles.Contains(singleApiData.FileEntity))
+                        lstErroredFiles.Add(singleApiData.FileEntity);
+                    continue; // we will not process if we cannot read metadata
+                }
+                Console.WriteLine("Api Insertion Record: {0} of {1}", iCurrentRecord, ApiData.Count);
+                iCurrentRecord++;
+                string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata);
+                HttpMethod method = HttpMethod.Post;
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+                    string strId = string.Empty;
+                    string strIdName = string.Empty;
+                    switch (singleApiData.Key.Name)
+                    {
+                        case "students":
+                            strIdName = "studentUniqueId";
+                            strId = singleApiData.Value[strIdName].ToString();
+                            break;
+                        //case "studentAssessments":
+                        //    break;
+                        //case "studentSchoolAssociations":
+                        //    break;
+                        //case "studentSectionAssociations":
+                        //    break;
+                        //case "staffs":
+                        //    break;
+                        //case "assessments":
+                        //    break;
+                        //case "staffSchoolAssociations":
+                        //    break;
+                        //case "staffSectionAssociations":
+                        //    break;
+                        //case "schools":
+                        //    break;
+                        //case "localEducationAgencies":
+                        //    break;
+                        //case "sections":
+                        //    break;
+                        //case "assessmentItem":
+                        //    break;
+                        default:
+                            break;
                     }
-                    Console.WriteLine("Api Insertion Record: {0} of {1}", iCurrentRecord, ApiData.Count);
-                    iCurrentRecord++;
-                    string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata);
-                    HttpMethod method = HttpMethod.Post;
-                    using (HttpClient httpClient = new HttpClient())
+                    StringContent strContent = new StringContent(singleApiData.Value.ToString());
+                    strContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                    HttpResponseMessage response = null;
+                    response = await httpClient.PostAsync(endpointUrl, strContent);
+                    switch (response.StatusCode)
                     {
-                        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-                        string strId = string.Empty;
-                        string strIdName = string.Empty;
-                        switch (singleApiData.Key.Name)
-                        {
-                            case "students":
-                                strIdName = "studentUniqueId";
-                                strId = singleApiData.Value[strIdName].ToString();
-                                break;
-                            //case "studentAssessments":
-                            //    break;
-                            //case "studentSchoolAssociations":
-                            //    break;
-                            //case "studentSectionAssociations":
-                            //    break;
-                            //case "staffs":
-                            //    break;
-                            //case "assessments":
-                            //    break;
-                            //case "staffSchoolAssociations":
-                            //    break;
-                            //case "staffSectionAssociations":
-                            //    break;
-                            //case "schools":
-                            //    break;
-                            //case "localEducationAgencies":
-                            //    break;
-                            //case "sections":
-                            //    break;
-                            //case "assessmentItem":
-                            //    break;
-                            default:
-                                break;
-                        }
-                        StringContent strContent = new StringContent(singleApiData.Value.ToString());
-                        strContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-                        HttpResponseMessage response = null;
-                        response = await httpClient.PostAsync(endpointUrl, strContent);
-                        switch (response.StatusCode)
-                        {
-                            case System.Net.HttpStatusCode.OK:
-                                break;
-                            case System.Net.HttpStatusCode.Created:
-                                Console.WriteLine("Data Inserted on endpoint: {0}", endpointUrl);
-                                InsertedIds.Add(new KeyValuePair<string, string>(strIdName, strId));
-                                lstIngestionMessages.Add(new log_ingestion()
+                        case System.Net.HttpStatusCode.OK:
+                            break;
+                        case System.Net.HttpStatusCode.Created:
+                            Console.WriteLine("Data Inserted on endpoint: {0}", endpointUrl);
+                            InsertedIds.Add(new KeyValuePair<string, string>(strIdName, strId));
+                            lstIngestionMessages.Add(new log_ingestion()
+                            {
+                                Date = DateTime.UtcNow,
+                                //Filename = singleApiData.Key
+                                Result = "SUCCESS",
+                                Message = string.Format("Record Created:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nData:\r\n{2}",singleApiData.RowNumber, endpointUrl, singleApiData.Value.ToString()),
+                                Level = "INFORMATION",
+                                Operation = "TransformingData",
+                                Process = "transform-api-load-janitor"
+                            });
+                            break;
+                        default:
+                            string strError = await response.Content.ReadAsStringAsync();
+                            var singleIngestionError =
+                                new log_ingestion()
                                 {
                                     Date = DateTime.UtcNow,
                                     //Filename = singleApiData.Key
-                                    Result = "SUCCESS",
-                                    Message = string.Format("Record Created:\r\nEndPoint Url: {0}\r\nData:\r\n{1}",endpointUrl, singleApiData.Value.ToString()),
-                                    Level = "INFORMATION",
+                                    Result = "ERROR",
+                                    Message = string.Format("Message: {0}. Row Number: {1} EndPoint Url: {2}\r\nData:\r\n{3}", strError, singleApiData.RowNumber, endpointUrl, singleApiData.Value.ToString()),
+                                    Level = "ERROR",
                                     Operation = "TransformingData",
                                     Process = "transform-api-load-janitor"
-                                });
-                                break;
-                            default:
-                                string strError = await response.Content.ReadAsStringAsync();
-                                var singleIngestionError =
-                                    new log_ingestion()
-                                    {
-                                        Date = DateTime.UtcNow,
-                                        //Filename = singleApiData.Key
-                                        Result = "ERROR",
-                                        Message = string.Format("Message: {0}. Method:{1}. EndPoint Url: {2}\r\nData:\r\n{3}", strError, method.Method, endpointUrl, singleApiData.Value.ToString()),
-                                        Level = "ERROR",
-                                        Operation = "TransformingData",
-                                        Process = "transform-api-load-janitor"
-                                    };
-                                lstIngestionMessages.Add(singleIngestionError);
-                                break;
-                        }
+                                };
+                            lstIngestionMessages.Add(singleIngestionError);
+                            if (!lstErroredFiles.Contains(singleApiData.FileEntity))
+                                lstErroredFiles.Add(singleApiData.FileEntity);
+                            break;
                     }
-                    if (lstIngestionMessages.Count > 0)
+                }
+                if (lstIngestionMessages.Count > 0)
+                {
+                    try
                     {
-                        try
+                        lstIngestionMessages.ForEach((singleIngestionError) =>
                         {
-                            lstIngestionMessages.ForEach((singleIngestionError) =>
-                            {
-                                ctx.log_ingestion.Add(singleIngestionError);
-                            });
-                            ctx.SaveChanges();
-                            lstIngestionMessages.Clear();
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                        }
+                            ctx.log_ingestion.Add(singleIngestionError);
+                        });
+                        ctx.SaveChanges();
+                        lstIngestionMessages.Clear();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
                     }
                 }
             }
+
+            return iCurrentRecord;
         }
 
         private static async Task<KeyValuePair<bool, string>> RecordExists(string strIdName, string strId, string endpointUrl, string accessToken)
@@ -276,7 +313,7 @@ namespace transform_api_load_janitor
             }
             catch (Exception ex)
             {
-
+                throw ex;
             }
             return strUrl;
         }
@@ -332,10 +369,11 @@ namespace transform_api_load_janitor
             return code;
         }
 
-        public static List<KeyValuePair<entity, JToken>> ApiData = new List<KeyValuePair<entity, JToken>>();
+        public static List<ResultingMapInfo> ApiData = new List<ResultingMapInfo>();
 
 
-        private static void ProcessDataMapAgent(IOrderedEnumerable<datamap_agent> dataMapAgents, string cloudFileUrl)
+        private static void ProcessDataMapAgent(IOrderedEnumerable<datamap_agent> dataMapAgents,
+            string cloudFileUrl, file fileEntity)
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
     Properties.Settings.Default.StorageConnectionString);
@@ -347,10 +385,17 @@ namespace transform_api_load_janitor
             {
                 using (CsvHelper.CsvReader reader = new CsvHelper.CsvReader(strReader))
                 {
+                    int rowNum = 1;
                     while (reader.Read())
                     {
+                        rowNum++;
+                        //if (rowNum == 50)
+                        //    break;
                         foreach (var singleDataMapAgent in dataMapAgents)
                         {
+                            Console.WriteLine("Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Family: {4}. Row #: {5}", 
+                                singleDataMapAgent.datamap.ID, singleDataMapAgent.AgentID, singleDataMapAgent.DataMapID, singleDataMapAgent.datamap.entity.Name,
+                                singleDataMapAgent.datamap.entity.Family, rowNum);
                             var entity = singleDataMapAgent.datamap.entity;
                             //if (entity.Name != "studentAssessments")
                             //    continue;
@@ -365,9 +410,13 @@ namespace transform_api_load_janitor
                             //    continue;
                             var dataMap = singleDataMapAgent.datamap;
                             JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
-                            ApiData.Add(
-                                new KeyValuePair<entity, JToken>(entity, generatedRow)
-                                );
+                            ApiData.Add(new ResultingMapInfo()
+                            {
+                                Key = entity,
+                                Value = generatedRow,
+                                FileEntity = fileEntity,
+                                RowNumber = rowNum
+                            });
                         }
                     }
                 }
@@ -436,7 +485,7 @@ namespace transform_api_load_janitor
                         }
                         catch (Exception ex)
                         {
-
+                            throw ex;
                         }
                     }
                     switch (sourceField.Value.ToString())
@@ -469,7 +518,7 @@ namespace transform_api_load_janitor
                                     }
                                     catch (Exception ex1)
                                     {
-
+                                        throw ex1;
                                     }
                                 }
                                 else
@@ -567,7 +616,10 @@ namespace transform_api_load_janitor
                         result = csvValue;
                         break;
                     case "integer":
-                        result = Convert.ToInt32(csvValue);
+                        if (!string.IsNullOrWhiteSpace(csvValue))
+                            result = Convert.ToInt32(csvValue);
+                        else
+                            result = 0;
                         break;
                     case "date-time":
                         result = csvValue;
@@ -589,10 +641,17 @@ namespace transform_api_load_janitor
             else
                 result = csvValue;
             if (
-                (result == null || (result != null && String.IsNullOrWhiteSpace(result.ToString()))) &&
+                (result == null || 
+                (result != null && String.IsNullOrWhiteSpace(result.ToString()))) &&
                 defaultValueField != null)
             {
                 result = defaultValueField.Value.ToString();
+            }
+            else
+            {
+                //if we found no mapping we will set the value to an empty string
+                if (result == null)
+                    result = string.Empty;
             }
             return JToken.FromObject(result);
         }
@@ -698,5 +757,13 @@ namespace transform_api_load_janitor
                 }
             }
         }
+    }
+
+    public class ResultingMapInfo
+    {
+        public file FileEntity { get; set; }
+        public entity Key { get; set; }
+        public int RowNumber { get; set; }
+        public JToken Value { get; set; }
     }
 }
