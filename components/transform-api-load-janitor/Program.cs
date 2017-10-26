@@ -419,14 +419,21 @@ namespace transform_api_load_janitor
                             //if (entity.Name == "students")
                             //    continue;
                             var dataMap = singleDataMapAgent.datamap;
-                            JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
-                            ApiData.Add(new ResultingMapInfo()
+                            try
                             {
-                                Key = entity,
-                                Value = generatedRow,
-                                FileEntity = fileEntity,
-                                RowNumber = rowNum
-                            });
+                                JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
+                                ApiData.Add(new ResultingMapInfo()
+                                {
+                                    Key = entity,
+                                    Value = generatedRow,
+                                    FileEntity = fileEntity,
+                                    RowNumber = rowNum
+                                });
+                            }
+                            catch (Exception ex)
+                            {
+                                Log(log4net.Core.Level.Error, "Error Processing Row: {0}. File: {1}. Message: {2}", rowNum, cloudFileUrl,ex.ToString());
+                            }
                         }
                     }
                 }
@@ -771,14 +778,21 @@ namespace transform_api_load_janitor
         private static void Log(log4net.Core.Level level, string message, params object[] args)
         {
             string messageToLog = string.Empty;
-            if (args != null && args.Count() > 0)
+            try
             {
-                messageToLog = string.Format(message, args);
+                if (args != null && args.Count() > 0)
+                {
+                    messageToLog = string.Format(message, args);
+                }
+                if (level.Value == log4net.Core.Level.Error.Value)
+                    _log.Error(messageToLog);
+                else
+                    _log.Info(messageToLog);
             }
-            if (level.Value == log4net.Core.Level.Error.Value)
-                _log.Error(messageToLog);
-            else
-                _log.Info(messageToLog);
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error logging: " + ex.ToString());
+            }
         }
     }
 
