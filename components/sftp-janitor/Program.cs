@@ -56,8 +56,6 @@ namespace sftp_janitor
                 }
             }
 
-            Console.ReadLine();
-
             _log.Info("SFTP Janitor exiting");
         }
 
