@@ -165,7 +165,7 @@
           }
         }
       ],
-      "_optional": "true"
+      "_required": ["Assessment Measure-LNF-Levels", "Assessment Measure-LNF-Score"]
     },
     {
       "objectiveAssessmentReference": {
@@ -219,7 +219,7 @@
           }
         }
       ],
-      "_optional": "true"
+      "_required": ["Assessment Measure-PSF-Levels", "Assessment Measure-PSF-Score"]
     },
     {
       "objectiveAssessmentReference": {
@@ -273,7 +273,7 @@
           }
         }
       ],
-      "_optional": "true"
+      "_required": ["Assessment Measure-NWF (CLS)-Levels", "Assessment Measure-NWF (CLS)-Score"]
     },
     {
       "objectiveAssessmentReference": {
@@ -327,7 +327,7 @@
           }
         }
       ],
-      "_optional": "true"
+      "_required": ["Assessment Measure-NWF (WWR)-Levels", "Assessment Measure-NWF (WWR)-Score"]
     },
     {
       "objectiveAssessmentReference": {
@@ -381,7 +381,7 @@
           }
         }
       ],
-      "_optional": "true"
+      "_required": ["Assessment Measure-DORF (Fluency)-Levels", "Assessment Measure-DORF (Fluency)-Score"]
     },
     {
       "objectiveAssessmentReference": {
@@ -435,7 +435,7 @@
           }
         }
       ],
-      "_optional": "true"
+      "_required": ["Assessment Measure-DORF (Accuracy)-Levels", "Assessment Measure-DORF (Accuracy)-Score"]
     },
     {
       "objectiveAssessmentReference": {
@@ -489,7 +489,7 @@
           }
         }
       ],
-      "_optional": "true"
+      "_required": ["Assessment Measure-DORF (Retell)-Levels", "Assessment Measure-DORF (Retell)-Score"]
     },
     {
       "objectiveAssessmentReference": {
@@ -543,7 +543,7 @@
           }
         }
       ],
-      "_optional": "true"
+      "_required": ["Assessment Measure-DORF (Retell Quality)-Levels", "Assessment Measure-DORF (Retell Quality)-Score"]
     },
     {
       "objectiveAssessmentReference": {
@@ -597,7 +597,7 @@
           }
         }
       ],
-      "_optional": "true"
+      "_required": ["Assessment Measure-Daze-Levels", "Assessment Measure-Daze-Score"]
     }
   ]
 }
