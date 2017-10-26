@@ -3,7 +3,7 @@
     "title": {
       "data-type": "string",
       "source": "column",
-      "value": "Assessment"
+      "source-column": "Assessment"
     },
     "assessedGradeLevelDescriptor": {
       "data-type": "string",
@@ -110,7 +110,7 @@
           }
         }
       ],
-      "_optional": "true"
+      "_required": ["Assessment Measure-FSF-Levels", "Assessment Measure-FSF-Score"]
     },
     {
       "objectiveAssessmentReference": {
