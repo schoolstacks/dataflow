@@ -19,6 +19,7 @@ namespace transform_api_load_janitor
 {
     class Program
     {
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private static List<server_components_data_access.Dataflow.datamap> DataMapsList { get; set; } = null;
         private const string DATAFLOW_CONNECTIONSTRINGKEY = "SQLAZURECONNSTR_defaultConnection";
         static void Main(string[] args)
@@ -26,6 +27,7 @@ namespace transform_api_load_janitor
             try
             {
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+                var config = log4net.Config.XmlConfigurator.Configure();
                 System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
                 watch.Start();
                 var tsk = StartProcessing();
@@ -33,16 +35,17 @@ namespace transform_api_load_janitor
                 //LoadDataflowConfiguration();
                 //TransformFilesFromAzureFileStorage();
                 watch.Stop();
-                Console.WriteLine("Time Elapsed: {0}", watch.Elapsed.ToString());
-                Console.WriteLine("Press any key to continue");
+
+                Log(log4net.Core.Level.Info, "Time Elapsed: {0}", watch.Elapsed.ToString());
+                Log(log4net.Core.Level.Info, "Press any key to continue");
             }
             catch (AggregateException ex)
             {
-                Console.WriteLine("AggregateException Exception");
-                Console.WriteLine(ex.ToString());
+                Log(log4net.Core.Level.Info, "AggregateException Exception");
+                Log(log4net.Core.Level.Info, ex.ToString());
                 foreach (var singleInnerException in ex.InnerExceptions)
                 {
-                    Console.WriteLine(singleInnerException.ToString());
+                    Log(log4net.Core.Level.Info, singleInnerException.ToString());
                 }
             }
             finally
@@ -50,7 +53,7 @@ namespace transform_api_load_janitor
                 if (String.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME")))
                 {
                     //if environment variable exists application is running under App Service. Otherwise is probably IIS or Visual Studio
-                    Console.WriteLine("Press any key to exist");
+                    Log(log4net.Core.Level.Info, "Press any key to exist");
                     Console.ReadKey();
                 }
             }
@@ -88,10 +91,17 @@ namespace transform_api_load_janitor
                     foreach (var singleFile in singleAgent.files.Where(p => p.Status.ToUpper() ==
                     FileStatus.UPLOADED))
                     {
-                        Console.WriteLine("Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
-                        ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.URL, fileEntity: singleFile);
+                        Log(log4net.Core.Level.Info, "Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
+                        try
+                        {
+                            ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.URL, fileEntity: singleFile);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log(log4net.Core.Level.Error, "Error processing file: {0}. Message: {1}", singleFile.URL, ex.ToString());
+                        }
                         //ProcessDataMapAgent(dataMapAgents, cloudFileUrl: "https://dataflow.file.core.windows.net/sample-files/set02/mcl-progress-monitoring.csv");
-                        Console.WriteLine("Finished Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
+                        Log(log4net.Core.Level.Info, "Finished Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
                     }
                 }
                 string authorizeUrl = GetAuthorizeUrl();
@@ -100,7 +110,7 @@ namespace transform_api_load_janitor
                 string clientSecret = GetApiClientSecret();
                 string authCode = await RetrieveAuthorizationCode(authorizeUrl, clientId: clientId);
                 string accessToken = await RetrieveAccessToken(accessTokenUrl, clientId, clientSecret, authCode);
-                Console.WriteLine("Start of Api Insertion: {0} records", ApiData.Count);
+                Log(log4net.Core.Level.Info, "Start of Api Insertion: {0} records", ApiData.Count);
                 int iCurrentRecord = 1;
                 List<file> lstErroredFiles = new List<file>();
                 iCurrentRecord = await ProcessApiData(ctx, lstIngestionMessages, accessToken, iCurrentRecord, lstErroredFiles);
@@ -108,8 +118,8 @@ namespace transform_api_load_janitor
                 {
                     singleErrorFile.Status = FileStatus.ERROR_TRANSFORM;
                 }
-                var transformedFiles = ApiData.Where(p=>lstErroredFiles.Contains(p.FileEntity)==false).Select(p => p.FileEntity).ToList();
-                foreach(var singleTransformedFile in transformedFiles.Distinct())
+                var transformedFiles = ApiData.Where(p => lstErroredFiles.Contains(p.FileEntity) == false).Select(p => p.FileEntity).ToList();
+                foreach (var singleTransformedFile in transformedFiles.Distinct())
                 {
                     singleTransformedFile.Status = FileStatus.TRANSFORMED;
                 }
@@ -119,10 +129,10 @@ namespace transform_api_load_janitor
 
         private static async Task<int> ProcessApiData(DataFlowContext ctx, List<log_ingestion> lstIngestionMessages, string accessToken, int iCurrentRecord, List<file> lstErroredFiles)
         {
-            Console.WriteLine("Processing ApiData.");
+            Log(log4net.Core.Level.Info, "Processing ApiData.");
             foreach (var singleApiData in ApiData)
             {
-                Console.WriteLine("Inserting Data For File {0}", singleApiData.FileEntity.URL);
+                Log(log4net.Core.Level.Info, "Inserting Data For File {0}", singleApiData.FileEntity.URL);
                 if (String.IsNullOrWhiteSpace(singleApiData.Key.Metadata))
                 {
                     lstIngestionMessages.Add(new log_ingestion()
@@ -139,7 +149,7 @@ namespace transform_api_load_janitor
                         lstErroredFiles.Add(singleApiData.FileEntity);
                     continue; // we will not process if we cannot read metadata
                 }
-                Console.WriteLine("Api Insertion Record: {0} of {1}", iCurrentRecord, ApiData.Count);
+                Log(log4net.Core.Level.Info, "Api Insertion Record: {0} of {1}", iCurrentRecord, ApiData.Count);
                 iCurrentRecord++;
                 string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata);
                 HttpMethod method = HttpMethod.Post;
@@ -188,14 +198,14 @@ namespace transform_api_load_janitor
                         case System.Net.HttpStatusCode.OK:
                             break;
                         case System.Net.HttpStatusCode.Created:
-                            Console.WriteLine("Data Inserted on endpoint: {0}", endpointUrl);
+                            Log(log4net.Core.Level.Info, "Data Inserted on endpoint: {0}", endpointUrl);
                             InsertedIds.Add(new KeyValuePair<string, string>(strIdName, strId));
                             lstIngestionMessages.Add(new log_ingestion()
                             {
                                 Date = DateTime.UtcNow,
                                 //Filename = singleApiData.Key
                                 Result = "SUCCESS",
-                                Message = string.Format("Record Created:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nData:\r\n{2}",singleApiData.RowNumber, endpointUrl, singleApiData.Value.ToString()),
+                                Message = string.Format("Record Created:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nData:\r\n{2}", singleApiData.RowNumber, endpointUrl, singleApiData.Value.ToString()),
                                 Level = "INFORMATION",
                                 Operation = "TransformingData",
                                 Process = "transform-api-load-janitor"
@@ -233,7 +243,7 @@ namespace transform_api_load_janitor
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.ToString());
+                        Log(log4net.Core.Level.Error, ex.ToString());
                     }
                 }
             }
@@ -393,7 +403,7 @@ namespace transform_api_load_janitor
                         //    break;
                         foreach (var singleDataMapAgent in dataMapAgents)
                         {
-                            Console.WriteLine("Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Family: {4}. Row #: {5}", 
+                            Log(log4net.Core.Level.Info, "Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Family: {4}. Row #: {5}",
                                 singleDataMapAgent.datamap.ID, singleDataMapAgent.AgentID, singleDataMapAgent.DataMapID, singleDataMapAgent.datamap.entity.Name,
                                 singleDataMapAgent.datamap.entity.Family, rowNum);
                             var entity = singleDataMapAgent.datamap.entity;
@@ -435,7 +445,7 @@ namespace transform_api_load_janitor
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            Console.WriteLine("An unhandled exception has occurred: " + ((Exception)e.ExceptionObject).ToString());
+            Log(log4net.Core.Level.Error, "An unhandled exception has occurred: " + ((Exception)e.ExceptionObject).ToString());
         }
 
         private static void TransformCSVRow(JToken originalMap, ref JToken outputData, CsvReader reader,
@@ -641,7 +651,7 @@ namespace transform_api_load_janitor
             else
                 result = csvValue;
             if (
-                (result == null || 
+                (result == null ||
                 (result != null && String.IsNullOrWhiteSpace(result.ToString()))) &&
                 defaultValueField != null)
             {
@@ -688,14 +698,14 @@ namespace transform_api_load_janitor
                     int rowNumber = 0;
                     while (csvReader.Read())
                     {
-                        Console.WriteLine("Start of Data for Row: {0}", rowNumber);
+                        Log(log4net.Core.Level.Info, "Start of Data for Row: {0}", rowNumber);
                         for (int iCol = 0; iCol < csvReader.CurrentRecord.Length; iCol++)
                         {
                             string columnName = csvReader.FieldHeaders[iCol];
                             string columnValue = csvReader.GetField(iCol);
-                            Console.WriteLine("{0} = {1}", columnName, columnValue);
+                            Log(log4net.Core.Level.Info, "{0} = {1}", columnName, columnValue);
                         }
-                        Console.WriteLine("End of Data for Row: {0}", rowNumber);
+                        Log(log4net.Core.Level.Info, "End of Data for Row: {0}", rowNumber);
                         rowNumber++;
                     }
                 }
@@ -718,14 +728,14 @@ namespace transform_api_load_janitor
             var allRootFiles = allItems.OfType<CloudFile>();
             foreach (CloudFileDirectory singleDirectory in allRootDirectories)
             {
-                Console.WriteLine(singleDirectory.Uri.ToString());
+                Log(log4net.Core.Level.Info, singleDirectory.Uri.ToString());
                 var currentDirectoryFiles = singleDirectory.ListFilesAndDirectories().OfType<CloudFile>();
                 foreach (var singleFile in currentDirectoryFiles)
                 {
                     var extension = Path.GetExtension(singleFile.Name).ToUpper();
                     if (extension != ".CSV")
                         continue;
-                    Console.WriteLine(singleFile.Uri);
+                    Log(log4net.Core.Level.Info, singleFile.Uri.ToString());
                     string dir = Properties.Settings.Default.LocalDestinationDirectory;
                     if (!Directory.Exists(dir))
                         Directory.CreateDirectory(dir);
@@ -740,22 +750,35 @@ namespace transform_api_load_janitor
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.ToString());
+                        Log(log4net.Core.Level.Error, ex.ToString());
                     }
                 }
             }
             foreach (CloudFile singleFile in allRootFiles)
             {
-                Console.WriteLine(singleFile.Uri.ToString());
+                Log(log4net.Core.Level.Info, singleFile.Uri.ToString());
                 using (var strReader = singleFile.OpenRead())
                 {
                     string strFileContent = singleFile.DownloadText();
-                    Console.WriteLine("**********START OF {0}**********", singleFile.Name);
-                    Console.WriteLine(strFileContent);
-                    Console.WriteLine("**********END OF {0}**********", singleFile.Name);
+                    Log(log4net.Core.Level.Info,"**********START OF {0}**********", singleFile.Name);
+                    Log(log4net.Core.Level.Info,strFileContent);
+                    Log(log4net.Core.Level.Info,"**********END OF {0}**********", singleFile.Name);
                     strReader.Close();
                 }
             }
+        }
+
+        private static void Log(log4net.Core.Level level, string message, params object[] args)
+        {
+            string messageToLog = string.Empty;
+            if (args != null && args.Count() > 0)
+            {
+                messageToLog = string.Format(message, args);
+            }
+            if (level.Value == log4net.Core.Level.Error.Value)
+                _log.Error(messageToLog);
+            else
+                _log.Info(messageToLog);
         }
     }
 
