@@ -20,8 +20,8 @@ namespace sftp_janitor
         static void Main(string[] args)
         {
             _log.Info("SFTP Janitor starting");
-            string connectionString = GetSQLConnectionString();
-            string azureFileConnectionString = GetAzureFileConnectionString();
+            string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString;
+            string azureFileConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString;
 
             if (connectionString == null || azureFileConnectionString == null)
             {
@@ -55,6 +55,8 @@ namespace sftp_janitor
                     ctx.SaveChanges();
                 }
             }
+
+            Console.ReadLine();
 
             _log.Info("SFTP Janitor exiting");
         }
@@ -185,33 +187,6 @@ namespace sftp_janitor
                 var cloudFile = fileDirectoryRoot.GetFileReference(singleFileInfo.Name);
                 cloudFile.UploadFromFile(singleFileInfo.FullName);
             }
-        }
-
-        private static string GetSQLConnectionString()
-        {
-            if (Environment.GetEnvironmentVariable("SQLAZURECONNSTR_defaultConnection") != null)
-            {
-                return Environment.GetEnvironmentVariable("SQLAZURECONNSTR_defaultConnection");
-            } else
-            {
-                _log.Error("Environment variable (SQLAZURECONNSTR_defaultConnection) for default connection is not defined.");
-            }
-
-            return null;
-        }
-
-        private static string GetAzureFileConnectionString()
-        {
-            if (Environment.GetEnvironmentVariable("CUSTOMCONNSTR_storageConnection") != null)
-            {
-                return Environment.GetEnvironmentVariable("CUSTOMCONNSTR_storageConnection");
-            }
-            else
-            {
-                _log.Error("Environment variable (CUSTOMCONNSTR_storageConnection) for default connection is not defined.");
-            }
-
-            return null;
         }
 
         private static String WildCardToRegular(String value)
