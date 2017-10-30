@@ -53,7 +53,7 @@ namespace transform_api_load_janitor
                 if (String.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME")))
                 {
                     //if environment variable exists application is running under App Service. Otherwise is probably IIS or Visual Studio
-                    Log(log4net.Core.Level.Info, "Press any key to exist");
+                    Console.WriteLine("Press any key to exist");
                     Console.ReadKey();
                 }
             }
@@ -410,8 +410,8 @@ namespace transform_api_load_janitor
                             //if (entity.Name != "studentAssessments")
                             //    continue;
                             //if (entity.Name != "studentAssessments")
-                            //if (entity.Name != "students")
-                            //continue;
+                            //if (entity.Name != "studentAssessments")
+                            //    continue;
                             //if (entity.Name != "assessments")
                             //    continue;
                             //if (entity.Name != "assessmentItem")
@@ -471,6 +471,26 @@ namespace transform_api_load_janitor
             var jChildrenProperties = originalMap.Children<JProperty>();
             string[] mappinHints = { "data-type", "source", "source-column", "source-table", "value" };
             bool hasMappingHints = jChildrenProperties.Any(p => mappinHints.Contains(p.Name));
+            bool hasRequiredHint = jChildrenProperties.Any(p => p.Name == "_required");
+            if (hasRequiredHint)
+            {
+                List<string> lstMissingColumnsInCSV = new List<string>();
+                var requiredTokens = jChildrenProperties.Where(p => p.Name == "_required").FirstOrDefault();
+                foreach (var singleTokenChild in requiredTokens.Children())
+                {
+                    foreach (var subSingleTokenChild in singleTokenChild.Children())
+                    {
+                        string strColumnName = subSingleTokenChild.ToString();
+                        string fieldValue = string.Empty;
+                        if (!reader.TryGetField(strColumnName, out fieldValue))
+                            lstMissingColumnsInCSV.Add(strColumnName);
+                    }
+                }
+                if (lstMissingColumnsInCSV.Count > 0)
+                {
+                    throw new Exception(string.Format("Missing columns in source file: {0}", string.Join(",", lstMissingColumnsInCSV)));
+                }
+            }
             if (hasMappingHints)
             {
                 var dataTypeField = jChildrenProperties.Where(p => p.Name == "data-type").FirstOrDefault();
@@ -492,7 +512,24 @@ namespace transform_api_load_janitor
                             {
                                 string path = string.Format("{0}{1}", arrayItemName, originalMap.Path);
                                 var t = outputData.SelectToken(path);
-                                initialOutputData = t.Parent;
+                                if (t == null)
+                                {
+                                    int iFirstDotPos = arrayItemName.IndexOf(".");
+                                    if (iFirstDotPos >= 0)
+                                    {
+                                        arrayItemName = arrayItemName.Remove(0, iFirstDotPos + 1);
+                                        path = string.Format("{0}{1}", arrayItemName, originalMap.Path);
+                                        t = outputData.SelectToken(path);
+                                    }
+                                }
+                                try
+                                {
+                                    initialOutputData = t.Parent;
+                                }
+                                catch (Exception exf)
+                                {
+
+                                }
                                 hasArrayElementBeingProcessed = true;
                             }
                             else
@@ -508,6 +545,13 @@ namespace transform_api_load_janitor
                     switch (sourceField.Value.ToString())
                     {
                         case "column":
+                            try
+                            {
+                                sourceColumnField.Value.ToString();
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             string csvColumnName = sourceColumnField.Value.ToString();
                             string csvValue = reader[csvColumnName];
                             if (originalArray != null && hasArrayElementBeingProcessed.GetValueOrDefault() == false)
@@ -525,8 +569,19 @@ namespace transform_api_load_janitor
                                     {
                                         if (initialOutputData.Type == JTokenType.Property)
                                         {
-                                            JProperty prop = (JProperty)initialOutputData;
-                                            prop.Value = ConvertDataType(dataTypeField, csvValue, defaultValueField);
+                                            //if (originalMap.Parent != null &&
+                                            //    originalMap.Parent.Type == JTokenType.Property &&
+                                            //    ((JProperty)originalMap.Parent).Name ==
+                                            //    ((JProperty)initialOutputData).Name)
+                                            //{
+                                            //    JProperty prop = (JProperty)originalMap.Parent;
+                                            //    prop.Value = ConvertDataType(dataTypeField, csvValue, defaultValueField);
+                                            //}
+                                            //else
+                                            {
+                                                JProperty prop = (JProperty)initialOutputData;
+                                                prop.Value = ConvertDataType(dataTypeField, csvValue, defaultValueField);
+                                            }
                                         }
                                         else
                                         {
