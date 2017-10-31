@@ -26,7 +26,7 @@
     "studentUniqueId": {
       "data-type": "string",
       "source": "column",
-      "source-column": "Student Primary ID"
+      "source-column": "Primary ID - Student ID (State ID)"
     }
   },
   "administrationDate": {
@@ -64,7 +64,7 @@
         "assessmentTitle": {
           "data-type": "string",
           "source": "column",
-          "value": "Assessment"
+          "source-column": "Assessment"
         },
         "academicSubjectDescriptor": {
           "data-type": "string",
@@ -111,14 +111,14 @@
           }
         }
       ],
-      "_required": ["Assessment Measure-FSF-Levels", "Assessment Measure-FSF-Score"]
+      "_required": [ "Assessment Measure-FSF-Levels", "Assessment Measure-FSF-Score" ]
     },
     {
       "objectiveAssessmentReference": {
         "assessmentTitle": {
           "data-type": "string",
           "source": "column",
-          "value": "Assessment"
+          "source-column": "Assessment"
         },
         "academicSubjectDescriptor": {
           "data-type": "string",
@@ -165,14 +165,14 @@
           }
         }
       ],
-      "_required": ["Assessment Measure-LNF-Levels", "Assessment Measure-LNF-Score"]
+      "_required": [ "Assessment Measure-LNF-Levels", "Assessment Measure-LNF-Score" ]
     },
     {
       "objectiveAssessmentReference": {
         "assessmentTitle": {
           "data-type": "string",
           "source": "column",
-          "value": "Assessment"
+          "source-column": "Assessment"
         },
         "academicSubjectDescriptor": {
           "data-type": "string",
@@ -219,14 +219,14 @@
           }
         }
       ],
-      "_required": ["Assessment Measure-PSF-Levels", "Assessment Measure-PSF-Score"]
+      "_required": [ "Assessment Measure-PSF-Levels", "Assessment Measure-PSF-Score" ]
     },
     {
       "objectiveAssessmentReference": {
         "assessmentTitle": {
           "data-type": "string",
           "source": "column",
-          "value": "Assessment"
+          "source-column": "Assessment"
         },
         "academicSubjectDescriptor": {
           "data-type": "string",
@@ -273,14 +273,14 @@
           }
         }
       ],
-      "_required": ["Assessment Measure-NWF (CLS)-Levels", "Assessment Measure-NWF (CLS)-Score"]
+      "_required": [ "Assessment Measure-NWF (CLS)-Levels", "Assessment Measure-NWF (CLS)-Score" ]
     },
     {
       "objectiveAssessmentReference": {
         "assessmentTitle": {
           "data-type": "string",
           "source": "column",
-          "value": "Assessment"
+          "source-column": "Assessment"
         },
         "academicSubjectDescriptor": {
           "data-type": "string",
@@ -327,14 +327,14 @@
           }
         }
       ],
-      "_required": ["Assessment Measure-NWF (WWR)-Levels", "Assessment Measure-NWF (WWR)-Score"]
+      "_required": [ "Assessment Measure-NWF (WWR)-Levels", "Assessment Measure-NWF (WWR)-Score" ]
     },
     {
       "objectiveAssessmentReference": {
         "assessmentTitle": {
           "data-type": "string",
           "source": "column",
-          "value": "Assessment"
+          "source-column": "Assessment"
         },
         "academicSubjectDescriptor": {
           "data-type": "string",
@@ -381,14 +381,14 @@
           }
         }
       ],
-      "_required": ["Assessment Measure-DORF (Fluency)-Levels", "Assessment Measure-DORF (Fluency)-Score"]
+      "_required": [ "Assessment Measure-DORF (Fluency)-Levels", "Assessment Measure-DORF (Fluency)-Score" ]
     },
     {
       "objectiveAssessmentReference": {
         "assessmentTitle": {
           "data-type": "string",
           "source": "column",
-          "value": "Assessment"
+          "source-column": "Assessment"
         },
         "academicSubjectDescriptor": {
           "data-type": "string",
@@ -435,14 +435,14 @@
           }
         }
       ],
-      "_required": ["Assessment Measure-DORF (Accuracy)-Levels", "Assessment Measure-DORF (Accuracy)-Score"]
+      "_required": [ "Assessment Measure-DORF (Accuracy)-Levels", "Assessment Measure-DORF (Accuracy)-Score" ]
     },
     {
       "objectiveAssessmentReference": {
         "assessmentTitle": {
           "data-type": "string",
           "source": "column",
-          "value": "Assessment"
+          "source-column": "Assessment"
         },
         "academicSubjectDescriptor": {
           "data-type": "string",
@@ -489,14 +489,14 @@
           }
         }
       ],
-      "_required": ["Assessment Measure-DORF (Retell)-Levels", "Assessment Measure-DORF (Retell)-Score"]
+      "_required": [ "Assessment Measure-DORF (Retell)-Levels", "Assessment Measure-DORF (Retell)-Score" ]
     },
     {
       "objectiveAssessmentReference": {
         "assessmentTitle": {
           "data-type": "string",
           "source": "column",
-          "value": "Assessment"
+          "source-column": "Assessment"
         },
         "academicSubjectDescriptor": {
           "data-type": "string",
@@ -543,14 +543,14 @@
           }
         }
       ],
-      "_required": ["Assessment Measure-DORF (Retell Quality)-Levels", "Assessment Measure-DORF (Retell Quality)-Score"]
+      "_required": [ "Assessment Measure-DORF (Retell Quality)-Levels", "Assessment Measure-DORF (Retell Quality)-Score" ]
     },
     {
       "objectiveAssessmentReference": {
         "assessmentTitle": {
           "data-type": "string",
           "source": "column",
-          "value": "Assessment"
+          "source-column": "Assessment"
         },
         "academicSubjectDescriptor": {
           "data-type": "string",
@@ -597,7 +597,7 @@
           }
         }
       ],
-      "_required": ["Assessment Measure-Daze-Levels", "Assessment Measure-Daze-Score"]
+      "_required": [ "Assessment Measure-Daze-Levels", "Assessment Measure-Daze-Score" ]
     }
   ]
 }
