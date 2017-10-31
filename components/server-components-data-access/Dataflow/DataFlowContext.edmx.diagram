@@ -23,6 +23,8 @@
         <AssociationConnector Association="EdFi_DataFlow_SandboxModel.FK_file_agent" />
         <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.file_status" Width="1.5" PointX="10.375" PointY="4.875" />
         <AssociationConnector Association="EdFi_DataFlow_SandboxModel.FK_file_file_status" />
+        <EntityTypeShape EntityType="EdFi_DataFlow_SandboxModel.bootstrapdata" Width="1.5" PointX="3" PointY="12.25" />
+        <AssociationConnector Association="EdFi_DataFlow_SandboxModel.FK_bootstrapdata_entity" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

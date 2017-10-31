@@ -18,6 +18,7 @@ namespace server_components_data_access.Dataflow
         public entity()
         {
             this.datamaps = new HashSet<datamap>();
+            this.bootstrapdatas = new HashSet<bootstrapdata>();
         }
     
         public int ID { get; set; }
@@ -31,5 +32,7 @@ namespace server_components_data_access.Dataflow
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<datamap> datamaps { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<bootstrapdata> bootstrapdatas { get; set; }
     }
 }

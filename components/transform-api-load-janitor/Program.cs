@@ -82,6 +82,7 @@ namespace transform_api_load_janitor
             using (server_components_data_access.Dataflow.DataFlowContext ctx =
                 new server_components_data_access.Dataflow.DataFlowContext(BuildEntityConnection()))
             {
+                await InsertBootrapData(ctx);
                 List<server_components_data_access.Dataflow.log_ingestion> lstIngestionMessages = new List<log_ingestion>();
                 var agents = ctx.agents.Include("datamap_agent").Include("datamap_agent.datamap").ToList();
                 MappingLookups = ctx.lookups.ToList();
@@ -124,6 +125,62 @@ namespace transform_api_load_janitor
                     singleTransformedFile.Status = FileStatus.TRANSFORMED;
                 }
                 ctx.SaveChanges();
+            }
+        }
+
+        private static async Task InsertBootrapData(DataFlowContext ctx)
+        {
+            var bootStrapPayloads =
+                ctx.bootstrapdatas.Where(p => p.ProcessedDate.HasValue == false).OrderBy(p => p.ProcessingOrder).ToList();
+            foreach (var singlePayload in bootStrapPayloads)
+            {
+                var entity = singlePayload.entity;
+                var metadata = entity.Metadata;
+                string endpointUrl = RetrieveEndpointUrlFromMetadata(metadata);
+                string authorizeUrl = GetAuthorizeUrl();
+                string accessTokenUrl = GetAccessTokenUrl();
+                string clientId = GetApiClientId();
+                string clientSecret = GetApiClientSecret();
+                string authCode = await RetrieveAuthorizationCode(authorizeUrl, clientId: clientId);
+                string accessToken = await RetrieveAccessToken(accessTokenUrl, clientId, clientSecret, authCode);
+                JToken convertedPayload = JToken.Parse(singlePayload.Data);
+                if (convertedPayload.Type == JTokenType.Array)
+                {
+                    foreach(var singleElement in (JArray)convertedPayload)
+                    {
+                        var dataToInsert = singleElement.ToString();
+                        await PostBootstrapData(endpointUrl, accessToken, dataToInsert);
+                    }
+                }
+                else
+                {
+                    await PostBootstrapData(endpointUrl, accessToken, singlePayload.Data);
+                }
+            }
+        }
+
+        private static async Task PostBootstrapData(string endpointUrl, string accessToken, string dataToInsert)
+        {
+            HttpMethod method = HttpMethod.Post;
+            using (HttpClient httpClient = new HttpClient())
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+                string strId = string.Empty;
+                string strIdName = string.Empty;
+                StringContent strContent = new StringContent(dataToInsert);
+                strContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                HttpResponseMessage response = null;
+                response = await httpClient.PostAsync(endpointUrl, strContent);
+                switch (response.StatusCode)
+                {
+                    case System.Net.HttpStatusCode.Created:
+                        break;
+                    case System.Net.HttpStatusCode.OK:
+                        break;
+                    default:
+                        string strError = await response.Content.ReadAsStringAsync();
+                        break;
+                }
             }
         }
 
@@ -422,6 +479,7 @@ namespace transform_api_load_janitor
                             try
                             {
                                 JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
+                                RemoveCustomHints(ref generatedRow);
                                 ApiData.Add(new ResultingMapInfo()
                                 {
                                     Key = entity,
@@ -432,7 +490,7 @@ namespace transform_api_load_janitor
                             }
                             catch (Exception ex)
                             {
-                                Log(log4net.Core.Level.Error, "Error Processing Row: {0}. File: {1}. Message: {2}", rowNum, cloudFileUrl,ex.ToString());
+                                Log(log4net.Core.Level.Error, "Error Processing Row: {0}. File: {1}. Message: {2}", rowNum, cloudFileUrl, ex.ToString());
                             }
                         }
                     }
@@ -440,6 +498,40 @@ namespace transform_api_load_janitor
 
             }
 
+        }
+
+        private static void RemoveCustomHints(ref JToken generatedRow)
+        {
+            RemoveSensitiveProperties(generatedRow, "_required");
+        }
+
+        public static void RemoveSensitiveProperties(JToken token, string properyToRemove)
+        {
+            //Check https://stackoverflow.com/questions/40116088/remove-fields-form-jobject-dynamically-using-json-net
+            if (token.Type == JTokenType.Object)
+            {
+                foreach (JProperty prop in token.Children<JProperty>().ToList())
+                {
+                    bool removed = false;
+                    if (prop.Name==properyToRemove)
+                    {
+                        prop.Remove();
+                        removed = true;
+                        break;
+                    }
+                    if (!removed)
+                    {
+                        RemoveSensitiveProperties(prop.Value, properyToRemove);
+                    }
+                }
+            }
+            else if (token.Type == JTokenType.Array)
+            {
+                foreach (JToken child in token.Children())
+                {
+                    RemoveSensitiveProperties(child, properyToRemove);
+                }
+            }
         }
 
         private static JToken ProcessCSVRow(entity entity, datamap dataMap, CsvReader reader)
@@ -460,7 +552,7 @@ namespace transform_api_load_janitor
         {
             if (originalMap.Type == JTokenType.Array)
             {
-                JArray jArray = JArray.FromObject(originalMap);
+                JArray jArray = (JArray)(originalMap);
                 int iPos = 0;
                 foreach (var singleItem in jArray)
                 {
@@ -510,7 +602,7 @@ namespace transform_api_load_janitor
                         {
                             if (originalArray != null && hasArrayElementBeingProcessed.GetValueOrDefault() == false)
                             {
-                                string path = string.Format("{0}{1}", arrayItemName, originalMap.Path);
+                                string path = string.Format("{0}", originalMap.Path);
                                 var t = outputData.SelectToken(path);
                                 if (t == null)
                                 {
@@ -822,9 +914,9 @@ namespace transform_api_load_janitor
                 using (var strReader = singleFile.OpenRead())
                 {
                     string strFileContent = singleFile.DownloadText();
-                    Log(log4net.Core.Level.Info,"**********START OF {0}**********", singleFile.Name);
-                    Log(log4net.Core.Level.Info,strFileContent);
-                    Log(log4net.Core.Level.Info,"**********END OF {0}**********", singleFile.Name);
+                    Log(log4net.Core.Level.Info, "**********START OF {0}**********", singleFile.Name);
+                    Log(log4net.Core.Level.Info, strFileContent);
+                    Log(log4net.Core.Level.Info, "**********END OF {0}**********", singleFile.Name);
                     strReader.Close();
                 }
             }

@@ -33,6 +33,18 @@
           <Property Name="Hour" Type="int" Nullable="false" />
           <Property Name="Minute" Type="int" Nullable="false" />
         </EntityType>
+        <EntityType Name="bootstrapdata">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="EntityID" Type="int" Nullable="false" />
+          <Property Name="Data" Type="varchar(max)" Nullable="false" />
+          <Property Name="ProcessingOrder" Type="int" Nullable="false" />
+          <Property Name="ProcessedDate" Type="datetime" />
+          <Property Name="CreateDate" Type="datetime" />
+          <Property Name="UpdateDate" Type="datetime" />
+        </EntityType>
         <EntityType Name="configuration">
           <Key>
             <PropertyRef Name="Key" />
@@ -148,6 +160,18 @@
           <Property Name="InsertDate" Type="datetime" />
           <Property Name="UpdateDate" Type="datetime" />
         </EntityType>
+        <Association Name="FK_bootstrapdata_entity">
+          <End Role="entity" Type="Self.entity" Multiplicity="1" />
+          <End Role="bootstrapdata" Type="Self.bootstrapdata" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="entity">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="bootstrapdata">
+              <PropertyRef Name="EntityID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_datamap_agent_agent">
           <End Role="agent" Type="Self.agent" Multiplicity="1" />
           <End Role="datamap_agent" Type="Self.datamap_agent" Multiplicity="*" />
@@ -223,6 +247,7 @@
         <EntityContainer Name="EdFi_DataFlow_SandboxModelStoreContainer">
           <EntitySet Name="agent" EntityType="Self.agent" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="agent_schedule" EntityType="Self.agent_schedule" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="bootstrapdata" EntityType="Self.bootstrapdata" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="configuration" EntityType="Self.configuration" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="datamap" EntityType="Self.datamap" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="datamap_agent" EntityType="Self.datamap_agent" Schema="dataflow" store:Type="Tables" />
@@ -233,6 +258,10 @@
           <EntitySet Name="log_ingestion" EntityType="Self.log_ingestion" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="lookup" EntityType="Self.lookup" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="statistic" EntityType="Self.statistic" Schema="dataflow" store:Type="Tables" />
+          <AssociationSet Name="FK_bootstrapdata_entity" Association="Self.FK_bootstrapdata_entity">
+            <End Role="entity" EntitySet="entity" />
+            <End Role="bootstrapdata" EntitySet="bootstrapdata" />
+          </AssociationSet>
           <AssociationSet Name="FK_datamap_agent_agent" Association="Self.FK_datamap_agent_agent">
             <End Role="agent" EntitySet="agent" />
             <End Role="datamap_agent" EntitySet="datamap_agent" />
@@ -339,6 +368,7 @@
           <Property Name="CreateDate" Type="DateTime" Precision="0" />
           <Property Name="UpdateDate" Type="DateTime" Precision="0" />
           <NavigationProperty Name="datamaps" Relationship="Self.FK_datamap_Entity" FromRole="entity" ToRole="datamap" />
+          <NavigationProperty Name="bootstrapdatas" Relationship="EdFi_DataFlow_SandboxModel.FK_bootstrapdata_entity" FromRole="entity" ToRole="bootstrapdata" />
         </EntityType>
         <EntityType Name="lookup">
           <Key>
@@ -438,6 +468,11 @@
             <End Role="file_status" EntitySet="file_status" />
             <End Role="file" EntitySet="files" />
           </AssociationSet>
+          <EntitySet Name="bootstrapdatas" EntityType="EdFi_DataFlow_SandboxModel.bootstrapdata" />
+          <AssociationSet Name="FK_bootstrapdata_entity" Association="EdFi_DataFlow_SandboxModel.FK_bootstrapdata_entity">
+            <End Role="entity" EntitySet="entities" />
+            <End Role="bootstrapdata" EntitySet="bootstrapdatas" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="log_ingestion">
           <Key>
@@ -524,6 +559,31 @@
             </Principal>
             <Dependent Role="file">
               <PropertyRef Name="Status" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="bootstrapdata">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EntityID" Type="Int32" Nullable="false" />
+          <Property Name="Data" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="ProcessingOrder" Type="Int32" Nullable="false" />
+          <Property Name="ProcessedDate" Type="DateTime" Precision="3" />
+          <Property Name="CreateDate" Type="DateTime" Precision="3" />
+          <Property Name="UpdateDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="entity" Relationship="EdFi_DataFlow_SandboxModel.FK_bootstrapdata_entity" FromRole="bootstrapdata" ToRole="entity" />
+        </EntityType>
+        <Association Name="FK_bootstrapdata_entity">
+          <End Type="EdFi_DataFlow_SandboxModel.entity" Role="entity" Multiplicity="1" />
+          <End Type="EdFi_DataFlow_SandboxModel.bootstrapdata" Role="bootstrapdata" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="entity">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="bootstrapdata">
+              <PropertyRef Name="EntityID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -685,6 +745,19 @@
             <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.file_status">
               <MappingFragment StoreEntitySet="file_status">
                 <ScalarProperty Name="Value" ColumnName="Value" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="bootstrapdatas">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.bootstrapdata">
+              <MappingFragment StoreEntitySet="bootstrapdata">
+                <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="ProcessedDate" ColumnName="ProcessedDate" />
+                <ScalarProperty Name="ProcessingOrder" ColumnName="ProcessingOrder" />
+                <ScalarProperty Name="Data" ColumnName="Data" />
+                <ScalarProperty Name="EntityID" ColumnName="EntityID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

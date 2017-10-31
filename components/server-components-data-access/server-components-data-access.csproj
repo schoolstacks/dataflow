@@ -57,6 +57,9 @@
     <Compile Include="Dataflow\agent_schedule.cs">
       <DependentUpon>DataFlowContext.tt</DependentUpon>
     </Compile>
+    <Compile Include="Dataflow\bootstrapdata.cs">
+      <DependentUpon>DataFlowContext.tt</DependentUpon>
+    </Compile>
     <Compile Include="Dataflow\configuration.cs">
       <DependentUpon>DataFlowContext.tt</DependentUpon>
     </Compile>
