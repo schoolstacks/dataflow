@@ -41,6 +41,7 @@ namespace transform_api_load_janitor
             }
             catch (AggregateException ex)
             {
+                Console.WriteLine("Process Exception: " + ex.ToString());
                 Log(log4net.Core.Level.Info, "AggregateException Exception");
                 Log(log4net.Core.Level.Info, ex.ToString());
                 foreach (var singleInnerException in ex.InnerExceptions)
@@ -105,10 +106,10 @@ namespace transform_api_load_janitor
                         Log(log4net.Core.Level.Info, "Finished Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
                     }
                 }
-                string authorizeUrl = GetAuthorizeUrl();
-                string accessTokenUrl = GetAccessTokenUrl();
-                string clientId = GetApiClientId();
-                string clientSecret = GetApiClientSecret();
+                string authorizeUrl = GetAuthorizeUrl(ctx);
+                string accessTokenUrl = GetAccessTokenUrl(ctx);
+                string clientId = GetApiClientId(ctx);
+                string clientSecret = GetApiClientSecret(ctx);
                 string authCode = await RetrieveAuthorizationCode(authorizeUrl, clientId: clientId);
                 string accessToken = await RetrieveAccessToken(accessTokenUrl, clientId, clientSecret, authCode);
                 Log(log4net.Core.Level.Info, "Start of Api Insertion: {0} records", ApiData.Count);
@@ -136,11 +137,11 @@ namespace transform_api_load_janitor
             {
                 var entity = singlePayload.entity;
                 var metadata = entity.Metadata;
-                string endpointUrl = RetrieveEndpointUrlFromMetadata(metadata);
-                string authorizeUrl = GetAuthorizeUrl();
-                string accessTokenUrl = GetAccessTokenUrl();
-                string clientId = GetApiClientId();
-                string clientSecret = GetApiClientSecret();
+                string endpointUrl = RetrieveEndpointUrlFromMetadata(metadata, ctx);
+                string authorizeUrl = GetAuthorizeUrl(ctx);
+                string accessTokenUrl = GetAccessTokenUrl(ctx);
+                string clientId = GetApiClientId(ctx);
+                string clientSecret = GetApiClientSecret(ctx);
                 string authCode = await RetrieveAuthorizationCode(authorizeUrl, clientId: clientId);
                 string accessToken = await RetrieveAccessToken(accessTokenUrl, clientId, clientSecret, authCode);
                 JToken convertedPayload = JToken.Parse(singlePayload.Data);
@@ -208,7 +209,7 @@ namespace transform_api_load_janitor
                 }
                 Log(log4net.Core.Level.Info, "Api Insertion Record: {0} of {1}", iCurrentRecord, ApiData.Count);
                 iCurrentRecord++;
-                string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata);
+                string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata, ctx);
                 HttpMethod method = HttpMethod.Post;
                 using (HttpClient httpClient = new HttpClient())
                 {
@@ -338,43 +339,46 @@ namespace transform_api_load_janitor
 
         private static string GetEnvironmentVariable(string name)
         {
-            return System.Environment.GetEnvironmentVariable(name);
+            string value = System.Environment.GetEnvironmentVariable(name);
+            if (String.IsNullOrWhiteSpace(value))
+                throw new Exception("There is no Environment Variable/Configuration Setting for " + name);
+            return value;
         }
 
-        private static string GetApiBaseUrl()
+        private static string GetApiBaseUrl(DataFlowContext ctx)
         {
-            return GetEnvironmentVariable("CloudOdsApiBaseUrl");
+            return ctx.configurations.Where(p => p.Key == "API_SERVER_BASEURL").First().Value;
         }
-        private static string GetAccessTokenUrl()
+        private static string GetAccessTokenUrl(DataFlowContext ctx)
         {
-            string baseUrl = GetApiBaseUrl();
+            string baseUrl = GetApiBaseUrl(ctx);
             return baseUrl + "/oauth/token";
         }
 
-        private static string GetAuthorizeUrl()
+        private static string GetAuthorizeUrl(DataFlowContext ctx)
         {
-            string baseUrl = GetApiBaseUrl();
+            string baseUrl = GetApiBaseUrl(ctx);
             return baseUrl + "/oauth/authorize";
         }
 
-        private static string GetApiClientSecret()
+        private static string GetApiClientSecret(DataFlowContext ctx)
         {
-            return GetEnvironmentVariable("CloudOdsApiClientSecret");
+            return ctx.configurations.Where(p => p.Key == "API_SERVER_SECRET").First().Value;
         }
 
-        private static string GetApiClientId()
+        private static string GetApiClientId(DataFlowContext ctx)
         {
-            return GetEnvironmentVariable("CloudOdsApiClientId");
+            return ctx.configurations.Where(p => p.Key == "API_SERVER_KEY").First().Value;
         }
 
-        private static string RetrieveEndpointUrlFromMetadata(string metadata)
+        private static string RetrieveEndpointUrlFromMetadata(string metadata, DataFlowContext ctx)
         {
             string strUrl = string.Empty;
             try
             {
                 JToken swaggerMetaData = JToken.Parse(metadata);
                 //string basePath = swaggerMetaData["basePath"].Value<string>();
-                string basePath = GetApiBaseUrl() + "/api/v2.0/2017";
+                string basePath = GetApiBaseUrl(ctx) + "/api/v2.0/2017";
                 string resourcePath = swaggerMetaData["resourcePath"].Value<string>();
                 strUrl = string.Format("{0}{1}", basePath, resourcePath);
             }
@@ -420,6 +424,8 @@ namespace transform_api_load_janitor
                 lstParameters.Add(new KeyValuePair<string, string>("Client_id", clientId));
                 lstParameters.Add(new KeyValuePair<string, string>("Response_type", "code"));
                 FormUrlEncodedContent contentParams = new FormUrlEncodedContent(lstParameters);
+                Log(log4net.Core.Level.Info,
+                    "Retrieving auth code from {0}", authorizeUrl);
                 var result = await httpClient.PostAsync(authorizeUrl, contentParams);
                 switch (result.StatusCode)
                 {
