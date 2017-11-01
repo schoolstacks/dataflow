@@ -172,21 +172,6 @@ namespace sftp_janitor
             }
         }
 
-        private static void WriteLocalFilesToAzureFileStorage()
-        {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-                Properties.Settings.Default.StorageConnectionString);
-            CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-            CloudFileShare fileShare = fileClient.GetShareReference(Properties.Settings.Default.FileShareName);
-            CloudFileDirectory fileDirectoryRoot = fileShare.GetRootDirectoryReference();
-            DirectoryInfo sourceDirInfo = new DirectoryInfo(Properties.Settings.Default.LocalSourceDirectory);
-            foreach (var singleFileInfo in sourceDirInfo.GetFiles())
-            {
-                var cloudFile = fileDirectoryRoot.GetFileReference(singleFileInfo.Name);
-                cloudFile.UploadFromFile(singleFileInfo.FullName);
-            }
-        }
-
         private static String WildCardToRegular(String value)
         {
             return "^" + Regex.Escape(value).Replace("\\*", ".*") + "$";
