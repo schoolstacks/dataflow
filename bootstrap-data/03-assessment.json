@@ -4,7 +4,7 @@
         "assessedGradeLevelDescriptor": "Kindergarten",
         "academicSubjectDescriptor": "Reading",
         "version": 1,
-        "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
+        "namespace": "http://ed-fi.org",
         "identificationCodes": [
             {
                 "assessmentIdentificationSystemDescriptor": "Test Contractor",
@@ -17,7 +17,7 @@
         "assessedGradeLevelDescriptor": "First grade",
         "academicSubjectDescriptor": "Reading",
         "version": 1,
-        "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
+        "namespace": "http://ed-fi.org",
         "identificationCodes": [
             {
                 "assessmentIdentificationSystemDescriptor": "Test Contractor",
@@ -30,7 +30,7 @@
         "assessedGradeLevelDescriptor": "Second grade",
         "academicSubjectDescriptor": "Reading",
         "version": 1,
-        "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
+        "namespace": "http://ed-fi.org",
         "identificationCodes": [
             {
                 "assessmentIdentificationSystemDescriptor": "Test Contractor",
@@ -43,7 +43,7 @@
         "assessedGradeLevelDescriptor": "Third grade",
         "academicSubjectDescriptor": "Reading",
         "version": 1,
-        "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
+        "namespace": "http://ed-fi.org",
         "identificationCodes": [
             {
                 "assessmentIdentificationSystemDescriptor": "Test Contractor",
@@ -56,7 +56,7 @@
         "assessedGradeLevelDescriptor": "Fourth grade",
         "academicSubjectDescriptor": "Reading",
         "version": 1,
-        "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
+        "namespace": "http://ed-fi.org",
         "identificationCodes": [
             {
                 "assessmentIdentificationSystemDescriptor": "Test Contractor",
@@ -69,7 +69,7 @@
         "assessedGradeLevelDescriptor": "Fifth grade",
         "academicSubjectDescriptor": "Reading",
         "version": 1,
-        "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
+        "namespace": "http://ed-fi.org",
         "identificationCodes": [
             {
                 "assessmentIdentificationSystemDescriptor": "Test Contractor",
@@ -82,7 +82,7 @@
         "assessedGradeLevelDescriptor": "Sixth grade",
         "academicSubjectDescriptor": "Reading",
         "version": 1,
-        "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
+        "namespace": "http://ed-fi.org",
         "identificationCodes": [
             {
                 "assessmentIdentificationSystemDescriptor": "Test Contractor",
@@ -95,7 +95,7 @@
         "assessedGradeLevelDescriptor": "Seventh grade",
         "academicSubjectDescriptor": "Reading",
         "version": 1,
-        "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
+        "namespace": "http://ed-fi.org",
         "identificationCodes": [
             {
                 "assessmentIdentificationSystemDescriptor": "Test Contractor",
@@ -108,7 +108,7 @@
         "assessedGradeLevelDescriptor": "Eighth grade",
         "academicSubjectDescriptor": "Reading",
         "version": 1,
-        "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
+        "namespace": "http://ed-fi.org",
         "identificationCodes": [
             {
                 "assessmentIdentificationSystemDescriptor": "Test Contractor",
@@ -121,7 +121,7 @@
         "assessedGradeLevelDescriptor": "Ninth grade",
         "academicSubjectDescriptor": "Reading",
         "version": 1,
-        "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
+        "namespace": "http://ed-fi.org",
         "identificationCodes": [
             {
                 "assessmentIdentificationSystemDescriptor": "Test Contractor",
@@ -134,7 +134,7 @@
         "assessedGradeLevelDescriptor": "Tenth grade",
         "academicSubjectDescriptor": "Reading",
         "version": 1,
-        "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
+        "namespace": "http://ed-fi.org",
         "identificationCodes": [
             {
                 "assessmentIdentificationSystemDescriptor": "Test Contractor",
@@ -147,7 +147,7 @@
         "assessedGradeLevelDescriptor": "Eleventh grade",
         "academicSubjectDescriptor": "Reading",
         "version": 1,
-        "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
+        "namespace": "http://ed-fi.org",
         "identificationCodes": [
             {
                 "assessmentIdentificationSystemDescriptor": "Test Contractor",
@@ -160,7 +160,7 @@
         "assessedGradeLevelDescriptor": "Twelfth grade",
         "academicSubjectDescriptor": "Reading",
         "version": 1,
-        "namespace": "http://ed-fi.org/Assessment/Assessment.xml",
+        "namespace": "http://ed-fi.org",
         "identificationCodes": [
             {
                 "assessmentIdentificationSystemDescriptor": "Test Contractor",
