@@ -10,7 +10,7 @@
       "source": "lookup-table",
       "source-table": "mclass-grade",
       "source-column": "Assessment Grade",
-      "default": "Twelfth grade"
+      "default": "Ungraded"
     },
     "academicSubjectDescriptor": {
       "data-type": "string",
