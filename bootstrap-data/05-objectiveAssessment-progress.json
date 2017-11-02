@@ -1,0 +1,10 @@
+{
+    "assessmentReference": {
+      "title": "M:Class DIBELS",
+      "assessedGradeLevelDescriptor": "Twelfth grade",
+      "academicSubjectDescriptor": "Reading",
+      "version": 1,
+      "namespace": "http://ed-fi.org/Assessment/Assessment.xml"
+    },
+    "identificationCode": "M:Class DIBELS-Composite Score"
+  }

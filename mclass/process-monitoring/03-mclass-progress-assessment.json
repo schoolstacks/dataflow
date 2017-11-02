@@ -24,7 +24,7 @@
   "namespace": {
     "data-type": "string",
     "source": "static",
-    "value": "http://ed-fi.org/Assessment/Assessment.xml"
+    "value": "http://ed-fi.org"
   },
  "identificationCodes": [
     {
