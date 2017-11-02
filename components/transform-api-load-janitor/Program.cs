@@ -208,6 +208,7 @@ namespace transform_api_load_janitor
                     continue; // we will not process if we cannot read metadata
                 }
                 Log(log4net.Core.Level.Info, "Api Insertion Record: {0} of {1}", iCurrentRecord, ApiData.Count);
+                Log(log4net.Core.Level.Debug, "Payload: {0}", ApiData[iCurrentRecord].Value);
                 iCurrentRecord++;
                 string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata, ctx);
                 HttpMethod method = HttpMethod.Post;
@@ -485,7 +486,8 @@ namespace transform_api_load_janitor
                             try
                             {
                                 JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
-                                RemoveCustomHints(ref generatedRow);
+                                RemoveCustomHints(ref generatedRow, reader.FieldHeaders, reader.CurrentRecord);
+                                //RemoveRequiredFields(ref generatedRow, reader.FieldHeaders, reader.CurrentRecord);
                                 ApiData.Add(new ResultingMapInfo()
                                 {
                                     Key = entity,
@@ -508,20 +510,82 @@ namespace transform_api_load_janitor
 
         }
 
-        private static void RemoveCustomHints(ref JToken generatedRow)
+        private static void RemoveCustomHints(ref JToken generatedRow, string[] headers, string[] currentRecord)
         {
-            RemoveSensitiveProperties(generatedRow, "_required");
+            RemoveSensitiveProperties(generatedRow, "_required", headers, currentRecord);
         }
 
-        public static void RemoveSensitiveProperties(JToken token, string properyToRemove)
+        public static void RemoveSensitiveProperties(JToken token, string properyToRemove, string[] headers, string[] currentRecord)
         {
+            switch (token.Type)
+            {
+                case JTokenType.Object:
+                    foreach (JToken subToken in token)
+                    {
+                        if (subToken.Type == JTokenType.Property)
+                        {
+                            JProperty prop = (JProperty)subToken;
+                            List<JToken> removeList = new List<JToken>();
+
+                            foreach (JObject subProp in prop.Value)
+                            {
+                                if (subProp[properyToRemove] != null)
+                                {
+                                    // Custom logic for the _required field
+                                    JArray requireds = (JArray)subProp[properyToRemove];
+                                    int found = 0;
+
+                                    foreach (string requiredFields in subProp[properyToRemove])
+                                    {
+
+                                        int pos = Array.IndexOf(headers, requiredFields);
+                                        if (pos > 0 && currentRecord[pos].Length > 0)
+                                        {
+                                            { found++; } // if this field is found to have data, increment the count
+                                        }
+                                    }
+
+                                    if (found != requireds.Count)
+                                    {
+                                        removeList.Add(subProp);
+                                    }
+                                }
+
+                                subProp.Property(properyToRemove).Remove();
+
+                                foreach (JToken node in removeList)
+                                {
+                                    node.Remove();
+                                }
+                            }
+                        }
+                        RemoveSensitiveProperties(subToken, properyToRemove, headers, currentRecord);
+                    }
+
+                    break;
+                case JTokenType.Array:
+                    foreach (JToken subToken in token)
+                    {
+                        RemoveSensitiveProperties(subToken, properyToRemove, headers, currentRecord);
+                    }
+                    break;
+                case JTokenType.Property:
+                    break;
+                default:
+                    Log(log4net.Core.Level.Info, "Token type: {0}", token.Type);
+                    break;
+            }
+           
+
+
+            /*
             //Check https://stackoverflow.com/questions/40116088/remove-fields-form-jobject-dynamically-using-json-net
             if (token.Type == JTokenType.Object)
             {
                 foreach (JProperty prop in token.Children<JProperty>().ToList())
                 {
                     bool removed = false;
-                    if (prop.Name==properyToRemove)
+                    if (prop.Name == properyToRemove)
                     {
                         prop.Remove();
                         removed = true;
@@ -529,12 +593,16 @@ namespace transform_api_load_janitor
                     }
                     if (!removed)
                     {
-                        RemoveSensitiveProperties(prop.Value, properyToRemove);
+                        RemoveSensitiveProperties(prop.Value, properyToRemove, headers, currentRecord);
                     }
                 }
             }
             else if (token.Type == JTokenType.Array)
             {
+                foreach (JToken subToken in token)
+                {
+                    RemoveSensitiveProperties(subToken, properyToRemove, headers, currentRecord);
+                }
                 if (token.Children().Count() == 0)
                 {
                     token.Remove();
@@ -542,10 +610,13 @@ namespace transform_api_load_janitor
                 }
                 foreach (JToken child in token.Children())
                 {
-                    RemoveSensitiveProperties(child, properyToRemove);
+                    RemoveSensitiveProperties(child, properyToRemove, headers, currentRecord);
                 }
+                
             }
+        */
         }
+
 
         private static JToken ProcessCSVRow(entity entity, datamap dataMap, CsvReader reader)
         {
@@ -992,10 +1063,13 @@ namespace transform_api_load_janitor
                 {
                     messageToLog = string.Format(message, args);
                 }
+
                 if (level.Value == log4net.Core.Level.Error.Value)
                     _log.Error(messageToLog);
-                else
+                else if (level.Value == log4net.Core.Level.Info.Value)
                     _log.Info(messageToLog);
+                else
+                    _log.Debug(messageToLog);
             }
             catch (Exception ex)
             {
