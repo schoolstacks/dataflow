@@ -55,6 +55,11 @@
         "data-type": "string",
         "source": "column",
         "source-column": "Assessment Measure-Composite Score-Score"
+      },
+      "resultDatatypeType": {
+        "data-type": "string",
+        "source": "static",
+        "value": "Integer"
       }
     }
   ],
@@ -108,6 +113,11 @@
             "data-type": "string",
             "source": "column",
             "source-column": "Assessment Measure-FSF-Score"
+          },
+          "resultDatatypeType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Integer"
           }
         }
       ],
@@ -165,6 +175,11 @@
             "data-type": "string",
             "source": "column",
             "source-column": "Assessment Measure-LNF-Score"
+          },
+          "resultDatatypeType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Integer"
           }
         }
       ],
@@ -222,6 +237,11 @@
             "data-type": "string",
             "source": "column",
             "source-column": "Assessment Measure-PSF-Score"
+          },
+          "resultDatatypeType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Integer"
           }
         }
       ],
@@ -279,6 +299,11 @@
             "data-type": "string",
             "source": "column",
             "source-column": "Assessment Measure-NWF (CLS)-Score"
+          },
+          "resultDatatypeType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Integer"
           }
         }
       ],
@@ -336,6 +361,11 @@
             "data-type": "string",
             "source": "column",
             "source-column": "Assessment Measure-NWF (WWR)-Score"
+          },
+          "resultDatatypeType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Integer"
           }
         }
       ],
@@ -393,6 +423,11 @@
             "data-type": "string",
             "source": "column",
             "source-column": "Assessment Measure-DORF (Fluency)-Score"
+          },
+          "resultDatatypeType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Integer"
           }
         }
       ],
@@ -450,6 +485,11 @@
             "data-type": "string",
             "source": "column",
             "source-column": "Assessment Measure-DORF (Accuracy)-Score"
+          },
+          "resultDatatypeType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Integer"
           }
         }
       ],
@@ -507,6 +547,11 @@
             "data-type": "string",
             "source": "column",
             "source-column": "Assessment Measure-DORF (Retell)-Score"
+          },
+          "resultDatatypeType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Integer"
           }
         }
       ],
@@ -564,6 +609,11 @@
             "data-type": "string",
             "source": "column",
             "source-column": "Assessment Measure-DORF (Retell Quality)-Score"
+          },
+          "resultDatatypeType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Integer"
           }
         }
       ],
@@ -621,6 +671,11 @@
             "data-type": "string",
             "source": "column",
             "source-column": "Assessment Measure-Daze-Score"
+          },
+          "resultDatatypeType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Integer"
           }
         }
       ],
