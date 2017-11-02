@@ -85,7 +85,7 @@
         "identificationCode": {
           "data-type": "string",
           "source": "static",
-          "value": "mCLASS:DIBELS-FSF"
+          "value": "First Sound Fluency"
         }
       },
       "performanceLevels": [
@@ -111,7 +111,10 @@
           }
         }
       ],
-      "_required": [ "Assessment Measure-FSF-Levels", "Assessment Measure-FSF-Score" ]
+      "_required": [
+        "Assessment Measure-FSF-Levels",
+        "Assessment Measure-FSF-Score"
+      ]
     },
     {
       "objectiveAssessmentReference": {
@@ -139,7 +142,7 @@
         "identificationCode": {
           "data-type": "string",
           "source": "static",
-          "value": "mCLASS:DIBELS-LNF"
+          "value": "Letter Naming Fluency"
         }
       },
       "performanceLevels": [
@@ -165,7 +168,10 @@
           }
         }
       ],
-      "_required": [ "Assessment Measure-LNF-Levels", "Assessment Measure-LNF-Score" ]
+      "_required": [
+        "Assessment Measure-LNF-Levels",
+        "Assessment Measure-LNF-Score"
+      ]
     },
     {
       "objectiveAssessmentReference": {
@@ -193,7 +199,7 @@
         "identificationCode": {
           "data-type": "string",
           "source": "static",
-          "value": "mCLASS:DIBELS-PSF"
+          "value": "Phoneme Segmentation Fluency"
         }
       },
       "performanceLevels": [
@@ -219,7 +225,10 @@
           }
         }
       ],
-      "_required": [ "Assessment Measure-PSF-Levels", "Assessment Measure-PSF-Score" ]
+      "_required": [
+        "Assessment Measure-PSF-Levels",
+        "Assessment Measure-PSF-Score"
+      ]
     },
     {
       "objectiveAssessmentReference": {
@@ -247,7 +256,7 @@
         "identificationCode": {
           "data-type": "string",
           "source": "static",
-          "value": "mCLASS:DIBELS-NWF (CLS)"
+          "value": "Nonsense Word Fluency - CLS"
         }
       },
       "performanceLevels": [
@@ -273,7 +282,10 @@
           }
         }
       ],
-      "_required": [ "Assessment Measure-NWF (CLS)-Levels", "Assessment Measure-NWF (CLS)-Score" ]
+      "_required": [
+        "Assessment Measure-NWF (CLS)-Levels",
+        "Assessment Measure-NWF (CLS)-Score"
+      ]
     },
     {
       "objectiveAssessmentReference": {
@@ -301,7 +313,7 @@
         "identificationCode": {
           "data-type": "string",
           "source": "static",
-          "value": "mCLASS:DIBELS-NWF (WWR)"
+          "value": "Nonsense Word Fluency - WWR"
         }
       },
       "performanceLevels": [
@@ -327,7 +339,10 @@
           }
         }
       ],
-      "_required": [ "Assessment Measure-NWF (WWR)-Levels", "Assessment Measure-NWF (WWR)-Score" ]
+      "_required": [
+        "Assessment Measure-NWF (WWR)-Levels",
+        "Assessment Measure-NWF (WWR)-Score"
+      ]
     },
     {
       "objectiveAssessmentReference": {
@@ -355,7 +370,7 @@
         "identificationCode": {
           "data-type": "string",
           "source": "static",
-          "value": "mCLASS:DIBELS-DORF (Fluency)"
+          "value": "DORF Fluency"
         }
       },
       "performanceLevels": [
@@ -381,7 +396,10 @@
           }
         }
       ],
-      "_required": [ "Assessment Measure-DORF (Fluency)-Levels", "Assessment Measure-DORF (Fluency)-Score" ]
+      "_required": [
+        "Assessment Measure-DORF (Fluency)-Levels",
+        "Assessment Measure-DORF (Fluency)-Score"
+      ]
     },
     {
       "objectiveAssessmentReference": {
@@ -409,7 +427,7 @@
         "identificationCode": {
           "data-type": "string",
           "source": "static",
-          "value": "mCLASS:DIBELS-DORF (Accuracy)"
+          "value": "DORF Accuracy"
         }
       },
       "performanceLevels": [
@@ -435,7 +453,10 @@
           }
         }
       ],
-      "_required": [ "Assessment Measure-DORF (Accuracy)-Levels", "Assessment Measure-DORF (Accuracy)-Score" ]
+      "_required": [
+        "Assessment Measure-DORF (Accuracy)-Levels",
+        "Assessment Measure-DORF (Accuracy)-Score"
+      ]
     },
     {
       "objectiveAssessmentReference": {
@@ -463,7 +484,7 @@
         "identificationCode": {
           "data-type": "string",
           "source": "static",
-          "value": "mCLASS:DIBELS-DORF (Retell)"
+          "value": "DORF Retell"
         }
       },
       "performanceLevels": [
@@ -489,7 +510,10 @@
           }
         }
       ],
-      "_required": [ "Assessment Measure-DORF (Retell)-Levels", "Assessment Measure-DORF (Retell)-Score" ]
+      "_required": [
+        "Assessment Measure-DORF (Retell)-Levels",
+        "Assessment Measure-DORF (Retell)-Score"
+      ]
     },
     {
       "objectiveAssessmentReference": {
@@ -517,7 +541,7 @@
         "identificationCode": {
           "data-type": "string",
           "source": "static",
-          "value": "mCLASS:DIBELS-DORF (Retell Quality)"
+          "value": "DORF Retell Quality"
         }
       },
       "performanceLevels": [
@@ -543,7 +567,10 @@
           }
         }
       ],
-      "_required": [ "Assessment Measure-DORF (Retell Quality)-Levels", "Assessment Measure-DORF (Retell Quality)-Score" ]
+      "_required": [
+        "Assessment Measure-DORF (Retell Quality)-Levels",
+        "Assessment Measure-DORF (Retell Quality)-Score"
+      ]
     },
     {
       "objectiveAssessmentReference": {
@@ -571,7 +598,7 @@
         "identificationCode": {
           "data-type": "string",
           "source": "static",
-          "value": "mCLASS:DIBELS-Daze"
+          "value": "Daze"
         }
       },
       "performanceLevels": [
@@ -597,7 +624,10 @@
           }
         }
       ],
-      "_required": [ "Assessment Measure-Daze-Levels", "Assessment Measure-Daze-Score" ]
+      "_required": [
+        "Assessment Measure-Daze-Levels",
+        "Assessment Measure-Daze-Score"
+      ]
     }
   ]
 }
