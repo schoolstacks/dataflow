@@ -512,10 +512,10 @@ namespace transform_api_load_janitor
 
         private static void RemoveCustomHints(ref JToken generatedRow, string[] headers, string[] currentRecord)
         {
-            RemoveSensitiveProperties(generatedRow, "_required", headers, currentRecord);
+            RemoveSensitiveProperties(generatedRow, "_required", headers, currentRecord, 0);
         }
 
-        public static void RemoveSensitiveProperties(JToken token, string properyToRemove, string[] headers, string[] currentRecord)
+        public static void RemoveSensitiveProperties(JToken token, string properyToRemove, string[] headers, string[] currentRecord, int level)
         {
             switch (token.Type)
             {
@@ -525,48 +525,54 @@ namespace transform_api_load_janitor
                         if (subToken.Type == JTokenType.Property)
                         {
                             JProperty prop = (JProperty)subToken;
-                            List<JToken> removeList = new List<JToken>();
-
-                            foreach (JObject subProp in prop.Value)
+                            if (prop.Name == "studentObjectiveAssessments")
                             {
-                                if (subProp[properyToRemove] != null)
+                                List<JToken> removeList = new List<JToken>();
+
+                                foreach (JObject subProp in prop.Value)
                                 {
-                                    // Custom logic for the _required field
-                                    JArray requireds = (JArray)subProp[properyToRemove];
-                                    int found = 0;
-
-                                    foreach (string requiredFields in subProp[properyToRemove])
+                                    if (subProp["_required"] != null)
                                     {
+                                        JArray requireds = (JArray)subProp["_required"];
+                                        int found = 0;
 
-                                        int pos = Array.IndexOf(headers, requiredFields);
-                                        if (pos > 0 && currentRecord[pos].Length > 0)
+                                        foreach (string requiredFields in subProp["_required"])
                                         {
-                                            { found++; } // if this field is found to have data, increment the count
+
+                                            int pos = Array.IndexOf(headers, requiredFields);
+                                            if (pos > 0 && currentRecord[pos].Length > 0)
+                                            {
+                                                { found++; } // if this field is found to have data, increment the count
+                                            }
+                                        }
+
+                                        if (found != requireds.Count)
+                                        {
+                                            removeList.Add(subProp);
                                         }
                                     }
 
-                                    if (found != requireds.Count)
-                                    {
-                                        removeList.Add(subProp);
-                                    }
+                                    subProp.Property("_required").Remove();
                                 }
-
-                                subProp.Property(properyToRemove).Remove();
 
                                 foreach (JToken node in removeList)
                                 {
                                     node.Remove();
                                 }
+
+                                
+
+
                             }
                         }
-                        RemoveSensitiveProperties(subToken, properyToRemove, headers, currentRecord);
+                        RemoveSensitiveProperties(subToken, properyToRemove, headers, currentRecord, level+1);
                     }
 
                     break;
                 case JTokenType.Array:
                     foreach (JToken subToken in token)
                     {
-                        RemoveSensitiveProperties(subToken, properyToRemove, headers, currentRecord);
+                        RemoveSensitiveProperties(subToken, properyToRemove, headers, currentRecord, level+1);
                     }
                     break;
                 case JTokenType.Property:
