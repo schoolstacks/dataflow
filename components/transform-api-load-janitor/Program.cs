@@ -501,8 +501,6 @@ namespace transform_api_load_janitor
                                 Log(log4net.Core.Level.Error, "Error Processing Row: {0}. File: {1}. Message: {2}", rowNum, cloudFileUrl, ex.ToString());
                             }
                         }
-                        if (rowNum == 500)
-                            break;
                     }
                 }
 
