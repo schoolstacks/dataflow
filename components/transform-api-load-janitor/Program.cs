@@ -208,7 +208,7 @@ namespace transform_api_load_janitor
                     continue; // we will not process if we cannot read metadata
                 }
                 Log(log4net.Core.Level.Info, "Api Insertion Record: {0} of {1}", iCurrentRecord, ApiData.Count);
-                Log(log4net.Core.Level.Debug, "Payload: {0}", ApiData[iCurrentRecord].Value);
+                Log(log4net.Core.Level.Debug, "Payload: {0}", ApiData[iCurrentRecord-1].Value);
                 iCurrentRecord++;
                 string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata, ctx);
                 HttpMethod method = HttpMethod.Post;
