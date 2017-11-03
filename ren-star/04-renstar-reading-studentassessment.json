@@ -1,43 +1,22 @@
 {
   "assessmentReference": {
-    "title": {
-      "data-type": "string",
-      "source": "static",
-      "value": "STAR Reading"
-    },
-    "assessedGradeLevelDescriptor": {
-      "data-type": "string",
-      "source": "lookup-table",
-      "source-table": "star-grade",
-      "source-column": "Grade"
-    },
-    "academicSubjectDescriptor": {
-      "data-type": "string",
-      "source": "static",
-      "value": "Reading"
-    },
-    "version": {
-      "data-type": "integer",
-      "source": "static",
-      "value": "1"
-    }
+    "title": "string",
+    "assessedGradeLevelDescriptor": "string",
+    "academicSubjectDescriptor": "string",
+    "version": 1,
+    "namespace": "http://ed-fi.org"
+  },
+  "studentReference": {
+    "studentUniqueId": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "PercentileRank"
+      }
   },
   "eventDescription": {
     "data-type": "string",
     "source": "column",
-    "source-column": "ScreeningCategoryGroupAdjustment"
-  },
-  "studentReference": {
-    "studentUniqueId": {
-      "data-type": "string",
-      "source": "column",
-      "source-column": "StudentLocalID"
-    }
-  },
-  "administrationDate": {
-    "data-type": "date-time",
-    "source": "column",
-    "source-column": "AssessmentDate"
+    "source-column": "PercentileRank"
   },
   "scoreResults": [
     {
