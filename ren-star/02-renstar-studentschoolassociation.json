@@ -2,9 +2,9 @@
   "schoolReference": {
     "schoolId": {
       "data-type": "integer",
-      "source": "lookup-table",
-      "source-table": "mclass-schools",
-      "source-column": "School Name"
+      "source": "column",
+      "source-column": "SchoolLocalID",
+      "default": "123123123"
     }
   },
   "studentReference": {
@@ -21,7 +21,8 @@
   },
   "entryGradeLevelDescriptor": {
     "data-type": "string",
-    "source": "static",
-    "value": "Twelfth grade"
+    "source": "column",
+    "source-column": "CurrentGrade",
+    "default": "Ungraded"
   }
 }

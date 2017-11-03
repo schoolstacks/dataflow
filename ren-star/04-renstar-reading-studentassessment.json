@@ -2,14 +2,14 @@
   "assessmentReference": {
     "title": {
       "data-type": "string",
-      "source": "column",
-      "source-column": "Assessment"
+      "source": "static",
+      "value": "STAR Reading"
     },
     "assessedGradeLevelDescriptor": {
       "data-type": "string",
       "source": "lookup-table",
-      "source-table": "mclass-grade",
-      "source-column": "Assessment Grade"
+      "source-table": "star-grade",
+      "source-column": "Grade"
     },
     "academicSubjectDescriptor": {
       "data-type": "string",
@@ -21,6 +21,11 @@
       "source": "static",
       "value": "1"
     }
+  },
+  "eventDescription": {
+    "data-type": "string",
+    "source": "column",
+    "source-column": "ScreeningCategoryGroupAdjustment"
   },
   "studentReference": {
     "studentUniqueId": {
@@ -34,46 +39,57 @@
     "source": "column",
     "source-column": "AssessmentDate"
   },
-  "items": [
+  "scoreResults": [
     {
-      "assessmentItemReference": {
-        "assessmentTitle": {
-          "data-type": "string",
-          "source": "column",
-          "source-column": "Assessment"
-        },
-        "academicSubjectDescriptor": {
-          "data-type": "string",
-          "source": "static",
-          "value": "Reading"
-        },
-        "assessedGradeLevelDescriptor": {
-          "data-type": "string",
-          "source": "lookup-table",
-          "source-table": "mclass-grade",
-          "source-column": "Assessment Grade"
-        },
-        "version": {
-          "data-type": "integer",
-          "source": "static",
-          "value": "1"
-        },
-        "identificationCode": {
-          "data-type": "string",
-          "source": "column",
-          "source-column": "Measure"
-        }
+      "assessmentReportingMethodType": {
+        "data-type": "string",
+        "source": "static",
+        "value": "Scale score"
       },
-      "assessmentItemResultType": {
+      "result": {
         "data-type": "string",
         "source": "column",
-        "source-column": "ScreeningCategoryGroupAdjustment"
-      },
-      "rawScoreResult": {
-        "data-type": "integer",
-        "source": "column",
         "source-column": "ScaledScore"
+      },
+      "resultDatatypeType": {
+        "data-type": "string",
+        "source": "static",
+        "value": "Integer"
       }
-    }
-  ]
+    },
+    {
+        "assessmentReportingMethodType": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Percentile rank"
+        },
+        "result": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "PercentileRank"
+        },
+        "resultDatatypeType": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Percentile"
+        }
+      },
+      {
+        "assessmentReportingMethodType": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Lexile Measure"
+        },
+        "result": {
+          "data-type": "string",
+          "source": "column",
+          "source-column": "Lexile"
+        },
+        "resultDatatypeType": {
+          "data-type": "string",
+          "source": "static",
+          "value": "Level"
+        }
+      }    
+    ]
 }
