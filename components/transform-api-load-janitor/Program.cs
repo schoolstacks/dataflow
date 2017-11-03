@@ -14,6 +14,7 @@ using CsvHelper;
 using System.Net.Http;
 using System.Data.Entity.Core.EntityClient;
 using server_components_data_access.Enums;
+using log4net.Core;
 
 namespace transform_api_load_janitor
 {
@@ -32,8 +33,6 @@ namespace transform_api_load_janitor
                 watch.Start();
                 var tsk = StartProcessing();
                 tsk.Wait();
-                //LoadDataflowConfiguration();
-                //TransformFilesFromAzureFileStorage();
                 watch.Stop();
 
                 Log(log4net.Core.Level.Info, "Time Elapsed: {0}", watch.Elapsed.ToString());
@@ -54,7 +53,7 @@ namespace transform_api_load_janitor
                 if (String.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME")))
                 {
                     //if environment variable exists application is running under App Service. Otherwise is probably IIS or Visual Studio
-                    Console.WriteLine("Press any key to exist");
+                    Console.WriteLine("Press any key to exit");
                     Console.ReadKey();
                 }
             }
@@ -80,11 +79,10 @@ namespace transform_api_load_janitor
         }
         private static async Task StartProcessing()
         {
-            using (server_components_data_access.Dataflow.DataFlowContext ctx =
-                new server_components_data_access.Dataflow.DataFlowContext(BuildEntityConnection()))
+            using (DataFlowContext ctx = new DataFlowContext(BuildEntityConnection()))
             {
                 await InsertBootrapData(ctx);
-                List<server_components_data_access.Dataflow.log_ingestion> lstIngestionMessages = new List<log_ingestion>();
+                List<log_ingestion> lstIngestionMessages = new List<log_ingestion>();
                 var agents = ctx.agents.Include("datamap_agent").Include("datamap_agent.datamap").ToList();
                 MappingLookups = ctx.lookups.ToList();
                 foreach (var singleAgent in agents)
@@ -102,7 +100,7 @@ namespace transform_api_load_janitor
                         {
                             Log(log4net.Core.Level.Error, "Error processing file: {0}. Message: {1}", singleFile.URL, ex.ToString());
                         }
-                        //ProcessDataMapAgent(dataMapAgents, cloudFileUrl: "https://dataflow.file.core.windows.net/sample-files/set02/mcl-progress-monitoring.csv");
+
                         Log(log4net.Core.Level.Info, "Finished Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
                     }
                 }
@@ -272,6 +270,7 @@ namespace transform_api_load_janitor
                             break;
                         default:
                             string strError = await response.Content.ReadAsStringAsync();
+                            Log(log4net.Core.Level.Error, "Data Error on Insert on endpoint: {0}, Row Number: {1}, Status: {2}, Error: {3}", endpointUrl, singleApiData.RowNumber, response.StatusCode, strError);
                             var singleIngestionError =
                                 new log_ingestion()
                                 {
@@ -483,8 +482,8 @@ namespace transform_api_load_janitor
                             //if (entity.Name == "students")
                             //    continue;
                             var dataMap = singleDataMapAgent.datamap;
-                            try
-                            {
+                            /*try
+                            {*/
                                 JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
                                 RemoveCustomHints(ref generatedRow, reader.FieldHeaders, reader.CurrentRecord);
                                 //RemoveRequiredFields(ref generatedRow, reader.FieldHeaders, reader.CurrentRecord);
@@ -495,11 +494,11 @@ namespace transform_api_load_janitor
                                     FileEntity = fileEntity,
                                     RowNumber = rowNum
                                 });
-                            }
-                            catch (Exception ex)
+                            /*}
+                             catch (Exception ex)
                             {
                                 Log(log4net.Core.Level.Error, "Error Processing Row: {0}. File: {1}. Message: {2}", rowNum, cloudFileUrl, ex.ToString());
-                            }
+                            } */
                         }
                     }
                 }
@@ -510,76 +509,89 @@ namespace transform_api_load_janitor
 
         private static void RemoveCustomHints(ref JToken generatedRow, string[] headers, string[] currentRecord)
         {
-            RemoveSensitiveProperties(generatedRow, "_required", headers, currentRecord, 0);
+            RemoveRequiredProperty(generatedRow, headers, currentRecord, 0);
         }
 
-        public static void RemoveSensitiveProperties(JToken token, string properyToRemove, string[] headers, string[] currentRecord, int level)
+        public static void RemoveRequiredProperty(JToken token, string[] headers, string[] currentRecord, int level)
         {
-            switch (token.Type)
+            try
             {
-                case JTokenType.Object:
-                    foreach (JToken subToken in token)
-                    {
-                        if (subToken.Type == JTokenType.Property)
+                switch (token.Type)
+                {
+                    case JTokenType.Object:
+                        foreach (JToken subToken in token)
                         {
-                            JProperty prop = (JProperty)subToken;
-                            if (prop.Name == "studentObjectiveAssessments")
+                            if (subToken.Type == JTokenType.Property)
                             {
-                                List<JToken> removeList = new List<JToken>();
-
-                                foreach (JObject subProp in prop.Value)
+                                JProperty prop = (JProperty)subToken;
+                                if (prop.Name == "studentObjectiveAssessments")  //TODO:  Right now, this is just focused on one use case, but we should abstract to ensure it works for others
                                 {
-                                    if (subProp["_required"] != null)
+                                    List<JToken> removeList = new List<JToken>();
+
+                                    foreach (JObject subProp in prop.Value)
                                     {
-                                        JArray requireds = (JArray)subProp["_required"];
-                                        int found = 0;
+                                        bool required = false;
 
-                                        foreach (string requiredFields in subProp["_required"])
+                                        if (subProp["_required"] != null)
                                         {
+                                            required = true;
 
-                                            int pos = Array.IndexOf(headers, requiredFields);
-                                            if (pos > 0 && currentRecord[pos].Length > 0)
+                                            JArray requireds = (JArray)subProp["_required"];
+                                            int found = 0;
+
+                                            foreach (string requiredFields in subProp["_required"])
                                             {
-                                                { found++; } // if this field is found to have data, increment the count
+
+                                                int pos = Array.IndexOf(headers, requiredFields);
+                                                if (pos > 0 && currentRecord[pos].Length > 0)
+                                                {
+                                                    { found++; } // if this field is found to have data, increment the count
+                                                }
+                                            }
+
+                                            if (found != requireds.Count)
+                                            {
+                                                removeList.Add(subProp);
                                             }
                                         }
 
-                                        if (found != requireds.Count)
-                                        {
-                                            removeList.Add(subProp);
+                                        if (required) { 
+                                            subProp.Property("_required").Remove();
                                         }
                                     }
 
-                                    subProp.Property("_required").Remove();
-                                }
-
-                                foreach (JToken node in removeList)
-                                {
-                                    node.Remove();
-                                }
+                                    foreach (JToken node in removeList)
+                                    {
+                                        node.Remove();
+                                    }
 
                                 
 
 
+                                }
                             }
+                            RemoveRequiredProperty(subToken, headers, currentRecord, level+1);
                         }
-                        RemoveSensitiveProperties(subToken, properyToRemove, headers, currentRecord, level+1);
-                    }
 
-                    break;
-                case JTokenType.Array:
-                    foreach (JToken subToken in token)
-                    {
-                        RemoveSensitiveProperties(subToken, properyToRemove, headers, currentRecord, level+1);
-                    }
-                    break;
-                case JTokenType.Property:
-                    break;
-                default:
-                    Log(log4net.Core.Level.Info, "Token type: {0}", token.Type);
-                    break;
+                        break;
+                    case JTokenType.Array:
+                        foreach (JToken subToken in token)
+                        {
+                            RemoveRequiredProperty(subToken, headers, currentRecord, level+1);
+                        }
+                        break;
+                    case JTokenType.Property:
+                        break;
+                    default:
+                        Log(log4net.Core.Level.Info, "Token type: {0}", token.Type);
+                        break;
+                }
             }
-           
+            catch (Exception ex)
+            {
+                _log.Error("Error in RemoveRequiredProperty: ", ex);
+                //Log(log4net.Core.Level.Error, "Error in RemoveRequiredProperty: ", ex);
+            }
 
 
             /*
@@ -773,23 +785,11 @@ namespace transform_api_load_janitor
                             {
                                 if (initialOutputData.Type == JTokenType.Property)
                                 {
-                                    //if (originalMap.Parent != null &&
-                                    //    originalMap.Parent.Type == JTokenType.Property &&
-                                    //    ((JProperty)originalMap.Parent).Name ==
-                                    //    ((JProperty)initialOutputData).Name)
-                                    //{
-                                    //    JProperty prop = (JProperty)originalMap.Parent;
-                                    //    prop.Value = ConvertDataType(dataTypeField, csvValue, defaultValueField);
-                                    //}
-                                    //else
+                                    JProperty prop = (JProperty)initialOutputData;
+                                    prop.Value = ConvertDataType(dataTypeField, csvValue, defaultValueField, ref wasValueSet);
+                                    if (!wasValueSet)
                                     {
-                                        JProperty prop = (JProperty)initialOutputData;
-                                        prop.Value = ConvertDataType(dataTypeField, csvValue, defaultValueField, ref wasValueSet);
-                                        if (!wasValueSet)
-                                        {
-                                            initialOutputData.Parent.Remove();
-                                            //prop.Remove();
-                                        }
+                                        initialOutputData.Parent.Remove();
                                     }
                                 }
                                 else
@@ -1004,10 +1004,8 @@ namespace transform_api_load_janitor
 
         private static void TransformFilesFromAzureFileStorage()
         {
-            //Check https://docs.microsoft.com/en-us/azure/storage/files/storage-dotnet-how-to-use-files
+            // Check https://docs.microsoft.com/en-us/azure/storage/files/storage-dotnet-how-to-use-files
             // Parse the connection string and return a reference to the storage account.
-            //CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-            //    CloudConfigurationManager.GetSetting("StorageConnectionString"));
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
                 Properties.Settings.Default.StorageConnectionString);
             CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
