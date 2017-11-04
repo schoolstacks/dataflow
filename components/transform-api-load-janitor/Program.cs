@@ -781,27 +781,22 @@ namespace transform_api_load_janitor
                     {
                         if (splittedPath.Length > 0)
                         {
-                            try
+                            if (initialOutputData.Type == JTokenType.Property)
                             {
-                                if (initialOutputData.Type == JTokenType.Property)
+                                JProperty prop = (JProperty)initialOutputData;
+                                prop.Value = ConvertDataType(dataTypeField, csvValue, defaultValueField, ref wasValueSet);
+                                if (!wasValueSet)
                                 {
-                                    JProperty prop = (JProperty)initialOutputData;
-                                    prop.Value = ConvertDataType(dataTypeField, csvValue, defaultValueField, ref wasValueSet);
-                                    if (!wasValueSet)
-                                    {
-                                        initialOutputData.Parent.Remove();
-                                    }
-                                }
-                                else
-                                {
-                                    initialOutputData[splittedPath[splittedPath.Length - 1]] = ConvertDataType(dataTypeField, csvValue, defaultValueField, ref wasValueSet);
-                                    if (!wasValueSet)
-                                        initialOutputData[splittedPath[splittedPath.Length - 1]].Remove();
+                                    initialOutputData.Parent.Remove();
                                 }
                             }
-                            catch (Exception ex1)
+                            else
                             {
-                                throw ex1;
+                                initialOutputData[splittedPath[splittedPath.Length - 1]] = ConvertDataType(dataTypeField, csvValue, defaultValueField, ref wasValueSet);
+                                /*
+                                if (!wasValueSet)
+                                    initialOutputData[splittedPath[splittedPath.Length - 1]].Remove();
+                                */
                             }
                         }
                         else
