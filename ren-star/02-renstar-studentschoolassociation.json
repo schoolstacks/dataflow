@@ -2,9 +2,9 @@
   "schoolReference": {
     "schoolId": {
       "data-type": "integer",
-      "source": "column",
-      "source-column": "SchoolLocalID",
-      "default": "123123123"
+      "source": "lookup-table",
+      "source-table": "renstar-school",
+      "source-column": "SchoolName"
     }
   },
   "studentReference": {
@@ -21,8 +21,9 @@
   },
   "entryGradeLevelDescriptor": {
     "data-type": "string",
-    "source": "column",
-    "source-column": "CurrentGrade",
+    "source": "lookup-table",
+    "source-table": "renstar-grade",
+    "source-column": "Grade",
     "default": "Ungraded"
   }
 }
