@@ -35,11 +35,16 @@
     "source": "column",
     "source-column": "AssessmentDate"
   },
-  "eventDescription": {
-    "data-type": "string",
-    "source": "column",
-    "source-column": "ScreeningCategoryGroupAdjustment"
-  },
+  "performanceLevels": [
+    {
+      "performanceLevelDescriptor": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "ScreeningCategoryGroupAdjustment"
+      },
+      "_required": [ "ScreeningCategoryGroupAdjustment" ]
+    }
+  ],
   "scoreResults": [
     {
       "assessmentReportingMethodType": {
