@@ -29,6 +29,6 @@
 	"hispanicLatinoEthnicity": {
 	    "data-type": "boolean",
         "source": "static",
-        "default": "false"
+        "value": "false"
 	}
 }

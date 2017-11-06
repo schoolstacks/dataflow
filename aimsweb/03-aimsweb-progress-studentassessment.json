@@ -40,8 +40,8 @@
       "objectiveAssessmentReference": {
         "assessmentTitle": {
           "data-type": "string",
-          "source": "column",
-          "source-column": "AIMSweb"
+          "source": "static",
+          "value": "AIMSweb"
         },
         "academicSubjectDescriptor": {
           "data-type": "string",

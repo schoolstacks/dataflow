@@ -20,7 +20,8 @@
   },
   "entryGradeLevelDescriptor": {
     "data-type": "string",
-    "source": "static",
-    "value": "Unknown"
+    "source": "lookup-table",
+    "source-table": "aimsweb-grade",
+    "source-column": "CurrentGrade"
   }
 }
