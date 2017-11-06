@@ -2,16 +2,15 @@
   "schoolReference": {
     "schoolId": {
       "data-type": "integer",
-      "source": "lookup-table",
-      "source-table": "mclass-schools",
-      "source-column": "SchoolName"
+      "source": "static",
+      "value": "123123123"
     }
   },
   "studentReference": {
     "studentUniqueId": {
       "data-type": "string",
       "source": "column",
-      "source-column": "UniqueIdentifier"
+      "source-column": "StudentID"
     }
   },
   "entryDate": {
@@ -21,8 +20,7 @@
   },
   "entryGradeLevelDescriptor": {
     "data-type": "string",
-    "source": "column",
-    "source-column": "Grade",
-    "default": "Unknown"
+    "source": "static",
+    "value": "Unknown"
   }
 }

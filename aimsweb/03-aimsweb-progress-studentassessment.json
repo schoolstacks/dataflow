@@ -2,14 +2,15 @@
   "assessmentReference": {
     "title": {
       "data-type": "string",
-      "source": "column",
-      "source-column": "Assessment"
+      "source": "static",
+      "value": "AIMSweb"
     },
     "assessedGradeLevelDescriptor": {
       "data-type": "string",
       "source": "lookup-table",
-      "source-table": "mclass-grade",
-      "source-column": "Assessment Grade"
+      "source-table": "aimsweb-grade",
+      "source-column": "CurrentGrade",
+      "default": "Ungraded"
     },
     "academicSubjectDescriptor": {
       "data-type": "string",
@@ -34,13 +35,13 @@
     "source": "column",
     "source-column": "DateGiven"
   },
-  "items": [
+  "studentObjectiveAssessments": [
     {
-      "assessmentItemReference": {
+      "objectiveAssessmentReference": {
         "assessmentTitle": {
           "data-type": "string",
-          "source": "static",
-          "value": "AIMSWeb"
+          "source": "column",
+          "source-column": "AIMSweb"
         },
         "academicSubjectDescriptor": {
           "data-type": "string",
@@ -49,8 +50,9 @@
         },
         "assessedGradeLevelDescriptor": {
           "data-type": "string",
-          "source": "static",
-          "value": "Unknown"
+          "source": "lookup-table",
+          "source-table": "aimsweb-grade",
+          "source-column": "CurrentGrade"
         },
         "version": {
           "data-type": "integer",
@@ -63,16 +65,25 @@
           "source-column": "Measure"
         }
       },
-      "assessmentItemResultType": {
-        "data-type": "string",
-        "source": "column",
-        "source-column": "Assessment Measure-Composite Score-Levels"
-      },
-      "rawScoreResult": {
-        "data-type": "integer",
-        "source": "column",
-        "source-column": "Corrects"
-      }
+      "scoreResults": [
+        {
+          "assessmentReportingMethodType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Number score"
+          },
+          "result": {
+            "data-type": "string",
+            "source": "column",
+            "source-column": "Corrects"
+          },
+          "resultDatatypeType": {
+            "data-type": "string",
+            "source": "static",
+            "value": "Integer"
+          }
+        }
+      ]
     }
   ]
 }
