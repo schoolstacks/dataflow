@@ -2,19 +2,20 @@
   "assessmentReference": {
     "title": {
       "data-type": "string",
-      "source": "column",
-      "source-column": "Assessment"
+      "source": "static",
+      "value": "STAR Math"
     },
     "assessedGradeLevelDescriptor": {
       "data-type": "string",
       "source": "lookup-table",
-      "source-table": "mclass-grade",
-      "source-column": "Assessment Grade"
+      "source-table": "renstar-grade",
+      "source-column": "Grade",
+      "default": "Ungraded"
     },
     "academicSubjectDescriptor": {
       "data-type": "string",
       "source": "static",
-      "value": "Reading"
+      "value": "Mathematics"
     },
     "version": {
       "data-type": "integer",
@@ -34,45 +35,51 @@
     "source": "column",
     "source-column": "AssessmentDate"
   },
-  "items": [
+  "performanceLevels": [
     {
-      "assessmentItemReference": {
-        "assessmentTitle": {
-          "data-type": "string",
-          "source": "column",
-          "source-column": "Assessment"
-        },
-        "academicSubjectDescriptor": {
-          "data-type": "string",
-          "source": "static",
-          "value": "Reading"
-        },
-        "assessedGradeLevelDescriptor": {
-          "data-type": "string",
-          "source": "lookup-table",
-          "source-table": "mclass-grade",
-          "source-column": "Assessment Grade"
-        },
-        "version": {
-          "data-type": "integer",
-          "source": "static",
-          "value": "1"
-        },
-        "identificationCode": {
-          "data-type": "string",
-          "source": "column",
-          "source-column": "Measure"
-        }
-      },
-      "assessmentItemResultType": {
+      "performanceLevelDescriptor": {
         "data-type": "string",
         "source": "column",
         "source-column": "ScreeningCategoryGroupAdjustment"
       },
-      "rawScoreResult": {
-        "data-type": "integer",
+      "_required": [
+        "ScreeningCategoryGroupAdjustment"
+      ]
+    }
+  ],
+  "scoreResults": [
+    {
+      "assessmentReportingMethodType": {
+        "data-type": "string",
+        "source": "static",
+        "value": "Scale score"
+      },
+      "result": {
+        "data-type": "string",
         "source": "column",
         "source-column": "ScaledScore"
+      },
+      "resultDatatypeType": {
+        "data-type": "string",
+        "source": "static",
+        "value": "Integer"
+      }
+    },
+    {
+      "assessmentReportingMethodType": {
+        "data-type": "string",
+        "source": "static",
+        "value": "Percentile rank"
+      },
+      "result": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "PercentileRank"
+      },
+      "resultDatatypeType": {
+        "data-type": "string",
+        "source": "static",
+        "value": "Percentile"
       }
     }
   ]
