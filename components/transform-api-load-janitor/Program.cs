@@ -15,6 +15,7 @@ using System.Net.Http;
 using System.Data.Entity.Core.EntityClient;
 using server_components_data_access.Enums;
 using log4net.Core;
+using System.Configuration;
 
 namespace transform_api_load_janitor
 {
@@ -23,7 +24,6 @@ namespace transform_api_load_janitor
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public static List<ResultingMapInfo> ApiData = new List<ResultingMapInfo>();
         private static List<server_components_data_access.Dataflow.datamap> DataMapsList { get; set; } = null;
-        private const string DATAFLOW_CONNECTIONSTRINGKEY = "SQLAZURECONNSTR_defaultConnection";
         private static List<server_components_data_access.Dataflow.lookup> MappingLookups { get; set; }
         private static List<KeyValuePair<string, string>> InsertedIds { get; set; } = new List<KeyValuePair<string, string>>();
 
@@ -336,14 +336,6 @@ namespace transform_api_load_janitor
             return new KeyValuePair<bool, string>(result, recordId);
         }
 
-        private static string GetEnvironmentVariable(string name)
-        {
-            string value = System.Environment.GetEnvironmentVariable(name);
-            if (String.IsNullOrWhiteSpace(value))
-                throw new Exception("There is no Environment Variable/Configuration Setting for " + name);
-            return value;
-        }
-
         private static string GetApiBaseUrl(DataFlowContext ctx)
         {
             return ctx.configurations.Where(p => p.Key == "API_SERVER_BASEURL").First().Value;
@@ -447,9 +439,9 @@ namespace transform_api_load_janitor
         private static async Task ProcessDataMapAgent(IOrderedEnumerable<datamap_agent> dataMapAgents,
             string cloudFileUrl, file fileEntity, DataFlowContext ctx)
         {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Properties.Settings.Default.StorageConnectionString);
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString);
             CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-            CloudFileShare fileShare = fileClient.GetShareReference(Properties.Settings.Default.FileShareName);
+            CloudFileShare fileShare = fileClient.GetShareReference(ConfigurationManager.AppSettings["FileShareName"]);
             CloudFile file = new CloudFile(new Uri(cloudFileUrl), storageAccount.Credentials);
             string strFileText = file.DownloadText();
             TransformFile(dataMapAgents, fileEntity, strFileText);
@@ -911,30 +903,6 @@ namespace transform_api_load_janitor
             if (matchingRecord != null)
                 result = matchingRecord.Value;
             return result;
-        }
-
-        private static void TransformFile(string filePath)
-        {
-            using (System.IO.StreamReader textReader = new System.IO.StreamReader(filePath))
-            {
-                using (CsvHelper.CsvReader csvReader = new CsvHelper.CsvReader(textReader))
-                {
-                    bool isFirstRow = true;
-                    int rowNumber = 0;
-                    while (csvReader.Read())
-                    {
-                        Log(log4net.Core.Level.Info, "Start of Data for Row: {0}", rowNumber);
-                        for (int iCol = 0; iCol < csvReader.CurrentRecord.Length; iCol++)
-                        {
-                            string columnName = csvReader.FieldHeaders[iCol];
-                            string columnValue = csvReader.GetField(iCol);
-                            Log(log4net.Core.Level.Info, "{0} = {1}", columnName, columnValue);
-                        }
-                        Log(log4net.Core.Level.Info, "End of Data for Row: {0}", rowNumber);
-                        rowNumber++;
-                    }
-                }
-            }
         }
 
         private static void Log(log4net.Core.Level level, string message, params object[] args)
