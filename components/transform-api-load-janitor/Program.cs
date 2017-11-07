@@ -21,8 +21,11 @@ namespace transform_api_load_janitor
     class Program
     {
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public static List<ResultingMapInfo> ApiData = new List<ResultingMapInfo>();
         private static List<server_components_data_access.Dataflow.datamap> DataMapsList { get; set; } = null;
         private const string DATAFLOW_CONNECTIONSTRINGKEY = "SQLAZURECONNSTR_defaultConnection";
+        private static List<server_components_data_access.Dataflow.lookup> MappingLookups { get; set; }
+        private static List<KeyValuePair<string, string>> InsertedIds { get; set; } = new List<KeyValuePair<string, string>>();
         static void Main(string[] args)
         {
             try
@@ -59,9 +62,6 @@ namespace transform_api_load_janitor
             }
         }
 
-        private static List<server_components_data_access.Dataflow.lookup> MappingLookups { get; set; }
-        private static List<KeyValuePair<string, string>> InsertedIds { get; set; } = new List<KeyValuePair<string, string>>();
-
         private static string GetDataFlowConnectionString()
         {
             return GetEnvironmentVariable(DATAFLOW_CONNECTIONSTRINGKEY);
@@ -82,7 +82,6 @@ namespace transform_api_load_janitor
             using (DataFlowContext ctx = new DataFlowContext(BuildEntityConnection()))
             {
                 await InsertBootrapData(ctx);
-                List<log_ingestion> lstIngestionMessages = new List<log_ingestion>();
                 var agents = ctx.agents.Include("datamap_agent").Include("datamap_agent.datamap").ToList();
                 MappingLookups = ctx.lookups.ToList();
                 foreach (var singleAgent in agents)
@@ -94,7 +93,7 @@ namespace transform_api_load_janitor
                         Log(log4net.Core.Level.Info, "Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
                         try
                         {
-                            ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.URL, fileEntity: singleFile);
+                            await ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.URL, fileEntity: singleFile, ctx:ctx);
                         }
                         catch (Exception ex)
                         {
@@ -104,27 +103,33 @@ namespace transform_api_load_janitor
                         Log(log4net.Core.Level.Info, "Finished Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
                     }
                 }
-                string authorizeUrl = GetAuthorizeUrl(ctx);
-                string accessTokenUrl = GetAccessTokenUrl(ctx);
-                string clientId = GetApiClientId(ctx);
-                string clientSecret = GetApiClientSecret(ctx);
-                string authCode = await RetrieveAuthorizationCode(authorizeUrl, clientId: clientId);
-                string accessToken = await RetrieveAccessToken(accessTokenUrl, clientId, clientSecret, authCode);
-                Log(log4net.Core.Level.Info, "Start of Api Insertion: {0} records", ApiData.Count);
-                int iCurrentRecord = 1;
-                List<file> lstErroredFiles = new List<file>();
-                iCurrentRecord = await ProcessApiData(ctx, lstIngestionMessages, accessToken, iCurrentRecord, lstErroredFiles);
-                foreach (var singleErrorFile in lstErroredFiles)
-                {
-                    singleErrorFile.Status = FileStatus.ERROR_TRANSFORM;
-                }
-                var transformedFiles = ApiData.Where(p => lstErroredFiles.Contains(p.FileEntity) == false).Select(p => p.FileEntity).ToList();
-                foreach (var singleTransformedFile in transformedFiles.Distinct())
-                {
-                    singleTransformedFile.Status = FileStatus.TRANSFORMED;
-                }
-                ctx.SaveChanges();
             }
+        }
+
+        private static async Task PostTransformedData(DataFlowContext ctx)
+        {
+            List<log_ingestion> lstIngestionMessages = new List<log_ingestion>();
+            string authorizeUrl = GetAuthorizeUrl(ctx);
+            string accessTokenUrl = GetAccessTokenUrl(ctx);
+            string clientId = GetApiClientId(ctx);
+            string clientSecret = GetApiClientSecret(ctx);
+            string authCode = await RetrieveAuthorizationCode(authorizeUrl, clientId: clientId);
+            string accessToken = await RetrieveAccessToken(accessTokenUrl, clientId, clientSecret, authCode);
+            Log(log4net.Core.Level.Info, "Start of Api Insertion: {0} records", ApiData.Count);
+            int iCurrentRecord = 1;
+            List<file> lstErroredFiles = new List<file>();
+            iCurrentRecord = await ProcessApiData(ctx, lstIngestionMessages, accessToken, iCurrentRecord, lstErroredFiles);
+            foreach (var singleErrorFile in lstErroredFiles)
+            {
+                singleErrorFile.Status = FileStatus.ERROR_TRANSFORM;
+            }
+            var transformedFiles = ApiData.Where(p => lstErroredFiles.Contains(p.FileEntity) == false).Select(p => p.FileEntity).ToList();
+            foreach (var singleTransformedFile in transformedFiles.Distinct())
+            {
+                singleTransformedFile.Status = FileStatus.TRANSFORMED;
+            }
+            ctx.SaveChanges();
+            ApiData.Clear();
         }
 
         private static async Task InsertBootrapData(DataFlowContext ctx)
@@ -262,7 +267,7 @@ namespace transform_api_load_janitor
                                 Date = DateTime.UtcNow,
                                 //Filename = singleApiData.Key
                                 Result = "SUCCESS",
-                                Message = string.Format("Record Created:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nData:\r\n{2}", singleApiData.RowNumber, endpointUrl, singleApiData.Value.ToString()),
+                                Message = string.Format("Record Created:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nAgent ID:{2}\r\nFile Name:{3}\r\nData:\r\n{4}", singleApiData.RowNumber, endpointUrl,singleApiData.FileEntity.AgentID,singleApiData.FileEntity.Filename, singleApiData.Value.ToString()),
                                 Level = "INFORMATION",
                                 Operation = "TransformingData",
                                 Process = "transform-api-load-janitor"
@@ -277,7 +282,7 @@ namespace transform_api_load_janitor
                                     Date = DateTime.UtcNow,
                                     //Filename = singleApiData.Key
                                     Result = "ERROR",
-                                    Message = string.Format("Message: {0}. Row Number: {1} EndPoint Url: {2}\r\nData:\r\n{3}", strError, singleApiData.RowNumber, endpointUrl, singleApiData.Value.ToString()),
+                                    Message = string.Format("Message: {0}. Row Number: {1} EndPoint Url: {2}\r\nAgent ID:{3}\r\nFile Name:{4}\r\nData:\r\n{5}", strError, singleApiData.RowNumber, endpointUrl,singleApiData.FileEntity.AgentID, singleApiData.FileEntity.Filename, singleApiData.Value.ToString()),
                                     Level = "ERROR",
                                     Operation = "TransformingData",
                                     Process = "transform-api-load-janitor"
@@ -442,11 +447,8 @@ namespace transform_api_load_janitor
             return code;
         }
 
-        public static List<ResultingMapInfo> ApiData = new List<ResultingMapInfo>();
-
-
-        private static void ProcessDataMapAgent(IOrderedEnumerable<datamap_agent> dataMapAgents,
-            string cloudFileUrl, file fileEntity)
+        private static async Task ProcessDataMapAgent(IOrderedEnumerable<datamap_agent> dataMapAgents,
+            string cloudFileUrl, file fileEntity, DataFlowContext ctx)
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
     Properties.Settings.Default.StorageConnectionString);
@@ -454,6 +456,12 @@ namespace transform_api_load_janitor
             CloudFileShare fileShare = fileClient.GetShareReference(Properties.Settings.Default.FileShareName);
             CloudFile file = new CloudFile(new Uri(cloudFileUrl), storageAccount.Credentials);
             string strFileText = file.DownloadText();
+            TransformFile(dataMapAgents, fileEntity, strFileText);
+            await PostTransformedData(ctx);
+        }
+
+        private static void TransformFile(IOrderedEnumerable<datamap_agent> dataMapAgents, file fileEntity, string strFileText)
+        {
             using (StringReader strReader = new StringReader(strFileText))
             {
                 using (CsvHelper.CsvReader reader = new CsvHelper.CsvReader(strReader))
@@ -484,16 +492,16 @@ namespace transform_api_load_janitor
                             var dataMap = singleDataMapAgent.datamap;
                             /*try
                             {*/
-                                JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
-                                RemoveCustomHints(ref generatedRow, reader.FieldHeaders, reader.CurrentRecord);
-                                //RemoveRequiredFields(ref generatedRow, reader.FieldHeaders, reader.CurrentRecord);
-                                ApiData.Add(new ResultingMapInfo()
-                                {
-                                    Key = entity,
-                                    Value = generatedRow,
-                                    FileEntity = fileEntity,
-                                    RowNumber = rowNum
-                                });
+                            JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
+                            RemoveCustomHints(ref generatedRow, reader.FieldHeaders, reader.CurrentRecord);
+                            //RemoveRequiredFields(ref generatedRow, reader.FieldHeaders, reader.CurrentRecord);
+                            ApiData.Add(new ResultingMapInfo()
+                            {
+                                Key = entity,
+                                Value = generatedRow,
+                                FileEntity = fileEntity,
+                                RowNumber = rowNum
+                            });
                             /*}
                              catch (Exception ex)
                             {
@@ -504,7 +512,6 @@ namespace transform_api_load_janitor
                 }
 
             }
-
         }
 
         private static void RemoveCustomHints(ref JToken generatedRow, string[] headers, string[] currentRecord)
