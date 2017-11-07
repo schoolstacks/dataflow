@@ -26,6 +26,8 @@ namespace transform_api_load_janitor
         private const string DATAFLOW_CONNECTIONSTRINGKEY = "SQLAZURECONNSTR_defaultConnection";
         private static List<server_components_data_access.Dataflow.lookup> MappingLookups { get; set; }
         private static List<KeyValuePair<string, string>> InsertedIds { get; set; } = new List<KeyValuePair<string, string>>();
+
+        private static string _accessToken = null;
         static void Main(string[] args)
         {
             try
@@ -64,7 +66,8 @@ namespace transform_api_load_janitor
 
         private static string GetDataFlowConnectionString()
         {
-            return GetEnvironmentVariable(DATAFLOW_CONNECTIONSTRINGKEY);
+            return System.Configuration.ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString;
+            //return GetEnvironmentVariable(DATAFLOW_CONNECTIONSTRINGKEY);
         }
         private static EntityConnection BuildEntityConnection()
         {
@@ -138,6 +141,7 @@ namespace transform_api_load_janitor
                 ctx.bootstrapdatas.Where(p => p.ProcessedDate.HasValue == false).OrderBy(p => p.ProcessingOrder).ToList();
             foreach (var singlePayload in bootStrapPayloads)
             {
+                Log(Level.Info, "Inserting bootstrap data for ID: {0}", singlePayload.ID);
                 var entity = singlePayload.entity;
                 var metadata = entity.Metadata;
                 string endpointUrl = RetrieveEndpointUrlFromMetadata(metadata, ctx);
@@ -148,7 +152,8 @@ namespace transform_api_load_janitor
                 string authCode = await RetrieveAuthorizationCode(authorizeUrl, clientId: clientId);
                 string accessToken = await RetrieveAccessToken(accessTokenUrl, clientId, clientSecret, authCode);
                 JToken convertedPayload = JToken.Parse(singlePayload.Data);
-                if (convertedPayload.Type == JTokenType.Array)
+
+                if (convertedPayload.Type == JTokenType.Array) // If there are multiple payloads as part of an array, post each payload
                 {
                     foreach(var singleElement in (JArray)convertedPayload)
                     {
@@ -156,7 +161,7 @@ namespace transform_api_load_janitor
                         await PostBootstrapData(endpointUrl, accessToken, dataToInsert);
                     }
                 }
-                else
+                else // Otherwise, post the single payload
                 {
                     await PostBootstrapData(endpointUrl, accessToken, singlePayload.Data);
                 }
@@ -226,28 +231,6 @@ namespace transform_api_load_janitor
                             strIdName = "studentUniqueId";
                             strId = singleApiData.Value[strIdName].ToString();
                             break;
-                        //case "studentAssessments":
-                        //    break;
-                        //case "studentSchoolAssociations":
-                        //    break;
-                        //case "studentSectionAssociations":
-                        //    break;
-                        //case "staffs":
-                        //    break;
-                        //case "assessments":
-                        //    break;
-                        //case "staffSchoolAssociations":
-                        //    break;
-                        //case "staffSectionAssociations":
-                        //    break;
-                        //case "schools":
-                        //    break;
-                        //case "localEducationAgencies":
-                        //    break;
-                        //case "sections":
-                        //    break;
-                        //case "assessmentItem":
-                        //    break;
                         default:
                             break;
                     }
@@ -258,6 +241,17 @@ namespace transform_api_load_janitor
                     switch (response.StatusCode)
                     {
                         case System.Net.HttpStatusCode.OK:
+                            Log(log4net.Core.Level.Info, "Data Exists on endpoint: {0}", endpointUrl);
+                            lstIngestionMessages.Add(new log_ingestion()
+                            {
+                                Date = DateTime.UtcNow,
+                                //Filename = singleApiData.Key
+                                Result = "SUCCESS",
+                                Message = string.Format("Record Exists:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nData:\r\n{2}", singleApiData.RowNumber, endpointUrl, singleApiData.Value.ToString()),
+                                Level = "INFORMATION",
+                                Operation = "TransformingData",
+                                Process = "transform-api-load-janitor"
+                            });
                             break;
                         case System.Net.HttpStatusCode.Created:
                             Log(log4net.Core.Level.Info, "Data Inserted on endpoint: {0}", endpointUrl);
@@ -382,7 +376,6 @@ namespace transform_api_load_janitor
             try
             {
                 JToken swaggerMetaData = JToken.Parse(metadata);
-                //string basePath = swaggerMetaData["basePath"].Value<string>();
                 string basePath = GetApiBaseUrl(ctx) + "/api/v2.0/2017";
                 string resourcePath = swaggerMetaData["resourcePath"].Value<string>();
                 strUrl = string.Format("{0}{1}", basePath, resourcePath);
@@ -396,28 +389,32 @@ namespace transform_api_load_janitor
 
         private static async Task<string> RetrieveAccessToken(string accessTokenUrl, string clientId, string clientSecret, string authCode)
         {
-            string accessToken = string.Empty;
-            using (HttpClient httpClient = new HttpClient())
+            if (_accessToken == null)
             {
-                List<KeyValuePair<string, string>> lstParams = new List<KeyValuePair<string, string>>();
-                lstParams.Add(new KeyValuePair<string, string>("Client_id", clientId));
-                lstParams.Add(new KeyValuePair<string, string>("Client_secret", clientSecret));
-                lstParams.Add(new KeyValuePair<string, string>("Code", authCode));
-                lstParams.Add(new KeyValuePair<string, string>("Grant_type", "authorization_code"));
-                FormUrlEncodedContent contentParams = new FormUrlEncodedContent(lstParams);
-                var result = await httpClient.PostAsync(accessTokenUrl, contentParams);
-                switch (result.StatusCode)
+                string accessToken = string.Empty;
+                using (HttpClient httpClient = new HttpClient())
                 {
-                    case System.Net.HttpStatusCode.OK:
-                        var jsonResult = await result.Content.ReadAsStringAsync();
-                        var jsonToken = JToken.Parse(jsonResult);
-                        accessToken = jsonToken["access_token"].ToString();
-                        break;
-                    default:
-                        break;
+                    List<KeyValuePair<string, string>> lstParams = new List<KeyValuePair<string, string>>();
+                    lstParams.Add(new KeyValuePair<string, string>("Client_id", clientId));
+                    lstParams.Add(new KeyValuePair<string, string>("Client_secret", clientSecret));
+                    lstParams.Add(new KeyValuePair<string, string>("Code", authCode));
+                    lstParams.Add(new KeyValuePair<string, string>("Grant_type", "authorization_code"));
+                    FormUrlEncodedContent contentParams = new FormUrlEncodedContent(lstParams);
+                    var result = await httpClient.PostAsync(accessTokenUrl, contentParams);
+                    switch (result.StatusCode)
+                    {
+                        case System.Net.HttpStatusCode.OK:
+                            var jsonResult = await result.Content.ReadAsStringAsync();
+                            var jsonToken = JToken.Parse(jsonResult);
+                            _accessToken = jsonToken["access_token"].ToString();
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
-            return accessToken;
+
+            return _accessToken;
         }
 
         private static async Task<string> RetrieveAuthorizationCode(string authorizeUrl, string clientId)
@@ -450,8 +447,7 @@ namespace transform_api_load_janitor
         private static async Task ProcessDataMapAgent(IOrderedEnumerable<datamap_agent> dataMapAgents,
             string cloudFileUrl, file fileEntity, DataFlowContext ctx)
         {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-    Properties.Settings.Default.StorageConnectionString);
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Properties.Settings.Default.StorageConnectionString);
             CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
             CloudFileShare fileShare = fileClient.GetShareReference(Properties.Settings.Default.FileShareName);
             CloudFile file = new CloudFile(new Uri(cloudFileUrl), storageAccount.Credentials);
@@ -470,31 +466,17 @@ namespace transform_api_load_janitor
                     while (reader.Read())
                     {
                         rowNum++;
-                        //if (rowNum == 50)
-                        //    break;
+
                         foreach (var singleDataMapAgent in dataMapAgents)
                         {
                             Log(log4net.Core.Level.Info, "Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Family: {4}. Row #: {5}",
                                 singleDataMapAgent.datamap.ID, singleDataMapAgent.AgentID, singleDataMapAgent.DataMapID, singleDataMapAgent.datamap.entity.Name,
                                 singleDataMapAgent.datamap.entity.Family, rowNum);
                             var entity = singleDataMapAgent.datamap.entity;
-                            //if (entity.Name != "studentAssessments")
-                            //    continue;
-                            //if (entity.Name != "studentAssessments")
-                            //if (entity.Name != "studentAssessments")
-                            //    continue;
-                            //if (entity.Name != "assessments")
-                            //    continue;
-                            //if (entity.Name != "assessmentItem")
-                            //    continue;
-                            //if (entity.Name == "students")
-                            //    continue;
                             var dataMap = singleDataMapAgent.datamap;
-                            /*try
-                            {*/
+
                             JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
                             RemoveCustomHints(ref generatedRow, reader.FieldHeaders, reader.CurrentRecord);
-                            //RemoveRequiredFields(ref generatedRow, reader.FieldHeaders, reader.CurrentRecord);
                             ApiData.Add(new ResultingMapInfo()
                             {
                                 Key = entity,
@@ -502,15 +484,9 @@ namespace transform_api_load_janitor
                                 FileEntity = fileEntity,
                                 RowNumber = rowNum
                             });
-                            /*}
-                             catch (Exception ex)
-                            {
-                                Log(log4net.Core.Level.Error, "Error Processing Row: {0}. File: {1}. Message: {2}", rowNum, cloudFileUrl, ex.ToString());
-                            } */
                         }
                     }
                 }
-
             }
         }
 
@@ -571,10 +547,6 @@ namespace transform_api_load_janitor
                                     {
                                         node.Remove();
                                     }
-
-                                
-
-
                                 }
                             }
                             RemoveRequiredProperty(subToken, headers, currentRecord, level+1);
@@ -599,45 +571,6 @@ namespace transform_api_load_janitor
                 _log.Error("Error in RemoveRequiredProperty: ", ex);
                 //Log(log4net.Core.Level.Error, "Error in RemoveRequiredProperty: ", ex);
             }
-
-
-            /*
-            //Check https://stackoverflow.com/questions/40116088/remove-fields-form-jobject-dynamically-using-json-net
-            if (token.Type == JTokenType.Object)
-            {
-                foreach (JProperty prop in token.Children<JProperty>().ToList())
-                {
-                    bool removed = false;
-                    if (prop.Name == properyToRemove)
-                    {
-                        prop.Remove();
-                        removed = true;
-                        break;
-                    }
-                    if (!removed)
-                    {
-                        RemoveSensitiveProperties(prop.Value, properyToRemove, headers, currentRecord);
-                    }
-                }
-            }
-            else if (token.Type == JTokenType.Array)
-            {
-                foreach (JToken subToken in token)
-                {
-                    RemoveSensitiveProperties(subToken, properyToRemove, headers, currentRecord);
-                }
-                if (token.Children().Count() == 0)
-                {
-                    token.Remove();
-                    token.Parent.Remove();
-                }
-                foreach (JToken child in token.Children())
-                {
-                    RemoveSensitiveProperties(child, properyToRemove, headers, currentRecord);
-                }
-                
-            }
-        */
         }
 
 
@@ -1000,60 +933,6 @@ namespace transform_api_load_janitor
                         Log(log4net.Core.Level.Info, "End of Data for Row: {0}", rowNumber);
                         rowNumber++;
                     }
-                }
-            }
-        }
-
-        private static void TransformFilesFromAzureFileStorage()
-        {
-            // Check https://docs.microsoft.com/en-us/azure/storage/files/storage-dotnet-how-to-use-files
-            // Parse the connection string and return a reference to the storage account.
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-                Properties.Settings.Default.StorageConnectionString);
-            CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-            CloudFileShare fileShare = fileClient.GetShareReference(Properties.Settings.Default.FileShareName);
-            CloudFileDirectory fileDirectoryRoot = fileShare.GetRootDirectoryReference();
-            var allItems = fileDirectoryRoot.ListFilesAndDirectories();
-            var allRootDirectories = allItems.OfType<CloudFileDirectory>();
-            var allRootFiles = allItems.OfType<CloudFile>();
-            foreach (CloudFileDirectory singleDirectory in allRootDirectories)
-            {
-                Log(log4net.Core.Level.Info, singleDirectory.Uri.ToString());
-                var currentDirectoryFiles = singleDirectory.ListFilesAndDirectories().OfType<CloudFile>();
-                foreach (var singleFile in currentDirectoryFiles)
-                {
-                    var extension = Path.GetExtension(singleFile.Name).ToUpper();
-                    if (extension != ".CSV")
-                        continue;
-                    Log(log4net.Core.Level.Info, singleFile.Uri.ToString());
-                    string dir = Properties.Settings.Default.LocalDestinationDirectory;
-                    if (!Directory.Exists(dir))
-                        Directory.CreateDirectory(dir);
-                    string localFile = System.IO.Path.Combine(dir, singleFile.Parent.Name, singleFile.Name);
-                    var localDir = Path.GetDirectoryName(localFile);
-                    if (!Directory.Exists(localDir))
-                        Directory.CreateDirectory(localDir);
-                    singleFile.DownloadToFile(localFile, FileMode.Create);
-                    try
-                    {
-                        TransformFile(localFile);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log(log4net.Core.Level.Error, ex.ToString());
-                    }
-                }
-            }
-            foreach (CloudFile singleFile in allRootFiles)
-            {
-                Log(log4net.Core.Level.Info, singleFile.Uri.ToString());
-                using (var strReader = singleFile.OpenRead())
-                {
-                    string strFileContent = singleFile.DownloadText();
-                    Log(log4net.Core.Level.Info, "**********START OF {0}**********", singleFile.Name);
-                    Log(log4net.Core.Level.Info, strFileContent);
-                    Log(log4net.Core.Level.Info, "**********END OF {0}**********", singleFile.Name);
-                    strReader.Close();
                 }
             }
         }
