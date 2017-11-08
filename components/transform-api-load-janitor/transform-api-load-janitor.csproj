@@ -124,6 +124,8 @@
     </None>
     <None Include="Properties\PublishProfiles\dataflow-development - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\dataflow-development - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\dataflow-prod-bm - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\dataflow-prod-brm - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\transform-api-load-janitor20171019044629 - Web Deploy.pubxml" />
     <None Include="Properties\webjob-publish-settings.json" />
   </ItemGroup>

@@ -67,7 +67,6 @@ namespace transform_api_load_janitor
         private static string GetDataFlowConnectionString()
         {
             return System.Configuration.ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString;
-            //return GetEnvironmentVariable(DATAFLOW_CONNECTIONSTRINGKEY);
         }
         private static EntityConnection BuildEntityConnection()
         {
@@ -441,7 +440,7 @@ namespace transform_api_load_janitor
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString);
             CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-            CloudFileShare fileShare = fileClient.GetShareReference(ConfigurationManager.AppSettings["FileShareName"]);
+            CloudFileShare fileShare = fileClient.GetShareReference(ConfigurationManager.AppSettings["azureShareName"]);
             CloudFile file = new CloudFile(new Uri(cloudFileUrl), storageAccount.Credentials);
             string strFileText = file.DownloadText();
             TransformFile(dataMapAgents, fileEntity, strFileText);
