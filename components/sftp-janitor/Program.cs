@@ -115,7 +115,7 @@ namespace sftp_janitor
             client.DownloadFile(file, stream);
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(azureFileConnectionString);
             CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-            CloudFileShare fileShare = fileClient.GetShareReference(Properties.Settings.Default.FileShareName);
+            CloudFileShare fileShare = fileClient.GetShareReference(System.Configuration.ConfigurationManager.AppSettings["azureShareName"]);
 
             if (!fileShare.Exists())
             {
