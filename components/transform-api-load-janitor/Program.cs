@@ -95,7 +95,7 @@ namespace transform_api_load_janitor
                         Log(log4net.Core.Level.Info, "Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
                         try
                         {
-                            await ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.URL, fileEntity: singleFile, ctx:ctx);
+                            await ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.URL, fileEntity: singleFile, ctx: ctx);
                         }
                         catch (Exception ex)
                         {
@@ -154,7 +154,7 @@ namespace transform_api_load_janitor
 
                 if (convertedPayload.Type == JTokenType.Array) // If there are multiple payloads as part of an array, post each payload
                 {
-                    foreach(var singleElement in (JArray)convertedPayload)
+                    foreach (var singleElement in (JArray)convertedPayload)
                     {
                         var dataToInsert = singleElement.ToString();
                         await PostBootstrapData(endpointUrl, accessToken, dataToInsert);
@@ -215,9 +215,11 @@ namespace transform_api_load_janitor
                     continue; // we will not process if we cannot read metadata
                 }
                 Log(log4net.Core.Level.Info, "Api Insertion Record: {0} of {1}", iCurrentRecord, ApiData.Count);
-                Log(log4net.Core.Level.Debug, "Payload: {0}", ApiData[iCurrentRecord-1].Value);
+                Log(log4net.Core.Level.Debug, "Payload: {0}", ApiData[iCurrentRecord - 1].Value);
                 iCurrentRecord++;
                 string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata, ctx);
+                if (!IsNewOrModified(singleApiData, endpointUrl, ctx))
+                    continue;
                 HttpMethod method = HttpMethod.Post;
                 using (HttpClient httpClient = new HttpClient())
                 {
@@ -260,7 +262,7 @@ namespace transform_api_load_janitor
                                 Date = DateTime.UtcNow,
                                 //Filename = singleApiData.Key
                                 Result = "SUCCESS",
-                                Message = string.Format("Record Created:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nAgent ID:{2}\r\nFile Name:{3}\r\nData:\r\n{4}", singleApiData.RowNumber, endpointUrl,singleApiData.FileEntity.AgentID,singleApiData.FileEntity.Filename, singleApiData.Value.ToString()),
+                                Message = string.Format("Record Created:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nAgent ID:{2}\r\nFile Name:{3}\r\nData:\r\n{4}", singleApiData.RowNumber, endpointUrl, singleApiData.FileEntity.AgentID, singleApiData.FileEntity.Filename, singleApiData.Value.ToString()),
                                 Level = "INFORMATION",
                                 Operation = "TransformingData",
                                 Process = "transform-api-load-janitor"
@@ -275,7 +277,7 @@ namespace transform_api_load_janitor
                                     Date = DateTime.UtcNow,
                                     //Filename = singleApiData.Key
                                     Result = "ERROR",
-                                    Message = string.Format("Message: {0}. Row Number: {1} EndPoint Url: {2}\r\nAgent ID:{3}\r\nFile Name:{4}\r\nData:\r\n{5}", strError, singleApiData.RowNumber, endpointUrl,singleApiData.FileEntity.AgentID, singleApiData.FileEntity.Filename, singleApiData.Value.ToString()),
+                                    Message = string.Format("Message: {0}. Row Number: {1} EndPoint Url: {2}\r\nAgent ID:{3}\r\nFile Name:{4}\r\nData:\r\n{5}", strError, singleApiData.RowNumber, endpointUrl, singleApiData.FileEntity.AgentID, singleApiData.FileEntity.Filename, singleApiData.Value.ToString()),
                                     Level = "ERROR",
                                     Operation = "TransformingData",
                                     Process = "transform-api-load-janitor"
@@ -305,6 +307,42 @@ namespace transform_api_load_janitor
             }
 
             return iCurrentRecord;
+        }
+
+        private static bool IsNewOrModified(ResultingMapInfo singleApiData, string endPoint, DataFlowContext ctx)
+        {
+            bool isNewOrModified = false;
+            StringBuilder strBuilder = new StringBuilder();
+            strBuilder.AppendLine("Endpoint: " + endPoint);
+            strBuilder.AppendLine(singleApiData.Value.ToString());
+
+            using (var md5Algorithm = System.Security.Cryptography.MD5.Create())
+            {
+                byte[] utf32Bytes = Encoding.UTF32.GetBytes(strBuilder.ToString());
+                var computedHash = md5Algorithm.ComputeHash(utf32Bytes);
+                var base64ResultingHash = Convert.ToBase64String(computedHash);
+                var dbMatchingEntity = ctx.processed_data.Where(p => p.base64HashedString == base64ResultingHash).FirstOrDefault();
+                if (dbMatchingEntity == null)
+                {
+                    isNewOrModified = true;
+                    dbMatchingEntity = new processed_data()
+                    {
+                        base64HashedString = base64ResultingHash
+                    };
+                    ctx.processed_data.Add(dbMatchingEntity);
+                    try
+                    {
+                        ctx.SaveChanges();
+                    }
+                    catch (Exception)
+                    {
+                        //we will ignore the error so that process continues
+                    }
+                }
+                else
+                    isNewOrModified = false;
+            }
+            return isNewOrModified;
         }
 
         private static async Task<KeyValuePair<bool, string>> RecordExists(string strIdName, string strId, string endpointUrl, string accessToken)
@@ -529,7 +567,8 @@ namespace transform_api_load_janitor
                                             }
                                         }
 
-                                        if (required) { 
+                                        if (required)
+                                        {
                                             subProp.Property("_required").Remove();
                                         }
                                     }
@@ -540,14 +579,14 @@ namespace transform_api_load_janitor
                                     }
                                 }
                             }
-                            RemoveRequiredProperty(subToken, headers, currentRecord, level+1);
+                            RemoveRequiredProperty(subToken, headers, currentRecord, level + 1);
                         }
 
                         break;
                     case JTokenType.Array:
                         foreach (JToken subToken in token)
                         {
-                            RemoveRequiredProperty(subToken, headers, currentRecord, level+1);
+                            RemoveRequiredProperty(subToken, headers, currentRecord, level + 1);
                         }
                         break;
                     case JTokenType.Property:
@@ -689,9 +728,9 @@ namespace transform_api_load_janitor
             }
         }
 
-        private static void SetFieldValue(JToken originalMap, JToken outputData, CsvReader reader, 
-            JArray originalArray, ref bool? hasArrayElementBeingProcessed, ref bool wasValueSet, 
-            JProperty dataTypeField, JProperty sourceField, JProperty sourceTable, JProperty sourceColumnField, 
+        private static void SetFieldValue(JToken originalMap, JToken outputData, CsvReader reader,
+            JArray originalArray, ref bool? hasArrayElementBeingProcessed, ref bool wasValueSet,
+            JProperty dataTypeField, JProperty sourceField, JProperty sourceTable, JProperty sourceColumnField,
             JProperty valueField, JProperty defaultValueField, JToken initialOutputData, string[] splittedPath)
         {
             switch (sourceField.Value.ToString())
@@ -825,7 +864,7 @@ namespace transform_api_load_janitor
             }
         }
 
-        private static JToken ConvertDataType(JProperty dataTypeField, string csvValue, 
+        private static JToken ConvertDataType(JProperty dataTypeField, string csvValue,
             JProperty defaultValueField, ref bool wasValueSet)
         {
             object result = null;

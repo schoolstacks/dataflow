@@ -144,6 +144,13 @@
           <Property Name="Key" Type="varchar" MaxLength="1024" Nullable="false" />
           <Property Name="Value" Type="varchar" MaxLength="1024" Nullable="false" />
         </EntityType>
+        <EntityType Name="processed_data">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="base64HashedString" Type="nvarchar(max)" Nullable="false" />
+        </EntityType>
         <EntityType Name="statistic">
           <Key>
             <PropertyRef Name="ID" />
@@ -257,6 +264,7 @@
           <EntitySet Name="log_application" EntityType="Self.log_application" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="log_ingestion" EntityType="Self.log_ingestion" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="lookup" EntityType="Self.lookup" Schema="dataflow" store:Type="Tables" />
+          <EntitySet Name="processed_data" EntityType="Self.processed_data" Schema="dataflow" store:Type="Tables" />
           <EntitySet Name="statistic" EntityType="Self.statistic" Schema="dataflow" store:Type="Tables" />
           <AssociationSet Name="FK_bootstrapdata_entity" Association="Self.FK_bootstrapdata_entity">
             <End Role="entity" EntitySet="entity" />
@@ -473,6 +481,7 @@
             <End Role="entity" EntitySet="entities" />
             <End Role="bootstrapdata" EntitySet="bootstrapdatas" />
           </AssociationSet>
+          <EntitySet Name="processed_data" EntityType="EdFi_DataFlow_SandboxModel.processed_data" />
         </EntityContainer>
         <EntityType Name="log_ingestion">
           <Key>
@@ -587,6 +596,13 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="processed_data">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="base64HashedString" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -758,6 +774,14 @@
                 <ScalarProperty Name="Data" ColumnName="Data" />
                 <ScalarProperty Name="EntityID" ColumnName="EntityID" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="processed_data">
+            <EntityTypeMapping TypeName="EdFi_DataFlow_SandboxModel.processed_data">
+              <MappingFragment StoreEntitySet="processed_data">
+                <ScalarProperty Name="base64HashedString" ColumnName="base64HashedString" />
+                <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
