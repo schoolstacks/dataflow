@@ -89,6 +89,8 @@
     <Build Include="dbo\Tables\__MigrationHistory_1.sql" />
     <Build Include="dataflow\Tables\file_status_1.sql" />
     <Build Include="dataflow\Tables\bootstrapdata.sql" />
+    <Build Include="dataflow\Tables\processed_data.sql" />
+    <Build Include="dataflow\Tables\edfi_dictionary.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Post-Deployment\Script.PostDeployment.sql" />
