@@ -1,0 +1,27 @@
+{
+  "schoolReference": {
+    "schoolId": {
+      "data-type": "integer",
+      "source": "static",
+      "value": "123123123"
+    }
+  },
+  "studentReference": {
+    "studentUniqueId": {
+      "data-type": "string",
+      "source": "column",
+      "source-column": "StudentID"
+    }
+  },
+  "entryDate": {
+    "data-type": "date-time",
+    "source": "static",
+    "value": "2016-08-01"
+  },
+  "entryGradeLevelDescriptor": {
+    "data-type": "string",
+    "source": "lookup-table",
+    "source-table": "aimsweb-grade",
+    "source-column": "CurrentGrade"
+  }
+}

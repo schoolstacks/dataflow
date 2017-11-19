@@ -1,0 +1,134 @@
+[
+    {
+        "localEducationAgencyReference": {
+            "localEducationAgencyId": 255901
+        },
+        "schoolId": 101101001,
+        "stateOrganizationId": "101101001",
+        "nameOfInstitution": "Winterfell Elementary",
+        "shortNameOfInstitution": "WFE",
+        "webSite": "http://wfelementary.org",
+        "addresses": [
+          {
+              "addressType": "Mailing",
+              "streetNumberName": "1232 Main Street",
+              "city": "Notown",
+              "stateAbbreviationType": "TX",
+              "postalCode": "11111"
+          }
+        ],
+        "identificationCodes": [
+          {
+              "educationOrganizationIdentificationSystemDescriptor": "School",
+              "identificationCode": "101101001"
+          }
+        ],
+        "gradeLevels": [
+          {
+              "gradeLevelDescriptor": "Kindergarten"
+          },
+          {
+              "gradeLevelDescriptor": "First grade"
+          },
+          {
+              "gradeLevelDescriptor": "Second grade"
+          },
+          {
+              "gradeLevelDescriptor": "Third grade"
+          },
+          {
+              "gradeLevelDescriptor": "Fourth grade"
+          },
+          {
+              "gradeLevelDescriptor": "Fifth grade"
+          }
+        ],
+        "educationOrganizationCategories": [
+          {
+        "type": "School"
+          }
+        ]
+    },
+    {
+        "localEducationAgencyReference": {
+            "localEducationAgencyId": 255901
+        },
+        "schoolId": 101101002,
+        "stateOrganizationId": "101101002",
+        "nameOfInstitution": "Winterfell Middle",
+        "shortNameOfInstitution": "WFM",
+        "webSite": "http://wfmiddle.org",
+        "addresses": [
+          {
+              "addressType": "Mailing",
+              "streetNumberName": "4123 Main Street",
+              "city": "Notown",
+              "stateAbbreviationType": "TX",
+              "postalCode": "11111"
+          }
+        ],
+        "identificationCodes": [
+          {
+              "educationOrganizationIdentificationSystemDescriptor": "School",
+              "identificationCode": "101101002"
+          }
+        ],
+        "gradeLevels": [
+          {
+              "gradeLevelDescriptor": "Sixth grade"
+          },
+          {
+              "gradeLevelDescriptor": "Seventh grade"
+          },
+          {
+              "gradeLevelDescriptor": "Eighth grade"
+          }
+        ],
+        "educationOrganizationCategories": [
+          {
+        "type": "School"
+          }
+        ]
+    },
+    {
+        "localEducationAgencyReference": {
+            "localEducationAgencyId": 255901
+        },
+        "schoolId": 123123123,
+        "stateOrganizationId": "123123123",
+        "nameOfInstitution": "Test School",
+        "shortNameOfInstitution": "TST",
+        "webSite": "http://testdistrict.org",
+        "addresses": [
+          {
+              "addressType": "Mailing",
+              "streetNumberName": "4123 Main Street",
+              "city": "Notown",
+              "stateAbbreviationType": "TX",
+              "postalCode": "11111"
+          }
+        ],
+        "identificationCodes": [
+          {
+              "educationOrganizationIdentificationSystemDescriptor": "School",
+              "identificationCode": "123123123"
+          }
+        ],
+        "gradeLevels": [
+          {
+              "gradeLevelDescriptor": "Sixth grade"
+          },
+          {
+              "gradeLevelDescriptor": "Seventh grade"
+          },
+          {
+              "gradeLevelDescriptor": "Eighth grade"
+          }
+        ],
+        "educationOrganizationCategories": [
+          {
+        "type": "School"
+          }
+        ]
+    }
+  ]

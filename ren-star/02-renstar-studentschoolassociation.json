@@ -1,0 +1,29 @@
+{
+  "schoolReference": {
+    "schoolId": {
+      "data-type": "integer",
+      "source": "lookup-table",
+      "source-table": "renstar-school",
+      "source-column": "SchoolName"
+    }
+  },
+  "studentReference": {
+    "studentUniqueId": {
+      "data-type": "string",
+      "source": "column",
+      "source-column": "StudentLocalID"
+    }
+  },
+  "entryDate": {
+    "data-type": "date-time",
+    "source": "static",
+    "value": "2016-08-01"
+  },
+  "entryGradeLevelDescriptor": {
+    "data-type": "string",
+    "source": "lookup-table",
+    "source-table": "renstar-grade",
+    "source-column": "Grade",
+    "default": "Ungraded"
+  }
+}
