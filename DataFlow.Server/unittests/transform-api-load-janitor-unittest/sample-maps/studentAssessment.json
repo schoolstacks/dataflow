@@ -1,0 +1,41 @@
+﻿{
+  "assessmentReference": {
+    "title": {
+      "data-type": "string",
+      "source": "column",
+      "source-column": "ASSESSMENT_TITLE"
+    },
+    "assessedGradeLevelDescriptor": {
+      "data-type": "string",
+      "source": "lookup_table",
+      "source-table": "grade_levels",
+      "source-column": "GRADE_LEVEL"
+    },
+    "assessedGradeLevelDescriptor2": {
+      "data-type": "string",
+      "source": "lookup_api",
+      "source-url": "/enrollment/schools",
+      "source-field": "nameOfInstitution",
+      "return-field": "schoolId",
+      "source-column": "SCHOOL_NAME"
+    },
+    "academicSubjectDescriptor": "string",
+    "version": {
+      "data-type": "integer",
+      "source": "static",
+      "value": "0"
+    }
+  },
+  "studentReference": {
+    "studentUniqueId": {
+      "data-type": "string",
+      "source": "expression",
+      "source-column": "STATE_ID+CLASS_NO"
+    }
+  },
+  "administrationDate": {
+    "data-type": "date-time",
+    "source": "column",
+    "source-column": "TEST_DATE"
+  }
+}
