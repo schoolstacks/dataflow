@@ -19,18 +19,10 @@ namespace DataFlow.Common.Mapping
                 .HasMaxLength(255)
                 .IsUnicode(false);
 
-            this.Property(e => e.InsertDate).HasColumnType("datetime");
-
             this.Property(e => e.Measure)
                 .IsRequired()
                 .HasMaxLength(255)
                 .IsUnicode(false);
-
-            this.Property(e => e.UpdateDate).HasColumnType("datetime");
-
-            this.Property(e => e.ValueDecimal).HasColumnType("decimal(18, 0)");
-
-            this.Property(e => e.ValueVarchar).IsUnicode(false);
         }
     }
 }

@@ -8,6 +8,7 @@ namespace DataFlow.Common.Mapping
         public ConfigurationMap()
         {
             this.ToTable("configuration", "dataflow");
+            this.HasKey(x => x.Key);
 
             this.Property(e => e.Key)
                 .HasMaxLength(255);
