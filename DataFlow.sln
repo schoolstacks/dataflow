@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2009
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Web", "DataFlow.Web\DataFlow.Web.csproj", "{43A3C714-FDFE-4F61-889C-7DBA8607A9D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Web.Tests", "DataFlow.Web.Tests\DataFlow.Web.Tests.csproj", "{D3741C62-78AC-4B4C-A11C-BF56C9564667}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{43A3C714-FDFE-4F61-889C-7DBA8607A9D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43A3C714-FDFE-4F61-889C-7DBA8607A9D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43A3C714-FDFE-4F61-889C-7DBA8607A9D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43A3C714-FDFE-4F61-889C-7DBA8607A9D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3741C62-78AC-4B4C-A11C-BF56C9564667}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3741C62-78AC-4B4C-A11C-BF56C9564667}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3741C62-78AC-4B4C-A11C-BF56C9564667}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3741C62-78AC-4B4C-A11C-BF56C9564667}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C8E4565E-D789-425C-80A7-C7A7F42A37CF}
+	EndGlobalSection
+EndGlobal
