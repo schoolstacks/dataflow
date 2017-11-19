@@ -25,11 +25,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "statistics-janitor", "DataF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "transform-api-load-janitor", "DataFlow.Server\components\transform-api-load-janitor\transform-api-load-janitor.csproj", "{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Models", "DataFlow.Models\DataFlow.Models.csproj", "{1A712336-D7A6-4ECD-B821-0CE3C467993C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataFlow.Models", "DataFlow.Models\DataFlow.Models.csproj", "{EF6E81FD-3BD2-4B58-ADEC-BC7F30B1CD2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Common", "DataFlow.Common\DataFlow.Common.csproj", "{0854AD7F-D23E-4192-B400-84007994E6D3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Models2", "DataFlow.Models2\DataFlow.Models2.csproj", "{3D18DB09-276F-410D-9274-58CA2C362611}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Common", "DataFlow.Common\DataFlow.Common.csproj", "{8CBF2398-BD79-4555-8E02-C9F288704FC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,18 +77,14 @@ Global
 		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1A712336-D7A6-4ECD-B821-0CE3C467993C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1A712336-D7A6-4ECD-B821-0CE3C467993C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1A712336-D7A6-4ECD-B821-0CE3C467993C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1A712336-D7A6-4ECD-B821-0CE3C467993C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0854AD7F-D23E-4192-B400-84007994E6D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0854AD7F-D23E-4192-B400-84007994E6D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0854AD7F-D23E-4192-B400-84007994E6D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0854AD7F-D23E-4192-B400-84007994E6D3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3D18DB09-276F-410D-9274-58CA2C362611}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3D18DB09-276F-410D-9274-58CA2C362611}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3D18DB09-276F-410D-9274-58CA2C362611}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3D18DB09-276F-410D-9274-58CA2C362611}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF6E81FD-3BD2-4B58-ADEC-BC7F30B1CD2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF6E81FD-3BD2-4B58-ADEC-BC7F30B1CD2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF6E81FD-3BD2-4B58-ADEC-BC7F30B1CD2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF6E81FD-3BD2-4B58-ADEC-BC7F30B1CD2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CBF2398-BD79-4555-8E02-C9F288704FC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CBF2398-BD79-4555-8E02-C9F288704FC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CBF2398-BD79-4555-8E02-C9F288704FC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CBF2398-BD79-4555-8E02-C9F288704FC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
