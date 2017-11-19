@@ -1,0 +1,10 @@
+﻿{
+  "studentUniqueId": "string",
+  "firstName": "string",
+  "lastSurname": "string",
+  "generationCodeSuffix": "string",
+  "maidenName": "string",
+  "sexType": "string",
+  "birthDate": "date-time",
+  "hispanicLatinoEthnicity": "boolean"
+}

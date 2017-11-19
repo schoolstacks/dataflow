@@ -1,0 +1,18 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="transform_api_load_janitor.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="FileShareName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">sample-files</Value>
+    </Setting>
+    <Setting Name="StorageConnectionString" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">DefaultEndpointsProtocol=https;AccountName=dataflow;AccountKey=xXC4GJaa2ZbkigVk3a4a38Ol+42KQ4AiezibfgijShtBMeEz+CHHr3mceufm7DA8p9jl1wgCzAHFGaXH3ydupA==;EndpointSuffix=core.windows.net</Value>
+    </Setting>
+    <Setting Name="LocalDestinationDirectory" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\Test</Value>
+    </Setting>
+    <Setting Name="LocalSourceDirectory" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\TestSourceFiles</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

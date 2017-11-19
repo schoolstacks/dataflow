@@ -1,0 +1,20 @@
+﻿{
+  "localEducationAgencyId": {
+        "data-type": "integer"
+    },
+  "stateOrganizationId": {
+      "data-type": "string"
+  },
+  "nameOfInstitution": {
+      "data-type": "string"
+  },
+  "categoryType": {
+      "data-type": "string"
+  },
+  "addresses": {
+      "data-type": "array"
+  },
+  "educationOrganizationCategories": {
+      "data-type": "array"
+  }
+}
