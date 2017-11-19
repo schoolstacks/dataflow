@@ -1,17 +1,85 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{17FC1AF4-3EFE-4851-82AF-7C5D48EEF17B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DataFlow.Common</RootNamespace>
+    <AssemblyName>DataFlow.Common</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="1.1.4" />
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\DataFlow.Models\DataFlow.Models.csproj" />
+    <Compile Include="DAL\DataFlowDbContext.cs" />
+    <Compile Include="Mapping\AgentMap.cs" />
+    <Compile Include="Mapping\AgentScheduleMap.cs" />
+    <Compile Include="Mapping\AspNetRoleMap.cs" />
+    <Compile Include="Mapping\AspNetUserClaimMap.cs" />
+    <Compile Include="Mapping\AspNetUserLoginMap.cs" />
+    <Compile Include="Mapping\AspNetUserRoleMap.cs" />
+    <Compile Include="Mapping\AspNetUsersMap.cs" />
+    <Compile Include="Mapping\BootstrapDataMap.cs" />
+    <Compile Include="Mapping\ConfigurationMap.cs" />
+    <Compile Include="Mapping\DataMapAgentMap.cs" />
+    <Compile Include="Mapping\DataMapMap.cs" />
+    <Compile Include="Mapping\EdFiDictionaryMap.cs" />
+    <Compile Include="Mapping\EntityMap.cs" />
+    <Compile Include="Mapping\FileMap.cs" />
+    <Compile Include="Mapping\FileStatusMapcs.cs" />
+    <Compile Include="Mapping\LogApplicationMap.cs" />
+    <Compile Include="Mapping\LogIngestionMap.cs" />
+    <Compile Include="Mapping\LookupMap.cs" />
+    <Compile Include="Mapping\MigrationHistoryMap.cs" />
+    <Compile Include="Mapping\ProcessedDataMap.cs" />
+    <Compile Include="Mapping\StatisticMap.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DataFlow.Models\DataFlow.Models.csproj">
+      <Project>{54c8616a-eccd-4ad5-a88b-a2266350bf0d}</Project>
+      <Name>DataFlow.Models</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
