@@ -5,6 +5,11 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Autofac;
+using Autofac.Integration.Mvc;
+using DataFlow.Common.DAL;
+using DataFlow.Common.Services;
+using NLog;
 
 namespace DataFlow.Web
 {
@@ -12,6 +17,16 @@ namespace DataFlow.Web
     {
         protected void Application_Start()
         {
+            var builder = new ContainerBuilder();
+            builder.RegisterControllers(typeof(MvcApplication).Assembly);
+            builder.RegisterModule<AutofacWebTypesModule>();
+            builder.RegisterType<DataFlowDbContext>().InstancePerRequest();
+            builder.RegisterType<NLogCentralLoggerService>().AsImplementedInterfaces().InstancePerRequest();
+            builder.Register(c => LogManager.GetLogger("DataFlow.Web")).As<ILogger>();
+
+            var container = builder.Build();
+            DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
