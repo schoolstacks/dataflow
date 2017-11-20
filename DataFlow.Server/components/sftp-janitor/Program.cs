@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 using server_components_data_access.Dataflow;
 using server_components_data_access.Enums;
 
-namespace sftp_janitor
+namespace filetransport_janitor
 {
     class Program
     {
@@ -19,7 +19,7 @@ namespace sftp_janitor
 
         static void Main(string[] args)
         {
-            _log.Info("SFTP Janitor starting");
+            _log.Info("File Transport Janitor starting");
             string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString;
             string azureFileConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString;
 
@@ -56,7 +56,7 @@ namespace sftp_janitor
                 }
             }
 
-            _log.Info("SFTP Janitor exiting");
+            _log.Info("File Transport Janitor exiting");
         }
 
         private static List<string> GetFileListFromSFTP(agent sftpagent)

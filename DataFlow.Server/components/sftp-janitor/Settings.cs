@@ -1,4 +1,4 @@
-﻿namespace sftp_janitor.Properties {
+﻿namespace filetransport_janitor.Properties {
     
     
     // This class allows you to handle specific events on the settings class:
