@@ -480,9 +480,29 @@ namespace transform_api_load_janitor
             CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
             CloudFileShare fileShare = fileClient.GetShareReference(ConfigurationManager.AppSettings["azureShareName"]);
             CloudFile file = new CloudFile(new Uri(cloudFileUrl), storageAccount.Credentials);
-            string strFileText = file.DownloadText();
-            TransformFile(dataMapAgents, fileEntity, strFileText);
+            string[] excelFileTypes = { "XLS", "XLSX" };
+            bool isExcelFile = excelFileTypes.Contains(Path.GetExtension(file.Name).ToUpper());
+            if (isExcelFile)
+            {
+                string tempPath = System.IO.Path.GetTempPath();
+                string tempFileFullPath = Path.Combine(tempPath, file.Name);
+                file.DownloadToFile(tempFileFullPath, FileMode.Create);
+                TransformExcelFile(dataMapAgents, fileEntity, tempFileFullPath);
+            }
+            else
+            {
+                string strFileText = file.DownloadText();
+                TransformFile(dataMapAgents, fileEntity, strFileText);
+            }
             await PostTransformedData(ctx);
+        }
+
+        private static void TransformExcelFile(IOrderedEnumerable<datamap_agent> dataMapAgents, file fileEntity, string tempFileFullPath)
+        {
+            using (CsvHelper.CsvReader reader = new CsvHelper.CsvReader(new CsvHelper.Excel.ExcelParser(tempFileFullPath)))
+            {
+                ReadAndTransformFile(dataMapAgents, fileEntity, reader);
+            }
         }
 
         private static void TransformFile(IOrderedEnumerable<datamap_agent> dataMapAgents, file fileEntity, string strFileText)
@@ -491,30 +511,35 @@ namespace transform_api_load_janitor
             {
                 using (CsvHelper.CsvReader reader = new CsvHelper.CsvReader(strReader))
                 {
-                    int rowNum = 1;
-                    while (reader.Read())
+                    ReadAndTransformFile(dataMapAgents, fileEntity, reader);
+                }
+            }
+        }
+
+        private static void ReadAndTransformFile(IOrderedEnumerable<datamap_agent> dataMapAgents, file fileEntity, CsvReader reader)
+        {
+            int rowNum = 1;
+            while (reader.Read())
+            {
+                rowNum++;
+
+                foreach (var singleDataMapAgent in dataMapAgents)
+                {
+                    Log(log4net.Core.Level.Info, "Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Family: {4}. Row #: {5}",
+                        singleDataMapAgent.datamap.ID, singleDataMapAgent.AgentID, singleDataMapAgent.DataMapID, singleDataMapAgent.datamap.entity.Name,
+                        singleDataMapAgent.datamap.entity.Family, rowNum);
+                    var entity = singleDataMapAgent.datamap.entity;
+                    var dataMap = singleDataMapAgent.datamap;
+
+                    JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
+                    RemoveCustomHints(ref generatedRow, reader.FieldHeaders, reader.CurrentRecord);
+                    ApiData.Add(new ResultingMapInfo()
                     {
-                        rowNum++;
-
-                        foreach (var singleDataMapAgent in dataMapAgents)
-                        {
-                            Log(log4net.Core.Level.Info, "Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Family: {4}. Row #: {5}",
-                                singleDataMapAgent.datamap.ID, singleDataMapAgent.AgentID, singleDataMapAgent.DataMapID, singleDataMapAgent.datamap.entity.Name,
-                                singleDataMapAgent.datamap.entity.Family, rowNum);
-                            var entity = singleDataMapAgent.datamap.entity;
-                            var dataMap = singleDataMapAgent.datamap;
-
-                            JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
-                            RemoveCustomHints(ref generatedRow, reader.FieldHeaders, reader.CurrentRecord);
-                            ApiData.Add(new ResultingMapInfo()
-                            {
-                                Key = entity,
-                                Value = generatedRow,
-                                FileEntity = fileEntity,
-                                RowNumber = rowNum
-                            });
-                        }
-                    }
+                        Key = entity,
+                        Value = generatedRow,
+                        FileEntity = fileEntity,
+                        RowNumber = rowNum
+                    });
                 }
             }
         }
