@@ -7,8 +7,8 @@
     <ProjectGuid>{0115FCCE-7DBB-46B3-A6DF-71FE93101604}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>sftp_janitor</RootNamespace>
-    <AssemblyName>sftp-janitor</AssemblyName>
+    <RootNamespace>filetransport_janitor</RootNamespace>
+    <AssemblyName>filetransport_janitor</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -110,7 +110,7 @@
     <None Include="Properties\webjob-publish-settings.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\server-components-data-access\server-components-data-access.csproj">
+    <ProjectReference Include="..\components\server-components-data-access\server-components-data-access.csproj">
       <Project>{1db45f34-fa44-4c37-a240-e7b139d1bafb}</Project>
       <Name>server-components-data-access</Name>
     </ProjectReference>

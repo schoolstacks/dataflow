@@ -19,8 +19,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "filearchive-janitor", "Data
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server-components-data-access", "DataFlow.Server\components\server-components-data-access\server-components-data-access.csproj", "{1DB45F34-FA44-4C37-A240-E7B139D1BAFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "filetransport-janitor", "DataFlow.Server\components\sftp-janitor\filetransport-janitor.csproj", "{0115FCCE-7DBB-46B3-A6DF-71FE93101604}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "statistics-janitor", "DataFlow.Server\components\statistics-janitor\statistics-janitor.csproj", "{C3881D0B-5001-4605-9477-40AE1106C0B2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "transform-api-load-janitor", "DataFlow.Server\components\transform-api-load-janitor\transform-api-load-janitor.csproj", "{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}"
@@ -28,6 +26,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Common", "DataFlow.Common\DataFlow.Common.csproj", "{17FC1AF4-3EFE-4851-82AF-7C5D48EEF17B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Models", "DataFlow.Models\DataFlow.Models.csproj", "{54C8616A-ECCD-4AD5-A88B-A2266350BF0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Server.FileTransport", "DataFlow.Server\DataFlow.Server.FileTransport\DataFlow.Server.FileTransport.csproj", "{0115FCCE-7DBB-46B3-A6DF-71FE93101604}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,10 +65,6 @@ Global
 		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0115FCCE-7DBB-46B3-A6DF-71FE93101604}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0115FCCE-7DBB-46B3-A6DF-71FE93101604}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0115FCCE-7DBB-46B3-A6DF-71FE93101604}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0115FCCE-7DBB-46B3-A6DF-71FE93101604}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C3881D0B-5001-4605-9477-40AE1106C0B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C3881D0B-5001-4605-9477-40AE1106C0B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3881D0B-5001-4605-9477-40AE1106C0B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -85,6 +81,10 @@ Global
 		{54C8616A-ECCD-4AD5-A88B-A2266350BF0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{54C8616A-ECCD-4AD5-A88B-A2266350BF0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{54C8616A-ECCD-4AD5-A88B-A2266350BF0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0115FCCE-7DBB-46B3-A6DF-71FE93101604}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0115FCCE-7DBB-46B3-A6DF-71FE93101604}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0115FCCE-7DBB-46B3-A6DF-71FE93101604}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0115FCCE-7DBB-46B3-A6DF-71FE93101604}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,9 +95,9 @@ Global
 		{F92104FF-F171-4516-9877-2C2B9815E913} = {C3268160-8F52-46C9-9281-2EE24101BE63}
 		{16ABF055-FFA8-462D-A676-431D64D2D05B} = {C3268160-8F52-46C9-9281-2EE24101BE63}
 		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB} = {C3268160-8F52-46C9-9281-2EE24101BE63}
-		{0115FCCE-7DBB-46B3-A6DF-71FE93101604} = {C3268160-8F52-46C9-9281-2EE24101BE63}
 		{C3881D0B-5001-4605-9477-40AE1106C0B2} = {C3268160-8F52-46C9-9281-2EE24101BE63}
 		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC} = {C3268160-8F52-46C9-9281-2EE24101BE63}
+		{0115FCCE-7DBB-46B3-A6DF-71FE93101604} = {C3268160-8F52-46C9-9281-2EE24101BE63}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C8E4565E-D789-425C-80A7-C7A7F42A37CF}
