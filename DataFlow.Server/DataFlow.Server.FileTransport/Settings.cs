@@ -1,4 +1,4 @@
-﻿namespace filetransport_janitor.Properties {
+﻿namespace DataFlow.Server.FileTransport.Properties {
     
     
     // This class allows you to handle specific events on the settings class:

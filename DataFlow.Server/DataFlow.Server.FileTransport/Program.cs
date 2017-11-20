@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 using server_components_data_access.Dataflow;
 using server_components_data_access.Enums;
 
-namespace filetransport_janitor
+namespace DataFlow.Server.FileTransport
 {
     class Program
     {
