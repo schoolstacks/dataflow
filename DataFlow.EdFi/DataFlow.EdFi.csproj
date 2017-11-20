@@ -309,7 +309,6 @@
     <Compile Include="Api\Types\TitleIPartASchoolDesignationTypesApi.cs" />
     <Compile Include="Api\Types\VisaTypesApi.cs" />
     <Compile Include="Api\Types\WeaponTypesApi.cs" />
-    <Compile Include="Class1.cs" />
     <Compile Include="Models\AssessmentComposite\Assessment.cs" />
     <Compile Include="Models\AssessmentComposite\Assessment_assessmentIdentificationCode.cs" />
     <Compile Include="Models\AssessmentComposite\Assessment_assessmentPerformanceLevel.cs" />

@@ -9,6 +9,7 @@ using Autofac;
 using Autofac.Integration.Mvc;
 using DataFlow.Common.DAL;
 using DataFlow.Common.Services;
+using DataFlow.Web.Services;
 using NLog;
 
 namespace DataFlow.Web
@@ -21,6 +22,7 @@ namespace DataFlow.Web
             builder.RegisterControllers(typeof(MvcApplication).Assembly);
             builder.RegisterModule<AutofacWebTypesModule>();
             builder.RegisterType<DataFlowDbContext>().InstancePerRequest();
+            builder.RegisterType<EdFiService>().InstancePerRequest();
             builder.RegisterType<NLogCentralLoggerService>().AsImplementedInterfaces().InstancePerRequest();
             builder.Register(c => LogManager.GetLogger("DataFlow.Web")).As<ILogger>();
 

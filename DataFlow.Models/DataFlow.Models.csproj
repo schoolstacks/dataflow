@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Agent.cs" />
     <Compile Include="AgentSchedule.cs" />
+    <Compile Include="ApiConfigurationValues.cs" />
     <Compile Include="AspNetRole.cs" />
     <Compile Include="AspNetUser.cs" />
     <Compile Include="AspNetUserClaim.cs" />
