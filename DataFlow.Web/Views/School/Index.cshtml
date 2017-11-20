@@ -1,8 +1,25 @@
-﻿
+﻿@model List<DataFlow.Web.Models.SchoolViewModel.Grid>
 
 @{
-    ViewBag.Title = "title";
-    Layout = "_Layout";
+    ViewBag.Title = "Schools";
 }
-
-<h2>title</h2>
+<h2>@ViewBag.Title</h2>
+<table class="table table-striped table-hover table-bordered table-responsive">
+    <thead>
+        <tr>
+            <th></th>
+            <th>School</th>
+            <th>Abbreviation</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model)
+        {
+            <tr>
+                <td></td>
+                <td>@s.Name</td>
+                <td>@s.Abbreviation</td>
+            </tr>
+        }
+    </tbody>
+</table>
