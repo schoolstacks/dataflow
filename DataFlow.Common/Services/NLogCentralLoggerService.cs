@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Web;
-using DataFlow.Common.Helpers;
 using NLog;
 
 namespace DataFlow.Common.Services
@@ -53,7 +52,7 @@ namespace DataFlow.Common.Services
             var requestBody = "";
             try
             {
-                requestBody = Helper.GetRequestBody(HttpContext.Current.Request);
+                requestBody = GetRequestBody(HttpContext.Current.Request);
             }
             catch { }
 
