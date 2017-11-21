@@ -2,6 +2,7 @@
 
 namespace DataFlow.Web.Helpers
 {
+    [Authorize]
     public class BaseController : Controller
     {
         

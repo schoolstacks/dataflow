@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
 using DataFlow.Web.Helpers;
@@ -10,11 +7,10 @@ using DataFlow.Web.Services;
 
 namespace DataFlow.Web.Controllers
 {
-    [Authorize]
     public class SchoolController : BaseController
     {
-        private DataFlowDbContext dataFlowDbContext;
-        private EdFiService edFiService;
+        private readonly DataFlowDbContext dataFlowDbContext;
+        private readonly EdFiService edFiService;
 
         public SchoolController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService)
         {
