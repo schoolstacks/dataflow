@@ -10,12 +10,12 @@ using DataFlow.Web.Services;
 
 namespace DataFlow.Web.Controllers
 {
-    public class AgentController : BaseController
+    public class MapController : BaseController
     {
         private readonly DataFlowDbContext dataFlowDbContext;
         private readonly EdFiService edFiService;
 
-        public AgentController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService)
+        public MapController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
             this.edFiService = edFiService;
@@ -23,11 +23,12 @@ namespace DataFlow.Web.Controllers
 
         public ActionResult Index()
         {
-            var agents = dataFlowDbContext.Agents
-                .Include(x=>x.File)
+            var maps = dataFlowDbContext.DataMaps
+                .Include(x => x.Entity)
+                .OrderBy(x => x.Name)
                 .ToList();
 
-            return View(agents);
+            return View(maps);
         }
     }
 }

@@ -6,10 +6,10 @@
 }
 
 <h2>@ViewBag.Title</h2>
-<table class="table table-striped table-hover table-bordered table-responsive">
+<table id="tblSchools" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true">
     <thead>
         <tr>
-            <th></th>
+            <th data-sortable="false" data-filterable="false"></th>
             <th>School</th>
             <th>Abbreviation</th>
         </tr>
@@ -25,3 +25,11 @@
         }
     </tbody>
 </table>
+@section scripts
+{
+    <script type="text/javascript">
+        $(function($){
+            $('#tblSchools').footable();
+        });
+    </script>
+}

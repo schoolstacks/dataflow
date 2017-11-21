@@ -1,0 +1,37 @@
+﻿@model List<DataFlow.Models.DataMap>
+
+@{
+    ViewBag.Title = "Maps";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+<table id="tblMaps" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Entity</th>
+            <th data-sortable="false" data-filterable="false"></th>
+            <th data-sortable="false" data-filterable="false"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Model)
+        {
+            <tr>
+                <td>@m.Name</td>
+                <td>@m.Entity.Name</td>
+                <td>Edit</td>
+                <td>Delete</td>
+            </tr>
+        }
+    </tbody>
+</table>
+@section scripts
+{
+    <script type="text/javascript">
+        $(function($){
+            $('#tblMaps').footable();
+        });
+    </script>
+}
