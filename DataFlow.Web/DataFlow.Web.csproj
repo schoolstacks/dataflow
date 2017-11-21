@@ -217,6 +217,7 @@
     <Compile Include="Helpers\Common.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\LogsViewModel.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\SchoolViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -304,10 +305,10 @@
     <Content Include="Views\School\Details.cshtml" />
     <Content Include="Views\Agent\Index.cshtml" />
     <Content Include="Views\Map\Index.cshtml" />
+    <Content Include="Views\Log\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Log\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DataFlow.Common\DataFlow.Common.csproj">

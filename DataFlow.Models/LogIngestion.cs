@@ -10,7 +10,7 @@ namespace DataFlow.Models
         public string Operation { get; set; }
         public int? AgentId { get; set; }
         public string Process { get; set; }
-        public string Filename { get; set; }
+        public string FileName { get; set; }
         public string Result { get; set; }
         public string Message { get; set; }
         public int? RecordCount { get; set; }
