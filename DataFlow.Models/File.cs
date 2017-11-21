@@ -5,7 +5,7 @@ namespace DataFlow.Models
     public partial class File
     {
         public int Id { get; set; }
-        public string Filename { get; set; }
+        public string FileName { get; set; }
         public string Url { get; set; }
         public int AgentId { get; set; }
         public string Status { get; set; }

@@ -16,7 +16,8 @@ namespace DataFlow.Common.Mapping
 
             this.Property(e => e.CreateDate).HasColumnType("datetime");
 
-            this.Property(e => e.Filename)
+            this.Property(e => e.FileName)
+                .HasColumnName("Filename")
                 .IsRequired()
                 .IsUnicode(false);
 
