@@ -10,6 +10,7 @@ using DataFlow.Web.Services;
 
 namespace DataFlow.Web.Controllers
 {
+    [Authorize]
     public class SchoolController : BaseController
     {
         private DataFlowDbContext dataFlowDbContext;
@@ -21,10 +22,10 @@ namespace DataFlow.Web.Controllers
             this.edFiService = edFiService;
         }
 
-        // GET: School
         public ActionResult Index()
         {
             var schools = edFiService.GetSchools(0, 50);
+
             var schoolGrid = new List<SchoolViewModel.Grid>();
             schools.ForEach(x =>
             {
@@ -38,6 +39,23 @@ namespace DataFlow.Web.Controllers
             });
 
             return View(schoolGrid);
+        }
+
+        public ActionResult Details(string id)
+        {
+            var school = edFiService.GetSchool(id);
+
+            var vm = new SchoolViewModel.Detail
+            {
+                Id = school.id,
+                Name = school.nameOfInstitution,
+                Students = edFiService.GetStudentsBySchoolId(id),
+                Staves = edFiService.GetStaffBySchoolId(id),
+                Sections = edFiService.GetSectionsBySchoolId(id),
+                Assessments = edFiService.GetAssessmentsBySchoolId(id)
+            };
+
+            return View(vm);
         }
     }
 }
