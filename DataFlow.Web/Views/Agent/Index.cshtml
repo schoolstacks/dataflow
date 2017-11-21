@@ -24,8 +24,8 @@
             <td>Edit</td>
             <td>@a.Name</td>
             <td>@a.AgentTypeCode</td>
-            <td>@a.File.Count</td>
-            <td>@a.LastExecuted.GetValueOrDefault(new DateTime(1900,01,01)).ToString("yyyy-MM-dd hh:MM tt")</td>
+            <td data-type="number">@a.File.Count</td>
+            <td data-type="date" data-format-string="yyyy-MM-dd hh:MM tt">@(a.LastExecuted?.ToString("yyyy-MM-dd hh:MM tt"))</td>
             <td>@a.Enabled</td>
         </tr>
     }
