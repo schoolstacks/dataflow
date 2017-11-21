@@ -16,7 +16,7 @@
         @foreach (var s in Model)
         {
             <tr>
-                <td></td>
+                <td>@Html.ActionLink("View Details", "Details", new { s.Id })</td>
                 <td>@s.Name</td>
                 <td>@s.Abbreviation</td>
             </tr>
