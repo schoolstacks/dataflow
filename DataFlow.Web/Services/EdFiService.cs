@@ -183,6 +183,12 @@ namespace DataFlow.Web.Services
             return api.PostSchools(school);
         }
 
+        public IRestResponse DeleteSchool(string id)
+        {
+            var api = new SchoolsApi(EstablishApiClient());
+            return api.DeleteSchoolById(id);
+        }
+
         public IRestResponse CreateAssessment(EdFi.Models.Resources.Assessment assessment)
         {
             var api = new AssessmentsApi(EstablishApiClient());
