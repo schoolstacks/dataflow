@@ -1,13 +1,13 @@
 ﻿@model DataFlow.Models.DataMap
 
 @{
-    ViewBag.Title = Model.Name;
+    ViewBag.Title = "Add Map";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h2>@ViewBag.Title</h2>
 
-@using (Html.BeginForm("Update", "Map", FormMethod.Post, new { @class = "form-horizontal" }))
+@using (Html.BeginForm("Create", "Map", FormMethod.Post, new { @class = "form-horizontal" }))
 {
     @Html.Partial("_PartialMapForm", Model)
 }
