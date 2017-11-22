@@ -13,7 +13,7 @@ using RestSharp;
 
 namespace DataFlow.Web.Controllers
 {
-    public class ConfigurationController : Controller
+    public class ConfigurationController : BaseController
     {
         private readonly DataFlowDbContext dataFlowDbContext;
         private readonly EdFiService edFiService;
