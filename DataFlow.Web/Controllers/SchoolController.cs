@@ -85,6 +85,12 @@ namespace DataFlow.Web.Controllers
             return View(vm);
         }
 
+        public ActionResult Delete(string id)
+        {
+            var response = edFiService.DeleteSchool(id);
+            return RedirectToAction("Index");
+        }
+
         [HttpPost]
         public ActionResult AddOrUpdate(SchoolViewModel.AddOrUpdate vm)
         {
@@ -168,7 +174,7 @@ namespace DataFlow.Web.Controllers
             get
             {
                 var entityList = new List<SelectListItem>();
-                entityList.Add(new SelectListItem() { Text = "Select Entity", Value = string.Empty });
+                entityList.Add(new SelectListItem() { Text = "Select District", Value = string.Empty });
                 entityList.AddRange(edFiService.GetLocalEducationAgencies(0, 100).Select(x =>
                     new SelectListItem()
                     {
