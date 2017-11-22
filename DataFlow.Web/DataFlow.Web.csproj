@@ -309,10 +309,10 @@
     <Content Include="Views\Map\Index.cshtml" />
     <Content Include="Views\Log\Index.cshtml" />
     <Content Include="Views\Lookup\Index.cshtml" />
+    <Content Include="Views\Configuration\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Configuration\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DataFlow.Common\DataFlow.Common.csproj">
