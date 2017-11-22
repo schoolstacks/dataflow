@@ -318,6 +318,7 @@
     <Content Include="Views\Map\_PartialMapForm.cshtml" />
     <Content Include="Views\School\Add.cshtml" />
     <Content Include="Views\School\Edit.cshtml" />
+    <Content Include="Views\School\_PartialSchoolForm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

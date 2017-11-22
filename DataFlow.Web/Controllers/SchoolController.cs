@@ -62,7 +62,7 @@ namespace DataFlow.Web.Controllers
         public ActionResult Add()
         {
             var vm = new SchoolViewModel.AddOrUpdate();
-            vm.GradeLevels = GetGradeLevels;
+            vm.GradeLevels = GetGradeLevels(new List<SchoolGradeLevel>());
 
             ViewBag.Districts = ViewBag.Entities = new SelectList(GetDistrictList, "Value", "Text");
 
@@ -77,81 +77,90 @@ namespace DataFlow.Web.Controllers
             {
                 School = school,
                 MailingAddress = school.Addresses.FirstOrDefault(x => x.AddressType == "Mailing") ?? school.Addresses.FirstOrDefault(),
-                GradeLevels = GetGradeLevels
+                GradeLevels = GetGradeLevels(school.GradeLevels)
             };
+
+            ViewBag.Districts = ViewBag.Entities = new SelectList(GetDistrictList, "Value", "Text");
 
             return View(vm);
         }
 
         [HttpPost]
-        public ActionResult Create(SchoolViewModel.AddOrUpdate vm)
+        public ActionResult AddOrUpdate(SchoolViewModel.AddOrUpdate vm)
         {
             var selectedGradeLevels = vm.GradeLevels
                 .Where(x => x.Checked)
                 .Select(x => new SchoolGradeLevel()
                 {
-                    gradeLevelDescriptor = x.Text
+                    gradeLevelDescriptor = x.Text.Replace("_", " ") //In the view, for the labels to work we replace spaces with underscores
                 })
                 .ToList();
 
-            var school = new EdFi.Models.Resources.School();
-            school.SchoolId = vm.School.SchoolId;
-            school.NameOfInstitution = vm.School.NameOfInstitution;
-            school.ShortNameOfInstitution = vm.School.ShortNameOfInstitution;
-            school.Website = vm.School.Website;
-            school.StateOrganizationId = Convert.ToString(vm.School.SchoolId);
-            school.LocalEducationAgencyReference = new LocalEducationAgencyReference()
+            var school = new EdFi.Models.Resources.School
             {
-                localEducationAgencyId = vm.School.LocalEducationAgencyReference.localEducationAgencyId
-            };
-            school.Addresses = new List<EducationOrganizationAddress>()
-            {
-                new EducationOrganizationAddress()
+                SchoolId = vm.School.SchoolId,
+                NameOfInstitution = vm.School.NameOfInstitution,
+                ShortNameOfInstitution = vm.School.ShortNameOfInstitution,
+                WebSite = vm.School.WebSite,
+                StateOrganizationId = Convert.ToString(vm.School.SchoolId),
+                LocalEducationAgencyReference = new LocalEducationAgencyReference()
                 {
-                    AddressType = "Mailing",
-                    StreetNumberName = vm.MailingAddress.StreetNumberName,
-                    City = vm.MailingAddress.City,
-                    StateAbbreviationType = vm.MailingAddress.StateAbbreviationType,
-                    PostalCode = vm.MailingAddress.PostalCode
-                }
-            };
-            school.IdentificationCodes = new List<EducationOrganizationIdentificationCode>()
-            {
-                new EducationOrganizationIdentificationCode()
+                    localEducationAgencyId = vm.School.LocalEducationAgencyReference.localEducationAgencyId
+                },
+                Addresses = new List<EducationOrganizationAddress>()
                 {
-                    educationOrganizationIdentificationSystemDescriptor = "School",
-                    identificationCode = Convert.ToString(vm.School.SchoolId)
-                }
-            };
-            school.EducationOrganizationCategories = new List<EducationOrganizationCategory>()
-            {
-                new EducationOrganizationCategory()
+                    new EducationOrganizationAddress()
+                    {
+                        AddressType = "Mailing",
+                        StreetNumberName = vm.MailingAddress.StreetNumberName,
+                        City = vm.MailingAddress.City,
+                        StateAbbreviationType = vm.MailingAddress.StateAbbreviationType,
+                        PostalCode = vm.MailingAddress.PostalCode
+                    }
+                },
+                IdentificationCodes = new List<EducationOrganizationIdentificationCode>()
                 {
-                    type = "School"
-                }
+                    new EducationOrganizationIdentificationCode()
+                    {
+                        educationOrganizationIdentificationSystemDescriptor = "School",
+                        identificationCode = Convert.ToString(vm.School.SchoolId)
+                    }
+                },
+                EducationOrganizationCategories = new List<EducationOrganizationCategory>()
+                {
+                    new EducationOrganizationCategory()
+                    {
+                        type = "School"
+                    }
+                },
+                GradeLevels = new List<SchoolGradeLevel>(selectedGradeLevels)
             };
-            school.GradeLevels = new List<SchoolGradeLevel>(selectedGradeLevels);
 
             edFiService.CreateSchool(school);
 
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
-        public ActionResult Update(EdFi.Models.Resources.School vm)
+        private List<CheckBox> GetGradeLevels(List<SchoolGradeLevel> selectedGrades)
         {
-            return RedirectToAction("Index");
-        }
+            var gradeLevelCheckBoxes = dataFlowDbContext.EdfiDictionary
+                .OrderBy(x => x.DisplayOrder)
+                .Select(x => new CheckBox() { Text = x.OriginalValue })
+                .ToList();
 
-        private List<CheckBox> GetGradeLevels
-        {
-            get
+            if (selectedGrades.Any())
             {
-                return dataFlowDbContext.EdfiDictionary
-                    .OrderBy(x => x.DisplayOrder)
-                    .Select(x=>new CheckBox(){Text = x.OriginalValue})
-                    .ToList();
+                selectedGrades.ForEach(grade =>
+                {
+                    var gradeCheckBox = gradeLevelCheckBoxes.FirstOrDefault(x => x.Text == grade.gradeLevelDescriptor);
+                    if (gradeCheckBox != null)
+                    {
+                        gradeCheckBox.Checked = true;
+                    }
+                });
             }
+
+            return gradeLevelCheckBoxes;
         }
 
         private List<SelectListItem> GetDistrictList

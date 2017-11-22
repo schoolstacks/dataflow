@@ -1,8 +1,12 @@
-﻿@model DataFlow.EdFi.Models.Resources.School
+﻿@model DataFlow.Web.Models.SchoolViewModel.AddOrUpdate
 
 @{
-    ViewBag.Title = @Model.NameOfInstitution;
+    ViewBag.Title = @Model.School.NameOfInstitution;
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h2>@ViewBag.Title</h2>
+@using (Html.BeginForm("AddOrUpdate", "School", FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.Partial("_PartialSchoolForm", Model)
+}
