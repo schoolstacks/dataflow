@@ -1,4 +1,4 @@
-﻿@model dynamic
+﻿@model DataFlow.Models.ApiConfigurationValues
 
 @{
     ViewBag.Title = "Configuration";
@@ -6,3 +6,120 @@
 }
 
 <h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm("Update", "Configuration", FormMethod.Post, new{@class= "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+    <h4>API Server</h4>
+    <div class="form-group">
+        <div class="col-sm-2">
+            @Html.LabelFor(m => m.API_SERVER_URL, new {@class = "control-label"})
+        </div>
+        <div class="col-sm-10">
+            @Html.TextBoxFor(m => m.API_SERVER_URL, new {@class = "form-control", type = "url", placeholder = "API Server Base URL"})
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-2">
+            @Html.LabelFor(m => m.API_SERVER_KEY, new {@class = "control-label"})
+        </div>
+        <div class="col-sm-10">
+            @Html.TextBoxFor(m => m.API_SERVER_KEY, new {@class = "form-control", type = "text", placeholder = "API Server Key"})
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-2">
+            @Html.LabelFor(m => m.API_SERVER_SECRET, new {@class = "control-label"})
+        </div>
+        <div class="col-sm-10">
+            @Html.TextBoxFor(m => m.API_SERVER_SECRET, new {@class = "form-control", type = "text", placeholder = "API Server Secret"})
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button id="btnTest" type="button" class="btn btn-primary">Test API Connection</button>
+        </div>
+    </div>
+    <h4>School Year Defaults</h4>
+    <div class="form-group">
+        <div class="col-sm-2">
+            @Html.LabelFor(m => m.DEFAULTS_TERM_MONTH, new {@class = "control-label"})
+        </div>
+        <div class="col-sm-10">
+            @Html.DropDownListFor(m => m.DEFAULTS_TERM_MONTH, (IEnumerable<SelectListItem>) ViewBag.Months, new {@class = "form-control"})
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-2">
+            @Html.LabelFor(m => m.DEFAULTS_TERM_YEAR, new {@class = "control-label"})
+        </div>
+        <div class="col-sm-10">
+            @Html.DropDownListFor(m => m.DEFAULTS_TERM_YEAR, (IEnumerable<SelectListItem>) ViewBag.Years, new {@class = "form-control"})
+        </div>
+    </div>
+    <h4>Instance Information</h4>
+    <div class="form-group">
+        <div class="col-sm-2">
+            @Html.LabelFor(m => m.INSTANCE_COMPANY_NAME, new {@class = "control-label"})
+        </div>
+        <div class="col-sm-10">
+            @Html.TextBoxFor(m => m.INSTANCE_COMPANY_NAME, new {@class = "form-control", type = "text", placeholder = "Company Name"})
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-2">
+            @Html.LabelFor(m => m.INSTANCE_COMPANY_LOGO, new {@class = "control-label"})
+        </div>
+        <div class="col-sm-10">
+            @Html.TextBoxFor(m => m.INSTANCE_COMPANY_LOGO, new {@class = "form-control", type = "text", placeholder = "Company Logo"})
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-2">
+            @Html.LabelFor(m => m.INSTANCE_COMPANY_URL, new {@class = "control-label"})
+        </div>
+        <div class="col-sm-10">
+            @Html.TextBoxFor(m => m.INSTANCE_COMPANY_URL, new {@class = "form-control", type = "url", placeholder = "Company URL"})
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-2">
+            @Html.LabelFor(m => m.INSTANCE_EDU_USE_TEXT, new {@class = "control-label"})
+        </div>
+        <div class="col-sm-10">
+            @Html.TextAreaFor(m => m.INSTANCE_EDU_USE_TEXT, new {@class = "form-control", type = "text", placeholder = "Education Use Text"})
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button id="btnUpdate" type="submit" class="btn btn-primary">Update Configuration</button>
+        </div>
+    </div>
+}
+@section scripts
+{
+    <script type="text/javascript">
+        $("#btnTest").click(function () {
+            var apiServerUrl = $("#API_SERVER_URL").val();
+            var apiServerKey = $("#API_SERVER_KEY").val();
+            var apiServerSecret = $("#API_SERVER_SECRET").val();
+
+                $.ajax({
+                    type: 'POST',
+                    data: { apiServerUrl: apiServerUrl, apiServerKey: apiServerKey, apiServerSecret: apiServerSecret },
+                    dataType: "html",
+                    url: '@Url.Action("ConfigurationIsOk", "Configuration")',
+                    success: function (data) {
+                        if (data === "True")
+                            alert("Connection to API successful!");
+                        else
+                            alert("Unable to connect to the API");
+                    },
+                    fail: function (data) {
+                        alert("Unable to connect to the API.");
+                    }
+                });
+            });
+    </script>
+}
