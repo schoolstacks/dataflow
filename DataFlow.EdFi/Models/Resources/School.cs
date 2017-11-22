@@ -60,7 +60,7 @@ namespace DataFlow.EdFi.Models.Resources
         /// </summary>
         [JsonProperty(PropertyName = "webSite")]
         [Display(Name = "Website")]
-        public string Website { get; set; }
+        public string WebSite { get; set; }
 
         /// <summary>
         /// A unique identifier used as Primary Key, not derived from business logic, when acting as Foreign Key, references the parent table.
