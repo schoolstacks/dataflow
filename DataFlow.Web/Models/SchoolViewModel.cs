@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Web.UI.WebControls;
 
 namespace DataFlow.Web.Models
 {
@@ -20,10 +22,18 @@ namespace DataFlow.Web.Models
             public string Id { get; set; }
             public string Name { get; set; }
 
-            public List<DataFlow.EdFi.Models.EnrollmentComposite.Student> Students { get; set; }
-            public List<DataFlow.EdFi.Models.EnrollmentComposite.Staff> Staves { get; set; }
-            public List<DataFlow.EdFi.Models.EnrollmentComposite.Section> Sections { get; set; }
-            public List<DataFlow.EdFi.Models.AssessmentComposite.Assessment> Assessments { get; set; }
+            public List<EdFi.Models.EnrollmentComposite.Student> Students { get; set; }
+            public List<EdFi.Models.EnrollmentComposite.Staff> Staves { get; set; }
+            public List<EdFi.Models.EnrollmentComposite.Section> Sections { get; set; }
+            public List<EdFi.Models.AssessmentComposite.Assessment> Assessments { get; set; }
+        }
+
+        public class AddOrUpdate
+        {
+            public EdFi.Models.Resources.School School { get; set; }
+            public EdFi.Models.Resources.EducationOrganizationAddress MailingAddress { get; set; }
+            [Display(Name = "Grade Levels")]
+            public List<CheckBox> GradeLevels { get; set; }
         }
     }
 }
