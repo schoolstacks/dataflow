@@ -21,8 +21,8 @@
             <tr>
                 <td>@m.Name</td>
                 <td>@m.Entity.Name</td>
-                <td>Edit</td>
-                <td>Delete</td>
+                <td>@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
+                <td>@Html.ActionLink("Delete", "Delete", new { m.Id })</td>
             </tr>
         }
     </tbody>
@@ -30,7 +30,7 @@
 @section scripts
 {
     <script type="text/javascript">
-        $(function($){
+        $(function ($) {
             $('#tblMaps').footable();
         });
     </script>
