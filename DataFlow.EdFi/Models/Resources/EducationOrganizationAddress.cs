@@ -1,4 +1,7 @@
 using System;
+using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace DataFlow.EdFi.Models.Resources 
 {
@@ -7,12 +10,16 @@ namespace DataFlow.EdFi.Models.Resources
         /// <summary>
         /// Key for Address
         /// </summary>
-        public string addressType { get; set; }
+        [JsonProperty(PropertyName = "addressType")]
+        public string AddressType { get; set; }
 
         /// <summary>
         /// The street number and street name or post office box number of an address.
         /// </summary>
-        public string streetNumberName { get; set; }
+        [JsonProperty(PropertyName = "streetNumberName")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the street address.")]
+        [Display(Name = "Street Address")]
+        public string StreetNumberName { get; set; }
 
         /// <summary>
         /// The apartment, room, or suite number of an address.
@@ -27,17 +34,26 @@ namespace DataFlow.EdFi.Models.Resources
         /// <summary>
         /// The name of the city in which an address is located.
         /// </summary>
-        public string city { get; set; }
+        [JsonProperty(PropertyName = "city")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the city.")]
+        [Display(Name = "City")]
+        public string City { get; set; }
 
         /// <summary>
         /// The abbreviation for the state (within the United States) or outlying area in which an address is located.
         /// </summary>
-        public string stateAbbreviationType { get; set; }
+        [JsonProperty(PropertyName = "stateAbbreviationType")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the state abbreviation.")]
+        [Display(Name = "State Abbreviation")]
+        public string StateAbbreviationType { get; set; }
 
         /// <summary>
         /// The five or nine digit zip code or overseas postal code portion of an address.
         /// </summary>
-        public string postalCode { get; set; }
+        [JsonProperty(PropertyName = "postalCode")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the postal code.")]
+        [Display(Name = "Postal Code")]
+        public string PostalCode { get; set; }
 
         /// <summary>
         /// The name of the county, parish, borough, or comparable unit (within a state) in which an address is located.

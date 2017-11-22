@@ -36,16 +36,7 @@ namespace DataFlow.Web.Controllers
         {
             var vm = new DataMap();
 
-            var entityList = new List<SelectListItem>();
-            entityList.Add(new SelectListItem() { Text = "Select Entity", Value = string.Empty });
-            entityList.AddRange(dataFlowDbContext.Entities.Select(x =>
-                new SelectListItem()
-                {
-                    Text = x.Name,
-                    Value = x.Id.ToString()
-                }));
-
-            ViewBag.Entities = new SelectList(entityList, "Value", "Text");
+            ViewBag.Entities = new SelectList(GetEntityList, "Value", "Text");
 
             return View(vm);
         }
@@ -54,16 +45,7 @@ namespace DataFlow.Web.Controllers
         {
             var map = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == id);
 
-            var entityList = new List<SelectListItem>();
-            entityList.Add(new SelectListItem() { Text = "Select Entity", Value = string.Empty });
-            entityList.AddRange(dataFlowDbContext.Entities.Select(x =>
-                new SelectListItem()
-                {
-                    Text = x.Name,
-                    Value = x.Id.ToString()
-                }));
-
-            ViewBag.Entities = new SelectList(entityList, "Value", "Text");
+            ViewBag.Entities = new SelectList(GetEntityList, "Value", "Text");
 
             return View(map);
         }
@@ -110,6 +92,23 @@ namespace DataFlow.Web.Controllers
                 dataFlowDbContext.SaveChanges();
             }
             return RedirectToAction("Index");
+        }
+
+        private List<SelectListItem> GetEntityList
+        {
+            get
+            {
+                var entityList = new List<SelectListItem>();
+                entityList.Add(new SelectListItem() { Text = "Select Entity", Value = string.Empty });
+                entityList.AddRange(dataFlowDbContext.Entities.Select(x =>
+                    new SelectListItem()
+                    {
+                        Text = x.Name,
+                        Value = x.Id.ToString()
+                    }));
+
+                return entityList;
+            }
         }
     }
 }

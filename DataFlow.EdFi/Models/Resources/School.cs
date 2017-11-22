@@ -1,4 +1,6 @@
+using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace DataFlow.EdFi.Models.Resources 
 {
@@ -7,12 +9,16 @@ namespace DataFlow.EdFi.Models.Resources
         /// <summary>
         /// The unique identifier of the resource.
         /// </summary>
-        public string id { get; set; }
+        [JsonProperty(PropertyName = "id", NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; set; }
 
         /// <summary>
         /// A reference to the related LocalEducationAgency resource.
         /// </summary>
-        public LocalEducationAgencyReference localEducationAgencyReference { get; set; }
+        [JsonProperty(PropertyName = "localEducationAgencyReference")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select a district.")]
+        [Display(Name = "District")]
+        public LocalEducationAgencyReference LocalEducationAgencyReference { get; set; }
 
         /// <summary>
         /// A reference to the related SchoolYearType resource.
@@ -22,27 +28,39 @@ namespace DataFlow.EdFi.Models.Resources
         /// <summary>
         /// The identifier assigned to a school by the State Education Agency (SEA).
         /// </summary>
-        public int? schoolId { get; set; }
+        [JsonProperty(PropertyName = "schoolId")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the SchoolId.")]
+        [Display(Name = "School Id")]
+        public int? SchoolId { get; set; }
 
         /// <summary>
         /// The identifier assigned to an education agency by the State Education Agency (SEA).  Also known as the State LEP ID.  NEDM: IdentificationCode, LEA Identifier (State)
         /// </summary>
-        public string stateOrganizationId { get; set; }
+        [JsonProperty(PropertyName = "stateOrganizationId")]
+        public string StateOrganizationId { get; set; }
 
         /// <summary>
         /// The full, legally accepted name of the institution.  NEDM: Name of Institution
         /// </summary>
-        public string nameOfInstitution { get; set; }
+        [JsonProperty(PropertyName = "nameOfInstitution")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the name of the School.")]
+        [Display(Name = "School Name")]
+        public string NameOfInstitution { get; set; }
 
         /// <summary>
         /// A short name for the institution.
         /// </summary>
-        public string shortNameOfInstitution { get; set; }
+        [JsonProperty(PropertyName = "shortNameOfInstitution")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the school's abbreviation.")]
+        [Display(Name = "Short Name")]
+        public string ShortNameOfInstitution { get; set; }
 
         /// <summary>
         /// The public web site address (URL) for the educational organization.
         /// </summary>
-        public string webSite { get; set; }
+        [JsonProperty(PropertyName = "webSite")]
+        [Display(Name = "Website")]
+        public string Website { get; set; }
 
         /// <summary>
         /// A unique identifier used as Primary Key, not derived from business logic, when acting as Foreign Key, references the parent table.
@@ -87,17 +105,20 @@ namespace DataFlow.EdFi.Models.Resources
         /// <summary>
         /// An unordered collection of educationOrganizationAddresses.  The set of elements that describes an address, including the street address, city, state and ZIP code.
         /// </summary>
-        public List<EducationOrganizationAddress> addresses { get; set; }
+        [JsonProperty(PropertyName = "addresses")]
+        public List<EducationOrganizationAddress> Addresses { get; set; }
 
         /// <summary>
         /// An unordered collection of educationOrganizationCategories.  The classification of the education agency within the geographic boundaries of a state according to the level of administrative and operational control granted by the state.
         /// </summary>
-        public List<EducationOrganizationCategory> educationOrganizationCategories { get; set; }
+        [JsonProperty(PropertyName = "educationOrganizationCategories")]
+        public List<EducationOrganizationCategory> EducationOrganizationCategories { get; set; }
 
         /// <summary>
         /// An unordered collection of educationOrganizationIdentificationCodes.  A unique number or alphanumeric code that is assigned to an education organization by a school, school system, state, or other agency or entity.
         /// </summary>
-        public List<EducationOrganizationIdentificationCode> identificationCodes { get; set; }
+        [JsonProperty(PropertyName = "identificationCodes")]
+        public List<EducationOrganizationIdentificationCode> IdentificationCodes { get; set; }
 
         /// <summary>
         /// An unordered collection of educationOrganizationInstitutionTelephones.  The 10-digit telephone number, including the area code, for the person.
@@ -117,7 +138,8 @@ namespace DataFlow.EdFi.Models.Resources
         /// <summary>
         /// An unordered collection of schoolGradeLevels.  The grade levels served at the school.
         /// </summary>
-        public List<SchoolGradeLevel> gradeLevels { get; set; }
+        [JsonProperty(PropertyName = "gradeLevels")]
+        public List<SchoolGradeLevel> GradeLevels { get; set; }
 
         /// <summary>
         /// A unique system-generated value that identifies the version of the resource.
