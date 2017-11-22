@@ -310,6 +310,7 @@
     <Content Include="Views\Log\Index.cshtml" />
     <Content Include="Views\Lookup\Index.cshtml" />
     <Content Include="Views\Configuration\Index.cshtml" />
+    <Content Include="Views\Map\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
