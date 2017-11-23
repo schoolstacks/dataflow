@@ -31,7 +31,7 @@
     }
     </tbody>
 </table>
-@using (Html.BeginForm("UploadFile", "Agent", FormMethod.Post, new { @class = "form-horizontal" }))
+@using (Html.BeginForm("UploadFile", "Agent", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -56,6 +56,9 @@
         <div class="col-sm-offset-2 col-sm-10">
             <button id="btnUpload" type="submit" class="btn btn-primary">Upload</button>
         </div>
+    </div>
+    <div>
+        @TempData["FileStatus"]
     </div>
 }
 @section scripts
