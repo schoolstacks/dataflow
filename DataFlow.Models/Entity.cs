@@ -7,8 +7,8 @@ namespace DataFlow.Models
     {
         public Entity()
         {
-            Bootstrapdata = new HashSet<BootstrapData>();
-            Datamap = new HashSet<DataMap>();
+            BootstrapDatas = new HashSet<BootstrapData>();
+            DataMaps = new HashSet<DataMap>();
         }
 
         public int Id { get; set; }
@@ -20,7 +20,7 @@ namespace DataFlow.Models
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
 
-        public ICollection<BootstrapData> Bootstrapdata { get; set; }
-        public ICollection<DataMap> Datamap { get; set; }
+        public ICollection<BootstrapData> BootstrapDatas { get; set; }
+        public ICollection<DataMap> DataMaps { get; set; }
     }
 }

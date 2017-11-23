@@ -337,6 +337,8 @@
     <Content Include="Views\School\Add.cshtml" />
     <Content Include="Views\School\Edit.cshtml" />
     <Content Include="Views\School\_PartialSchoolForm.cshtml" />
+    <Content Include="Views\Agent\Add.cshtml" />
+    <Content Include="Views\Agent\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

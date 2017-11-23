@@ -7,7 +7,7 @@ namespace DataFlow.Models
     {
         public DataMap()
         {
-            DatamapAgent = new HashSet<DataMapAgent>();
+            DataMapAgents = new HashSet<DataMapAgent>();
         }
 
         public int Id { get; set; }
@@ -18,6 +18,6 @@ namespace DataFlow.Models
         public DateTime? UpdateDate { get; set; }
 
         public Entity Entity { get; set; }
-        public ICollection<DataMapAgent> DatamapAgent { get; set; }
+        public ICollection<DataMapAgent> DataMapAgents { get; set; }
     }
 }

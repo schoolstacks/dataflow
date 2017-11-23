@@ -7,9 +7,9 @@ namespace DataFlow.Models
     {
         public Agent()
         {
-            DatamapAgent = new HashSet<DataMapAgent>();
-            File = new HashSet<File>();
-            LogIngestion = new HashSet<LogIngestion>();
+            DataMapAgents = new HashSet<DataMapAgent>();
+            Files = new HashSet<File>();
+            LogIngestions = new HashSet<LogIngestion>();
         }
 
         public int Id { get; set; }
@@ -26,8 +26,8 @@ namespace DataFlow.Models
         public DateTime Created { get; set; }
         public DateTime? LastExecuted { get; set; }
 
-        public ICollection<DataMapAgent> DatamapAgent { get; set; }
-        public ICollection<File> File { get; set; }
-        public ICollection<LogIngestion> LogIngestion { get; set; }
+        public ICollection<DataMapAgent> DataMapAgents { get; set; }
+        public ICollection<File> Files { get; set; }
+        public ICollection<LogIngestion> LogIngestions { get; set; }
     }
 }

@@ -61,6 +61,7 @@ namespace DataFlow.Web.Controllers
             return RedirectToAction("Index");
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public ActionResult Create(DataMap vm)
         {
@@ -78,6 +79,7 @@ namespace DataFlow.Web.Controllers
             return RedirectToAction("Index");
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public ActionResult Update(DataMap vm)
         {

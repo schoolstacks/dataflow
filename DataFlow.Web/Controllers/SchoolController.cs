@@ -91,6 +91,7 @@ namespace DataFlow.Web.Controllers
             return RedirectToAction("Index");
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public ActionResult AddOrUpdate(SchoolViewModel.AddOrUpdate vm)
         {

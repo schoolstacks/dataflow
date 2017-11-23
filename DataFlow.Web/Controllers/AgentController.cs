@@ -28,12 +28,42 @@ namespace DataFlow.Web.Controllers
         public ActionResult Index()
         {
             var agents = dataFlowDbContext.Agents
-                .Include(x=>x.File)
+                .Include(x=>x.Files)
                 .ToList();
 
             ViewBag.Agents = GetAgentList;
 
             return View(agents);
+        }
+
+        public ActionResult Add()
+        {
+            var agent = new DataFlow.Models.Agent();
+
+            return View(agent);
+        }
+
+        public ActionResult Edit(int id)
+        {
+            return View();
+        }
+
+        public ActionResult Delete(int id)
+        {
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public ActionResult Create()
+        {
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public ActionResult Update()
+        {
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
