@@ -40,12 +40,22 @@ namespace DataFlow.Web.Controllers
         {
             var agent = new DataFlow.Models.Agent();
 
+            ViewBag.DataMaps = GetDataMapList;
+
             return View(agent);
         }
 
         public ActionResult Edit(int id)
         {
-            return View();
+            var agent = dataFlowDbContext.Agents
+                .Include(x => x.AgentSchedules)
+                .Include(x => x.DataMapAgents)
+                .Include(x => x.DataMapAgents.Select(y => y.DataMap))
+                .FirstOrDefault(x => x.Id == id);
+
+            ViewBag.DataMaps = GetDataMapList;
+
+            return View(agent);
         }
 
         public ActionResult Delete(int id)
@@ -147,6 +157,23 @@ namespace DataFlow.Web.Controllers
                 var entityList = new List<SelectListItem>();
                 entityList.Add(new SelectListItem() { Text = "Select Agent", Value = string.Empty });
                 entityList.AddRange(dataFlowDbContext.Agents.Select(x =>
+                    new SelectListItem()
+                    {
+                        Text = x.Name,
+                        Value = x.Id.ToString()
+                    }));
+
+                return entityList;
+            }
+        }
+
+        private List<SelectListItem> GetDataMapList
+        {
+            get
+            {
+                var entityList = new List<SelectListItem>();
+                entityList.Add(new SelectListItem() { Text = "Select Map", Value = string.Empty });
+                entityList.AddRange(dataFlowDbContext.DataMaps.Select(x =>
                     new SelectListItem()
                     {
                         Text = x.Name,
