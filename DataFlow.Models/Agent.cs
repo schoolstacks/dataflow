@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataFlow.Models
 {
@@ -14,6 +15,7 @@ namespace DataFlow.Models
             LogIngestions = new HashSet<LogIngestion>();
         }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a name for this agent.")]
         public string Name { get; set; }
