@@ -7,7 +7,7 @@
 
 <h2>@ViewBag.Title</h2>
 
-@using (Html.BeginForm("Create", "Agent", FormMethod.Post, new { @class = "form-horizontal" }))
+@using (Html.BeginForm("AddOrUpdate", "Agent", FormMethod.Post, new { @class = "form-horizontal" }))
 {
     @Html.Partial("_PartialAgentForm", Model)
 }

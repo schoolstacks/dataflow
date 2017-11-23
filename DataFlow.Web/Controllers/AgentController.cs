@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.Entity;
+using System.Data.Entity.Migrations;
 using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
+using DataFlow.Models;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Services;
 using Microsoft.WindowsAzure.Storage;
@@ -65,15 +67,74 @@ namespace DataFlow.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create()
+        public ActionResult AddOrUpdate(DataFlow.Models.Agent vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
+            string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
         {
-            return RedirectToAction("Index");
-        }
+            ViewBag.DataMaps = GetDataMapList;
+            
+            if (!ModelState.IsValid)
+            {
+                ModelState.AddModelError("ModelError", "There was an error saving this agent.");
+                return View("Edit", vm);
+            }
 
-        [HttpPost]
-        public ActionResult Update()
-        {
-            return RedirectToAction("Index");
+            var isUpdate = false;
+
+            var agent = new DataFlow.Models.Agent();
+            if (vm.Id > 0)
+            {
+                isUpdate = true;
+                agent = dataFlowDbContext.Agents.FirstOrDefault(x => x.Id == vm.Id);
+                agent.Id = vm.Id;
+            }
+
+            agent.Name = vm.Name;
+            agent.AgentTypeCode = !string.IsNullOrWhiteSpace(vm.AgentTypeCode) ? vm.AgentTypeCode : "SFTP";
+            agent.Url = vm.Url;
+            agent.Username = vm.Username;
+            agent.Password = vm.Password;
+            agent.Directory = vm.Directory;
+            agent.FilePattern = vm.FilePattern;
+            agent.Enabled = vm.Enabled;
+            agent.Queue = vm.Queue;
+            agent.Custom = vm.Custom;
+
+            if (!isUpdate)
+            {
+                agent.Created = DateTime.Now;
+            }
+
+            if (btnAddMap != null && int.TryParse(ddlDataMaps, out var dataMapId))
+            {
+                var lastProcessOrder = Convert.ToInt32(dataMapAgentNextOrder) + 1;
+
+                agent.DataMapAgents = new List<DataMapAgent>
+                {
+                    new DataMapAgent
+                    {
+                        DataMapId = dataMapId,
+                        ProcessingOrder = lastProcessOrder
+                    }
+                };
+            }
+
+            if (btnAddSchedule != null && int.TryParse(ddlDay, out var day) && int.TryParse(ddlHour, out var hour) && int.TryParse(ddlMinute, out var minute))
+            {
+                agent.AgentSchedules = new List<AgentSchedule>
+                {
+                    new AgentSchedule
+                    {
+                        Day = day,
+                        Hour = hour,
+                        Minute = minute
+                    }
+                };
+            }
+
+            dataFlowDbContext.Agents.AddOrUpdate(agent);
+            dataFlowDbContext.SaveChanges();
+
+            return RedirectToAction("Edit", new{ agent.Id });
         }
 
         [HttpPost]
