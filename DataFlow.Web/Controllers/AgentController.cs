@@ -39,6 +39,8 @@ namespace DataFlow.Web.Controllers
         [HttpPost]
         public ActionResult UploadFile(HttpPostedFileBase File, string Agents)
         {
+            TempData["FileStatus"] = string.Empty;
+
             try
             {
                 if (File.ContentLength > 0)
