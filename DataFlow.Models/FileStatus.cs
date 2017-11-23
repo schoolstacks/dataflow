@@ -6,11 +6,11 @@ namespace DataFlow.Models
     {
         public FileStatus()
         {
-            File = new HashSet<File>();
+            Files = new HashSet<File>();
         }
 
         public string Value { get; set; }
 
-        public ICollection<File> File { get; set; }
+        public ICollection<File> Files { get; set; }
     }
 }

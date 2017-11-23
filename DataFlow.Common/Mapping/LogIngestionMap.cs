@@ -42,7 +42,7 @@ namespace DataFlow.Common.Mapping
                 .IsUnicode(false);
 
             this.HasRequired(d => d.Agent)
-                .WithMany(p => p.LogIngestion)
+                .WithMany(p => p.LogIngestions)
                 .HasForeignKey(d => d.AgentId);
         }
     }

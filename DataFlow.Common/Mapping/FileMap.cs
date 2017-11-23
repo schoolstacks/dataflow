@@ -35,11 +35,11 @@ namespace DataFlow.Common.Mapping
                 .IsUnicode(false);
 
             this.HasRequired(d => d.Agent)
-                .WithMany(p => p.File)
+                .WithMany(p => p.Files)
                 .HasForeignKey(d => d.AgentId);
 
             this.HasRequired(d => d.StatusNavigation)
-                .WithMany(p => p.File)
+                .WithMany(p => p.Files)
                 .HasForeignKey(d => d.Status);
         }
     }

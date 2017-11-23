@@ -58,6 +58,7 @@ namespace DataFlow.Web.Controllers
             }
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public ActionResult Update(DataFlow.Models.ApiConfigurationValues updatedValues)
         {

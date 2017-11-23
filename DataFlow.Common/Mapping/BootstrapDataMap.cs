@@ -30,7 +30,7 @@ namespace DataFlow.Common.Mapping
                 .HasColumnType("datetime");
 
             this.HasRequired(d => d.Entity)
-                .WithMany(p => p.Bootstrapdata)
+                .WithMany(p => p.BootstrapDatas)
                 .HasForeignKey(d => d.EntityId);
         }
     }

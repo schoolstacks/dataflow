@@ -50,10 +50,10 @@
     <Compile Include="AspNetUserClaim.cs" />
     <Compile Include="AspNetUserLogin.cs" />
     <Compile Include="AspNetUserRole.cs" />
-    <Compile Include="Bootstrapdata.cs" />
+    <Compile Include="BootstrapData.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="Datamap.cs" />
-    <Compile Include="DatamapAgent.cs" />
+    <Compile Include="DataMap.cs" />
+    <Compile Include="DataMapAgent.cs" />
     <Compile Include="EdfiDictionary.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="File.cs" />

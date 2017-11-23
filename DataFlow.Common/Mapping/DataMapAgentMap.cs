@@ -17,11 +17,11 @@ namespace DataFlow.Common.Mapping
             this.Property(e => e.DataMapId).HasColumnName("DataMapID");
 
             this.HasRequired(d => d.Agent)
-                .WithMany(p => p.DatamapAgent)
+                .WithMany(p => p.DataMapAgents)
                 .HasForeignKey(d => d.AgentId);
 
             this.HasRequired(d => d.DataMap)
-                .WithMany(p => p.DatamapAgent)
+                .WithMany(p => p.DataMapAgents)
                 .HasForeignKey(d => d.DataMapId);
         }
     }
