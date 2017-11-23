@@ -15,6 +15,10 @@ namespace DataFlow.Common.Mapping
 
             this.Property(e => e.AgentId)
                 .HasColumnName("AgentID");
+
+            this.HasRequired(d => d.Agent)
+                .WithMany(p => p.AgentSchedules)
+                .HasForeignKey(d => d.AgentId);
         }
     }
 }

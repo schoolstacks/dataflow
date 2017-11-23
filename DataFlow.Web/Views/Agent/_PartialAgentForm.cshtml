@@ -1,0 +1,90 @@
+﻿@model DataFlow.Models.Agent
+
+<h4>Connection</h4>
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.Name, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.TextBoxFor(m => m.Name, new { @class = "form-control", type = "text", placeholder = "Name" })
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.Url, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.TextBoxFor(m => m.Url, new { @class = "form-control", type = "text", placeholder = "Url" })
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.Username, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.TextBoxFor(m => m.Username, new { @class = "form-control", type = "text", placeholder = "Username", autocomplete = "off" })
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.Password, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.TextBoxFor(m => m.Password, new { @class = "form-control", type = "text", placeholder = "Password", autocomplete = "off" })
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.Directory, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.TextBoxFor(m => m.Directory, new { @class = "form-control", type = "text", placeholder = "Directory" })
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.FilePattern, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.TextBoxFor(m => m.FilePattern, new { @class = "form-control", type = "text", placeholder = "File Pattern" })
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+        @Html.CheckBoxFor(m => m.Enabled) @Html.LabelFor(m=>m.Enabled)
+        
+    </div>
+</div>
+
+<h4>Data Maps</h4>
+<table id="tblAgentDataMaps" class="table table-striped table-hover table-bordered table-responsive">
+    <thead>
+        <tr>
+            <td>Name</td>
+            <td>Processing Order</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Model.DataMapAgents)
+        {
+            <tr>
+                <td>@m.DataMap.Name</td>
+                <td>@m.ProcessingOrder</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.Label("Add Data Map", new { @class = "control-label", @for= "DataMaps" })
+    </div>
+    <div class="col-sm-10">
+        @Html.DropDownList("DataMaps", (IEnumerable<SelectListItem>)ViewBag.DataMaps, new { @class = "form-control" })
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+        <button id="btnAddMap" type="submit" class="btn btn-default">Add Map</button>
+    </div>
+</div>

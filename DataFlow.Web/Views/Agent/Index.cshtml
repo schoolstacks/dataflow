@@ -6,6 +6,10 @@
 }
 
 <h2>@ViewBag.Title</h2>
+
+<div style="padding-bottom: 10px;">
+    @Html.ActionLink("Add Agent", "Add")
+</div>
 <table id="tblAgents" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true">
     <thead>
     <tr>
@@ -18,15 +22,15 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var a in Model)
+    @foreach (var m in Model)
     {
         <tr>
-            <td>@a.Name</td>
-            <td>@a.AgentTypeCode</td>
-            <td data-type="number">@a.File.Count</td>
-            <td data-type="date" data-format-string="yyyy-MM-dd hh:MM tt">@(a.LastExecuted?.ToString("yyyy-MM-dd hh:MM tt"))</td>
-            <td>@a.Enabled</td>
-            <td>Edit</td>
+            <td>@m.Name</td>
+            <td>@m.AgentTypeCode</td>
+            <td data-type="number">@m.Files.Count</td>
+            <td data-type="date" data-format-string="yyyy-MM-dd hh:MM tt">@(m.LastExecuted?.ToString("yyyy-MM-dd hh:MM tt"))</td>
+            <td>@m.Enabled</td>
+            <td>@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
         </tr>
     }
     </tbody>

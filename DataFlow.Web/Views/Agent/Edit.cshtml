@@ -1,4 +1,4 @@
-﻿@model dynamic
+﻿@model DataFlow.Models.Agent
 
 @{
     ViewBag.Title = "Edit Agent";
@@ -6,3 +6,8 @@
 }
 
 <h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm("Update", "Agent", FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.Partial("_PartialAgentForm", Model)
+}
