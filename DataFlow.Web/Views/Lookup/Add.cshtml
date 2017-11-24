@@ -1,0 +1,13 @@
+﻿@model DataFlow.Models.Lookup
+
+@{
+    ViewBag.Title = "Add Lookup";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm("Add", "Lookup", FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.Partial("_PartialLookupForm", Model)
+}

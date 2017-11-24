@@ -91,8 +91,8 @@ namespace DataFlow.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        [ValidateAntiForgeryToken]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AddOrUpdate(SchoolViewModel.AddOrUpdate vm)
         {
             var selectedGradeLevels = vm.GradeLevels

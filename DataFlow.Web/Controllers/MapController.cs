@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
 using DataFlow.Models;
@@ -50,19 +51,20 @@ namespace DataFlow.Web.Controllers
             return View(map);
         }
 
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             var dataMap = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == id);
             if (dataMap != null)
             {
                 dataFlowDbContext.DataMaps.Remove(dataMap);
-                dataFlowDbContext.SaveChanges();
+                await dataFlowDbContext.SaveChangesAsync();
             }
+
             return RedirectToAction("Index");
         }
 
-        [ValidateAntiForgeryToken]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Create(DataMap vm)
         {
             var dataMap = new DataMap
@@ -79,8 +81,8 @@ namespace DataFlow.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        [ValidateAntiForgeryToken]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Update(DataMap vm)
         {
             var dataMap = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == vm.Id);

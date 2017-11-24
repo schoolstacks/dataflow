@@ -58,8 +58,8 @@ namespace DataFlow.Web.Controllers
             }
         }
 
-        [ValidateAntiForgeryToken]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Update(DataFlow.Models.ApiConfigurationValues updatedValues)
         {
             var apiServerUrl = edFiService.GetConfigurationByKey(Constants.API_SERVER_URL);

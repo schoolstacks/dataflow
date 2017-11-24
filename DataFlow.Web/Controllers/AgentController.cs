@@ -5,6 +5,7 @@ using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
@@ -60,13 +61,20 @@ namespace DataFlow.Web.Controllers
             return View(agent);
         }
 
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
+            var agent = dataFlowDbContext.Agents.FirstOrDefault(x => x.Id == id);
+            if (agent != null)
+            {
+                dataFlowDbContext.Agents.Remove(agent);
+                await dataFlowDbContext.SaveChangesAsync();
+            }
 
             return RedirectToAction("Index");
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AddOrUpdate(DataFlow.Models.Agent vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
             string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
         {
