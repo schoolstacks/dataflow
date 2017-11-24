@@ -1,21 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Data.Entity.Migrations;
 using System.Linq;
+using System.Net;
 using DataFlow.Common.DAL;
 using DataFlow.EdFi.Api.AssessmentComposite;
 using DataFlow.EdFi.Api.Descriptors;
 using DataFlow.EdFi.Api.EnrollmentComposite;
 using DataFlow.EdFi.Api.Resources;
 using DataFlow.EdFi.Models.Descriptors;
-using DataFlow.Models;
-using RestSharp;
-using DataFlow.Web.Helpers;
-using DataFlow.EdFi.Sdk;
 using DataFlow.EdFi.Models.Resources;
+using DataFlow.EdFi.Sdk;
+using DataFlow.Models;
+using DataFlow.Web.Helpers;
+using RestSharp;
+using Assessment = DataFlow.EdFi.Models.AssessmentComposite.Assessment;
 using School = DataFlow.EdFi.Models.EnrollmentComposite.School;
 using Section = DataFlow.EdFi.Models.EnrollmentComposite.Section;
 using Staff = DataFlow.EdFi.Models.EnrollmentComposite.Staff;
 using Student = DataFlow.EdFi.Models.EnrollmentComposite.Student;
+using StudentAssessment = DataFlow.EdFi.Models.AssessmentComposite.StudentAssessment;
 
 namespace DataFlow.Web.Services
 {
@@ -60,7 +63,7 @@ namespace DataFlow.Web.Services
         private IRestClient EstablishApiClient()
         {
             // Ignore SSL errors for now
-            System.Net.ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             var conf = GetConfiguration();
             var odsapiurlbase = conf.API_SERVER_URL;
             var odsapioauthurl = Helpers.Common.GetUntilOrEmpty(odsapiurlbase, "/api/");
@@ -99,7 +102,13 @@ namespace DataFlow.Web.Services
             return response.Data;
         }
 
-        public List<EdFi.Models.AssessmentComposite.Assessment> GetAssessmentsBySchoolId(string schoolId)
+        public List<Assessment> GetAssessments(int? offset, int? limit)
+        {
+            var api = new AssessmentApi(EstablishApiClient());
+            return api.GetAssessmentsAll(offset, limit).Data;
+        }
+
+        public List<Assessment> GetAssessmentsBySchoolId(string schoolId)
         {
             IRestClient client = EstablishApiClient();
             AssessmentApi api = new AssessmentApi(client);
@@ -107,14 +116,14 @@ namespace DataFlow.Web.Services
             return response.Data;
         }
 
-        public EdFi.Models.AssessmentComposite.Assessment GetAssessmentById(string id)
+        public Assessment GetAssessmentById(string id)
         {
             IRestClient client = EstablishApiClient();
             AssessmentApi api = new AssessmentApi(client);
             var response = api.GetAssessmentsById(id);
             return response.Data;
         }
-        public List<EdFi.Models.AssessmentComposite.StudentAssessment> GetStudentAssessmentsByAssessmentId(string assessmentId)
+        public List<StudentAssessment> GetStudentAssessmentsByAssessmentId(string assessmentId)
         {
             IRestClient client = EstablishApiClient();
             AssessmentApi api = new AssessmentApi(client);
@@ -135,7 +144,7 @@ namespace DataFlow.Web.Services
             return api.GetStateEducationAgenciesAll(offset, limit).Data;
         }
 
-        public List<EdFi.Models.Resources.LocalEducationAgency> GetLocalEducationAgencies(int? offset, int? limit)
+        public List<LocalEducationAgency> GetLocalEducationAgencies(int? offset, int? limit)
         {
             var api = new LocalEducationAgenciesApi(EstablishApiClient());
             return api.GetLocalEducationAgenciesAll(offset, limit).Data;
