@@ -65,37 +65,56 @@ namespace DataFlow.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(DataMap vm)
+        public ActionResult Add(DataMap vm)
         {
-            var dataMap = new DataMap
+            if (!ModelState.IsValid)
             {
-                Name = vm.Name,
-                EntityId = vm.EntityId,
-                Map = vm.Map,
-                CreateDate = DateTime.Now,
-                UpdateDate = DateTime.Now
-            };
-            dataFlowDbContext.DataMaps.AddOrUpdate(dataMap);
-            dataFlowDbContext.SaveChanges();
+                ViewBag.Entities = new SelectList(GetEntityList, "Value", "Text");
+                return View(vm);
+            }
+
+            SaveDataMap(vm);
 
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Update(DataMap vm)
+        public ActionResult Edit(DataMap vm)
         {
-            var dataMap = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == vm.Id);
-            if (dataMap != null)
+            if (!ModelState.IsValid)
             {
-                dataMap.Name = vm.Name;
-                dataMap.EntityId = vm.EntityId;
-                dataMap.Map = vm.Map;
-                dataMap.UpdateDate = DateTime.Now;
-                dataFlowDbContext.DataMaps.AddOrUpdate(dataMap);
-                dataFlowDbContext.SaveChanges();
+                ViewBag.Entities = new SelectList(GetEntityList, "Value", "Text");
+                return View(vm);
             }
+
+            SaveDataMap(vm);
+
             return RedirectToAction("Index");
+        }
+
+        private DataMap SaveDataMap(DataMap vm)
+        {
+            var isUpdate = vm.Id > 0;
+
+            var dataMap = new DataFlow.Models.DataMap();
+
+            if (isUpdate)
+            {
+                dataMap = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == vm.Id);
+                dataMap.Id = vm.Id;
+            }
+
+            dataMap.Name = vm.Name;
+            dataMap.EntityId = vm.EntityId;
+            dataMap.Map = vm.Map;
+            dataMap.CreateDate = isUpdate ? vm.CreateDate : DateTime.Now;
+            dataMap.UpdateDate = DateTime.Now;
+
+            dataFlowDbContext.DataMaps.AddOrUpdate(dataMap);
+            dataFlowDbContext.SaveChanges();
+
+            return dataMap;
         }
 
         private List<SelectListItem> GetEntityList

@@ -4,15 +4,19 @@ namespace DataFlow.Models
 {
     public class ApiConfigurationValues
     {
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the API URL.")]
         [Display(Name="API Server URL")]
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the url for the API.")]
         public string API_SERVER_URL { get; set; }
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the API Server Key.")]
         [Display(Name = "API Server Key")]
         public string API_SERVER_KEY { get; set; }
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the API Server Secret.")]
         [Display(Name = "API Server Secret")]
         public string API_SERVER_SECRET { get; set; }
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select the default term month.")]
         [Display(Name = "Term Month")]
         public string DEFAULTS_TERM_MONTH { get; set; }
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select the default term year.")]
         [Display(Name = "Term Year")]
         public string DEFAULTS_TERM_YEAR { get; set; }
         [Display(Name = "Company Name")]

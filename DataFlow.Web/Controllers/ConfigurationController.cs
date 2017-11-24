@@ -60,8 +60,15 @@ namespace DataFlow.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Update(DataFlow.Models.ApiConfigurationValues updatedValues)
+        public ActionResult Index(DataFlow.Models.ApiConfigurationValues vm)
         {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Months = new SelectList(Helpers.Common.MonthSelectList(), "Value", "Text");
+                ViewBag.Years = new SelectList(Helpers.Common.YearSelectList(), "Value", "Text");
+                return View(vm);
+            }
+
             var apiServerUrl = edFiService.GetConfigurationByKey(Constants.API_SERVER_URL);
             var apiServerKey = edFiService.GetConfigurationByKey(Constants.API_SERVER_KEY);
             var apiServerSecret = edFiService.GetConfigurationByKey(Constants.API_SERVER_SECRET);
@@ -72,15 +79,15 @@ namespace DataFlow.Web.Controllers
             var instanceCompanyUrl = edFiService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL);
             var instanceEduUseText = edFiService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT);
 
-            apiServerUrl.Value = updatedValues.API_SERVER_URL;
-            apiServerKey.Value = updatedValues.API_SERVER_KEY;
-            apiServerSecret.Value = updatedValues.API_SERVER_SECRET;
-            defaultsTermMonth.Value = updatedValues.DEFAULTS_TERM_MONTH;
-            defaultsTermYear.Value = updatedValues.DEFAULTS_TERM_YEAR;
-            instanceCompanyName.Value = updatedValues.INSTANCE_COMPANY_NAME;
-            instanceCompanyLogo.Value = updatedValues.INSTANCE_COMPANY_LOGO;
-            instanceCompanyUrl.Value = updatedValues.INSTANCE_COMPANY_URL;
-            instanceEduUseText.Value = updatedValues.INSTANCE_EDU_USE_TEXT;
+            apiServerUrl.Value = vm.API_SERVER_URL;
+            apiServerKey.Value = vm.API_SERVER_KEY;
+            apiServerSecret.Value = vm.API_SERVER_SECRET;
+            defaultsTermMonth.Value = vm.DEFAULTS_TERM_MONTH;
+            defaultsTermYear.Value = vm.DEFAULTS_TERM_YEAR;
+            instanceCompanyName.Value = vm.INSTANCE_COMPANY_NAME;
+            instanceCompanyLogo.Value = vm.INSTANCE_COMPANY_LOGO;
+            instanceCompanyUrl.Value = vm.INSTANCE_COMPANY_URL;
+            instanceEduUseText.Value = vm.INSTANCE_EDU_USE_TEXT;
 
             var confs = new List<DataFlow.Models.Configuration>
             {
