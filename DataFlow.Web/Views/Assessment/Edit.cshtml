@@ -1,4 +1,4 @@
-﻿@model DataFlow.EdFi.Models.AssessmentComposite.Assessment
+﻿@model DataFlow.Web.Models.AssessmentViewModel.AddOrEdit
 
 @{
     ViewBag.Title = "Edit Assessment";
@@ -6,3 +6,8 @@
 }
 
 <h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm("Edit", "Assessment", FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.Partial("_PartialAssessmentForm", Model)
+}

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace DataFlow.EdFi.Models.AssessmentComposite 
 {
@@ -8,27 +10,37 @@ namespace DataFlow.EdFi.Models.AssessmentComposite
         /// <summary>
         /// The unique identifier of the resource.
         /// </summary>
-        public string id { get; set; }
+        [JsonProperty(PropertyName = "id")]
+        public string Id { get; set; }
 
         /// <summary>
         /// The title or name of the assessment.  NEDM: Assessment Title
         /// </summary>
-        public string assessmentTitle { get; set; }
+        [JsonProperty(PropertyName = "assessmentTitle")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the assessment title.")]
+        [Display(Name = "Assessment Title")]
+        public string AssessmentTitle { get; set; }
 
         /// <summary>
         /// The description of the content or subject area (e.g., arts, mathematics, reading, stenography, or a foreign language) of an assessment.  NEDM: Assessment Content, Academic Subject
         /// </summary>
-        public string academicSubjectDescriptor { get; set; }
+        [JsonProperty(PropertyName = "academicSubjectDescriptor")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an academic subject.")]
+        [Display(Name = "Academic Subject")]
+        public string AcademicSubjectDescriptor { get; set; }
 
         /// <summary>
         /// The description of the content or subject area (e.g., arts, mathematics, reading, stenography, or a foreign language) of an assessment.  NEDM: Assessment Content, Academic Subject
         /// </summary>
-        public string academicSubjectType { get; set; }
+        [JsonProperty(PropertyName = "academicSubjectType")]
+        public string AcademicSubjectType { get; set; }
 
         /// <summary>
         /// The typical grade level for which an assessment is designed. If the test assessment spans a range of grades, then this attribute holds the highest grade assessed.  If only one grade level is assessed, then only this attribute is used. For example:  Adult  Prekindergarten  First grade  Second grade  ...
         /// </summary>
-        public string assessedGradeLevelDescriptor { get; set; }
+        [JsonProperty(PropertyName = "assessedGradeLevelDescriptor")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select the grade level(s) for this assessment.")]
+        public string AssessedGradeLevelDescriptor { get; set; }
 
         /// <summary>
         /// The typical grade level for which an assessment is designed. If the test assessment spans a range of grades, then this attribute holds the highest grade assessed.  If only one grade level is assessed, then only this attribute is used. For example:  Adult  Prekindergarten  First grade  Second grade  ...
@@ -38,12 +50,17 @@ namespace DataFlow.EdFi.Models.AssessmentComposite
         /// <summary>
         /// The version identifier for the assessment.
         /// </summary>
-        public int? version { get; set; }
+        [JsonProperty(PropertyName = "version")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the assessment version.")]
+        public int? Version { get; set; }
 
         /// <summary>
         /// A unique identifier used as Primary Key, not derived from business logic, when acting as Foreign Key, references the parent table.
         /// </summary>
-        public string assessmentCategoryDescriptor { get; set; }
+        [JsonProperty(PropertyName = "assessmentCategoryDescriptor")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an Assessment Category.")]
+        [Display(Name = "Category")]
+        public string AssessmentCategoryDescriptor { get; set; }
 
         /// <summary>
         /// A unique identifier used as Primary Key, not derived from business logic, when acting as Foreign Key, references the parent table.
@@ -78,7 +95,9 @@ namespace DataFlow.EdFi.Models.AssessmentComposite
         /// <summary>
         /// Namespace for the Assessment.
         /// </summary>
-        public string @namespace { get; set; }
+        [JsonProperty(PropertyName = "@namespace")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the assessment namespace.")]
+        public string Namespace { get; set; }
 
         /// <summary>
         /// Reflects the common nomenclature for an element.
@@ -93,7 +112,10 @@ namespace DataFlow.EdFi.Models.AssessmentComposite
         /// <summary>
         /// An unordered collection of assessmentIdentificationCodes.  
         /// </summary>
-        public List<Assessment_assessmentIdentificationCode> assessmentIdentificationCodes { get; set; }
+        [JsonProperty(PropertyName = "assessmentIdentificationCodes")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an Identification System.")]
+        [Display(Name = "Identification System")]
+        public List<Assessment_assessmentIdentificationCode> AssessmentIdentificationCodes { get; set; }
 
         /// <summary>
         /// An unordered collection of assessmentPerformanceLevels.  
@@ -103,7 +125,10 @@ namespace DataFlow.EdFi.Models.AssessmentComposite
         /// <summary>
         /// An unordered collection of objectiveAssessments.  
         /// </summary>
-        public List<Assessment_objectiveAssessment> objectiveAssessments { get; set; }
+        [JsonProperty(PropertyName = "objectiveAssessments")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter object assessments.")]
+        [Display(Name = "Objective Assessments")]
+        public List<Assessment_objectiveAssessment> ObjectiveAssessments { get; set; }
 
         }
 }
