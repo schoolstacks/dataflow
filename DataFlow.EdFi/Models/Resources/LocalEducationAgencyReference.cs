@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace DataFlow.EdFi.Models.Resources 
 {
     public class LocalEducationAgencyReference 
@@ -5,6 +7,7 @@ namespace DataFlow.EdFi.Models.Resources
         /// <summary>
         /// The identifier assigned to a local education agency by the State Education Agency (SEA).
         /// </summary>
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select a district.")]
         public int? localEducationAgencyId { get; set; }
 
         /// <summary>
