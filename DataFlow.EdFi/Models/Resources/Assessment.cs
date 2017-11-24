@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace DataFlow.EdFi.Models.Resources 
 {
@@ -8,7 +10,8 @@ namespace DataFlow.EdFi.Models.Resources
         /// <summary>
         /// The unique identifier of the resource.
         /// </summary>
-        public string id { get; set; }
+        [JsonProperty(PropertyName = "id", NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; set; }
 
         /// <summary>
         /// A reference to the related AssessmentFamily resource.
@@ -18,27 +21,39 @@ namespace DataFlow.EdFi.Models.Resources
         /// <summary>
         /// The title or name of the assessment.  NEDM: Assessment Title
         /// </summary>
-        public string title { get; set; }
+        [JsonProperty(PropertyName = "title")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the Assessment Title.")]
+        [Display(Name = "Assessment Title")]
+        public string Title { get; set; }
 
         /// <summary>
         /// The typical grade level for which an assessment is designed. If the test assessment spans a range of grades, then this attribute holds the highest grade assessed.  If only one grade level is assessed, then only this attribute is used. For example:  Adult  Prekindergarten  First grade  Second grade  ...
         /// </summary>
-        public string assessedGradeLevelDescriptor { get; set; }
+        [JsonProperty(PropertyName = "assessedGradeLevelDescriptor")]
+        public string AssessedGradeLevelDescriptor { get; set; }
 
         /// <summary>
         /// The description of the content or subject area (e.g., arts, mathematics, reading, stenography, or a foreign language) of an assessment.  NEDM: Assessment Content, Academic Subject
         /// </summary>
-        public string academicSubjectDescriptor { get; set; }
+        [JsonProperty(PropertyName = "academicSubjectDescriptor")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an Academic Subject.")]
+        [Display(Name = "Academic Subject")]
+        public string AcademicSubjectDescriptor { get; set; }
 
         /// <summary>
         /// The version identifier for the assessment.
         /// </summary>
-        public int? version { get; set; }
+        [JsonProperty(PropertyName = "version")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the Assessment Version.")]
+        public int? Version { get; set; }
 
         /// <summary>
         /// A unique identifier used as Primary Key, not derived from business logic, when acting as Foreign Key, references the parent table.
         /// </summary>
-        public string categoryDescriptor { get; set; }
+        [JsonProperty(PropertyName = "categoryDescriptor")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an Assessment Category.")]
+        [Display(Name = "Category")]
+        public string CategoryDescriptor { get; set; }
 
         /// <summary>
         /// If the test assessment spans a range of grades, then this attribute holds the lowest grade assessed.  If only one grade level is assessed, then this attribute is omitted. For example:  Adult  Prekindergarten  First grade  Second grade  ...
@@ -73,7 +88,9 @@ namespace DataFlow.EdFi.Models.Resources
         /// <summary>
         /// Namespace for the Assessment.
         /// </summary>
-        public string @namespace { get; set; }
+        [JsonProperty(PropertyName = "@namespace")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the Assessment Namespace.")]
+        public string Namespace { get; set; }
 
         /// <summary>
         /// An indication as to whether an assessment conforms to a standard.
@@ -83,7 +100,8 @@ namespace DataFlow.EdFi.Models.Resources
         /// <summary>
         /// An unordered collection of assessmentIdentificationCodes.  A unique number or alphanumeric code assigned to an assessment by a school, school system, a state, or other agency or entity.
         /// </summary>
-        public List<AssessmentIdentificationCode> identificationCodes { get; set; }
+        [JsonProperty(PropertyName = "identificationCodes")]
+        public List<AssessmentIdentificationCode> IdentificationCodes { get; set; }
 
         /// <summary>
         /// An unordered collection of assessmentLanguages.  An indication of the languages in which the Assessment is designed.

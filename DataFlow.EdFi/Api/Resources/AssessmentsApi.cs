@@ -144,7 +144,7 @@ namespace DataFlow.EdFi.Api.Resources
             var location = response.Headers.FirstOrDefault(x => x.Name == "Location");
 
             if (location != null && !string.IsNullOrWhiteSpace(location.Value.ToString()))
-                body.id = location.Value.ToString().Split('/').Last();
+                body.Id = location.Value.ToString().Split('/').Last();
             return response;
         }
         /// <summary>
@@ -190,7 +190,7 @@ namespace DataFlow.EdFi.Api.Resources
             var location = response.Headers.FirstOrDefault(x => x.Name == "Location");
 
             if (location != null && !string.IsNullOrWhiteSpace(location.Value.ToString()))
-                body.id = location.Value.ToString().Split('/').Last();
+                body.Id = location.Value.ToString().Split('/').Last();
             return response;
         }
         /// <summary>

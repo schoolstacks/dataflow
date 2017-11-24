@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.UI.WebControls;
@@ -35,19 +36,27 @@ namespace DataFlow.Web.Controllers
             ViewBag.IdentificationSystems = new SelectList(GetIdentificationSystemList, "Value", "Text");
             ViewBag.AssessmentCategories = new SelectList(GetAssessmentCategoryList, "Value", "Text");
 
-            var vm = new Models.AssessmentViewModel.AddOrEdit();
-            vm.GradeLevels = GetGradeLevels(new List<SchoolGradeLevel>());
+            var vm = new Models.AssessmentViewModel.AddOrEdit
+            {
+                GradeLevels = GetGradeLevels(new List<SchoolGradeLevel>())
+            };
 
             return View(vm);
         }
 
         public ActionResult Edit(string id)
         {
-            var assessment = edFiService.GetAssessmentById(id);
+            ViewBag.AcademicSubjects = new SelectList(GetAcademicSubjectList, "Value", "Text");
+            ViewBag.IdentificationSystems = new SelectList(GetIdentificationSystemList, "Value", "Text");
+            ViewBag.AssessmentCategories = new SelectList(GetAssessmentCategoryList, "Value", "Text");
 
-            var vm = new Models.AssessmentViewModel.AddOrEdit();
-            vm.Assessment = assessment;
-            vm.GradeLevels = GetGradeLevels(new List<SchoolGradeLevel>());
+            var assessment = edFiService.GetAssessmentResourceById(id);
+
+            var vm = new Models.AssessmentViewModel.AddOrEdit
+            {
+                Assessment = assessment,
+                GradeLevels = GetGradeLevels(new List<SchoolGradeLevel>())
+            };
 
             return View(vm);
         }
@@ -56,6 +65,20 @@ namespace DataFlow.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Add(Models.AssessmentViewModel.AddOrEdit vm)
         {
+            ViewBag.AcademicSubjects = new SelectList(GetAcademicSubjectList, "Value", "Text");
+            ViewBag.IdentificationSystems = new SelectList(GetIdentificationSystemList, "Value", "Text");
+            ViewBag.AssessmentCategories = new SelectList(GetAssessmentCategoryList, "Value", "Text");
+
+            if (!GetSelectedGradeLevels(vm).Any())
+            {
+                ModelState.AddModelError("NoGradesSelected", "Please select the grade levels for this assessment.");
+            }
+
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            SaveAssessment(vm);
+
             return View(vm);
         }
 
@@ -63,7 +86,88 @@ namespace DataFlow.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(Models.AssessmentViewModel.AddOrEdit vm)
         {
+            ViewBag.AcademicSubjects = new SelectList(GetAcademicSubjectList, "Value", "Text");
+            ViewBag.IdentificationSystems = new SelectList(GetIdentificationSystemList, "Value", "Text");
+            ViewBag.AssessmentCategories = new SelectList(GetAssessmentCategoryList, "Value", "Text");
+
+            if (!GetSelectedGradeLevels(vm).Any())
+            {
+                ModelState.AddModelError("NoGradesSelected", "Please select the grade levels for this assessment.");
+            }
+
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            SaveAssessment(vm);
+
             return View(vm);
+        }
+
+        private void SaveAssessment(Models.AssessmentViewModel.AddOrEdit vm)
+        {
+            var selectedGradeLevels = GetSelectedGradeLevels(vm);
+
+            var objectiveAssessments = vm.ObjectiveAssessment.IdentificationCode
+                .Split(new[] { Environment.NewLine, "," }, StringSplitOptions.RemoveEmptyEntries)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim())
+                .ToList();
+
+            var assementCount = 0;
+            var responseMsg = string.Empty;
+
+            try
+            {
+                selectedGradeLevels.ForEach(gradeLevel =>
+                {
+                    var assessment = new EdFi.Models.Resources.Assessment()
+                    {
+                        Title = vm.Assessment.Title,
+                        Version = vm.Assessment.Version,
+                        Namespace = vm.Assessment.Namespace,
+                        AcademicSubjectDescriptor = vm.Assessment.AcademicSubjectDescriptor,
+                        AssessedGradeLevelDescriptor = gradeLevel.GradeLevelDescriptor,
+                        CategoryDescriptor = vm.Assessment.CategoryDescriptor,
+                        IdentificationCodes = new List<AssessmentIdentificationCode>
+                        {
+                            new AssessmentIdentificationCode
+                            {
+                                AssessmentIdentificationSystemDescriptor = vm.IdentificationCode.AssessmentIdentificationSystemDescriptor,
+                                IdentificationCode = vm.Assessment.Title
+                            }
+                        }
+                    };
+
+                    var assementResponse = edFiService.CreateAssessment(assessment);
+                    responseMsg = assementResponse.StatusDescription;
+
+                    if (assementResponse.StatusCode == HttpStatusCode.Created)
+                    {
+                        assementCount++;
+
+                        objectiveAssessments.ForEach(x =>
+                        {
+                            var objectiveAssessment = new ObjectiveAssessment
+                            {
+                                IdentificationCode = x,
+                                assessmentReference = new AssessmentReference
+                                {
+                                    title = assessment.Title,
+                                    academicSubjectDescriptor = assessment.AcademicSubjectDescriptor,
+                                    assessedGradeLevelDescriptor = assessment.AssessedGradeLevelDescriptor,
+                                    version = assessment.Version
+                                }
+                            };
+
+                            edFiService.CreateObjectiveAssessment(objectiveAssessment);
+                        });
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                responseMsg = ex.Message;
+            }
         }
 
         private List<SelectListItem> GetAcademicSubjectList
@@ -117,6 +221,17 @@ namespace DataFlow.Web.Controllers
             }
         }
 
+        private List<SchoolGradeLevel> GetSelectedGradeLevels(Models.AssessmentViewModel.AddOrEdit vm)
+        {
+            return vm.GradeLevels
+                .Where(x => x.Checked)
+                .Select(x => new SchoolGradeLevel()
+                {
+                    GradeLevelDescriptor = x.Text.Replace("_", " ") //In the view, for the labels to work we replace spaces with underscores
+                })
+                .ToList();
+        }
+
         private List<CheckBox> GetGradeLevels(List<SchoolGradeLevel> selectedGrades)
         {
             var gradeLevelCheckBoxes = dataFlowDbContext.EdfiDictionary
@@ -129,7 +244,7 @@ namespace DataFlow.Web.Controllers
             {
                 selectedGrades.ForEach(grade =>
                 {
-                    var gradeCheckBox = gradeLevelCheckBoxes.FirstOrDefault(x => x.Text == grade.gradeLevelDescriptor);
+                    var gradeCheckBox = gradeLevelCheckBoxes.FirstOrDefault(x => x.Text == grade.GradeLevelDescriptor);
                     if (gradeCheckBox != null)
                     {
                         gradeCheckBox.Checked = true;

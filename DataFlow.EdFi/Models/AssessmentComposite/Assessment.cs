@@ -10,14 +10,14 @@ namespace DataFlow.EdFi.Models.AssessmentComposite
         /// <summary>
         /// The unique identifier of the resource.
         /// </summary>
-        [JsonProperty(PropertyName = "id")]
+        [JsonProperty(PropertyName = "id", NullValueHandling = NullValueHandling.Ignore)]
         public string Id { get; set; }
 
         /// <summary>
         /// The title or name of the assessment.  NEDM: Assessment Title
         /// </summary>
         [JsonProperty(PropertyName = "assessmentTitle")]
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the assessment title.")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the Assessment Title.")]
         [Display(Name = "Assessment Title")]
         public string AssessmentTitle { get; set; }
 
@@ -25,7 +25,7 @@ namespace DataFlow.EdFi.Models.AssessmentComposite
         /// The description of the content or subject area (e.g., arts, mathematics, reading, stenography, or a foreign language) of an assessment.  NEDM: Assessment Content, Academic Subject
         /// </summary>
         [JsonProperty(PropertyName = "academicSubjectDescriptor")]
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an academic subject.")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an Academic Subject.")]
         [Display(Name = "Academic Subject")]
         public string AcademicSubjectDescriptor { get; set; }
 
@@ -51,7 +51,7 @@ namespace DataFlow.EdFi.Models.AssessmentComposite
         /// The version identifier for the assessment.
         /// </summary>
         [JsonProperty(PropertyName = "version")]
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the assessment version.")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the Assessment Version.")]
         public int? Version { get; set; }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace DataFlow.EdFi.Models.AssessmentComposite
         /// Namespace for the Assessment.
         /// </summary>
         [JsonProperty(PropertyName = "@namespace")]
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the assessment namespace.")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the Assessment Namespace.")]
         public string Namespace { get; set; }
 
         /// <summary>
@@ -113,8 +113,8 @@ namespace DataFlow.EdFi.Models.AssessmentComposite
         /// An unordered collection of assessmentIdentificationCodes.  
         /// </summary>
         [JsonProperty(PropertyName = "assessmentIdentificationCodes")]
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an Identification System.")]
-        [Display(Name = "Identification System")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an Identification Code.")]
+        [Display(Name = "Identification Code")]
         public List<Assessment_assessmentIdentificationCode> AssessmentIdentificationCodes { get; set; }
 
         /// <summary>

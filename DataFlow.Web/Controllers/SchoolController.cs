@@ -186,7 +186,7 @@ namespace DataFlow.Web.Controllers
                 .Where(x => x.Checked)
                 .Select(x => new SchoolGradeLevel()
                 {
-                    gradeLevelDescriptor = x.Text.Replace("_", " ") //In the view, for the labels to work we replace spaces with underscores
+                    GradeLevelDescriptor = x.Text.Replace("_", " ") //In the view, for the labels to work we replace spaces with underscores
                 })
                 .ToList();
         }
@@ -203,7 +203,7 @@ namespace DataFlow.Web.Controllers
             {
                 selectedGrades.ForEach(grade =>
                 {
-                    var gradeCheckBox = gradeLevelCheckBoxes.FirstOrDefault(x => x.Text == grade.gradeLevelDescriptor);
+                    var gradeCheckBox = gradeLevelCheckBoxes.FirstOrDefault(x => x.Text == grade.GradeLevelDescriptor);
                     if (gradeCheckBox != null)
                     {
                         gradeCheckBox.Checked = true;

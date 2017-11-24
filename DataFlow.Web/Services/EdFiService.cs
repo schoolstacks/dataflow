@@ -156,6 +156,12 @@ namespace DataFlow.Web.Services
             return api.GetLevelDescriptorsAll(offsent, limit).Data;
         }
 
+        public DataFlow.EdFi.Models.Resources.Assessment GetAssessmentResourceById(string id)
+        {
+            var api = new DataFlow.EdFi.Api.Resources.AssessmentsApi(EstablishApiClient());
+            return api.GetAssessmentsById(id).Data;
+        }
+
         public List<AssessmentIdentificationSystemDescriptor> GetAssessmentIdentificationSystems(int? offset, int? limit)
         {
             var api = new AssessmentIdentificationSystemDescriptorsApi(EstablishApiClient());

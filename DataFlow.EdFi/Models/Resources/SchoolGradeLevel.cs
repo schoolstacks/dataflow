@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace DataFlow.EdFi.Models.Resources 
 {
     public class SchoolGradeLevel 
@@ -5,7 +7,8 @@ namespace DataFlow.EdFi.Models.Resources
         /// <summary>
         /// The grade levels served at the school.
         /// </summary>
-        public string gradeLevelDescriptor { get; set; }
+        [JsonProperty(PropertyName = "gradeLevelDescriptor")]
+        public string GradeLevelDescriptor { get; set; }
 
         }
 }
