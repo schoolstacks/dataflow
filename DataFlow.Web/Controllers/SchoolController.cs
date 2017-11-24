@@ -194,8 +194,9 @@ namespace DataFlow.Web.Controllers
         private List<CheckBox> GetGradeLevels(List<SchoolGradeLevel> selectedGrades)
         {
             var gradeLevelCheckBoxes = dataFlowDbContext.EdfiDictionary
+                .Where(x => x.GroupSet == "levelDescriptors")
                 .OrderBy(x => x.DisplayOrder)
-                .Select(x => new CheckBox() { Text = x.OriginalValue })
+                .Select(x => new CheckBox() {Text = x.OriginalValue})
                 .ToList();
 
             if (selectedGrades.Any())

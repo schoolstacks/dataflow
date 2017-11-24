@@ -1,0 +1,88 @@
+﻿ @model DataFlow.Web.Models.AssessmentViewModel.AddOrEdit
+
+@Html.AntiForgeryToken()
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.Assessment.AcademicSubjectDescriptor, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.DropDownListFor(m => m.Assessment.AcademicSubjectDescriptor, (IEnumerable<SelectListItem>)ViewBag.AcademicSubjects, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Assessment.AcademicSubjectDescriptor)
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.Assessment.AssessmentIdentificationCodes, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.DropDownListFor(m => m.Assessment.AssessmentIdentificationCodes, (IEnumerable<SelectListItem>)ViewBag.IdentificationSystems, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Assessment.AssessmentIdentificationCodes)
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.Assessment.AssessmentCategoryDescriptor, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.DropDownListFor(m => m.Assessment.AssessmentCategoryDescriptor, (IEnumerable<SelectListItem>)ViewBag.AssessmentCategories, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Assessment.AssessmentCategoryDescriptor)
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.Assessment.AssessmentTitle, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.TextBoxFor(m => m.Assessment.AssessmentTitle, new { @class = "form-control", type = "text", placeholder = "Assessment Title" })
+        @Html.ValidationMessageFor(m => m.Assessment.AssessmentTitle)
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.Assessment.Version, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.TextBoxFor(m => m.Assessment.Version, new { @class = "form-control", type = "number", placeholder = "Version" })
+        @Html.ValidationMessageFor(m => m.Assessment.Version)
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.Assessment.Namespace, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.TextBoxFor(m => m.Assessment.Namespace, new { @class = "form-control", type = "text", placeholder = "Namespace" })
+        @Html.ValidationMessageFor(m => m.Assessment.Namespace)
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.Assessment.ObjectiveAssessments, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.TextAreaFor(m => m.Assessment.ObjectiveAssessments, new { @class = "form-control", type = "text", placeholder = "Seperate objective assessments by a new line", style = "height:100px;" })
+        @Html.ValidationMessageFor(m => m.Assessment.ObjectiveAssessments)
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.GradeLevels, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @for (var i = 0; i < Model.GradeLevels.Count; i++)
+        {
+            <div>
+                @Html.CheckBoxFor(m => m.GradeLevels[i].Checked, new { id = Model.GradeLevels[i].Text.Replace(" ", "_") })
+                @Html.HiddenFor(m => m.GradeLevels[i].Text)
+                @Html.LabelFor(m => m.GradeLevels[i].Text, Model.GradeLevels[i].Text, new { @for = Model.GradeLevels[i].Text.Replace(" ", "_") })
+            </div>
+        }
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+        @Html.HiddenFor(m => m.Assessment.Id)
+        <button id="btnSubmit" type="submit" class="btn btn-primary">Save School</button>
+    </div>
+</div>

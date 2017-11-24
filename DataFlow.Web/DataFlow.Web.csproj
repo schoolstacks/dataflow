@@ -240,6 +240,7 @@
     <Compile Include="Helpers\Constants.cs" />
     <Compile Include="Helpers\Common.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\AssessmentViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\LogsViewModel.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
@@ -347,6 +348,7 @@
     <Content Include="Views\Assessment\Index.cshtml" />
     <Content Include="Views\Assessment\Add.cshtml" />
     <Content Include="Views\Assessment\Edit.cshtml" />
+    <Content Include="Views\Assessment\_PartialAssessmentForm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
