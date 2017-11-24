@@ -29,7 +29,7 @@ namespace DataFlow.EdFi.Models.Resources
         /// The identifier assigned to a school by the State Education Agency (SEA).
         /// </summary>
         [JsonProperty(PropertyName = "schoolId")]
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the SchoolId.")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the School Id.")]
         [Display(Name = "School Id")]
         public int? SchoolId { get; set; }
 

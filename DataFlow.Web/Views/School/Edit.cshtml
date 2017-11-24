@@ -6,7 +6,7 @@
 }
 
 <h2>@ViewBag.Title</h2>
-@using (Html.BeginForm("AddOrUpdate", "School", FormMethod.Post, new { @class = "form-horizontal" }))
+@using (Html.BeginForm("Edit", "School", FormMethod.Post, new { @class = "form-horizontal" }))
 {
     @Html.Partial("_PartialSchoolForm", Model)
 }

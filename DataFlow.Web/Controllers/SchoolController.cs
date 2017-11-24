@@ -61,10 +61,12 @@ namespace DataFlow.Web.Controllers
 
         public ActionResult Add()
         {
-            var vm = new SchoolViewModel.AddOrUpdate();
-            vm.GradeLevels = GetGradeLevels(new List<SchoolGradeLevel>());
+            var vm = new SchoolViewModel.AddOrUpdate
+            {
+                GradeLevels = GetGradeLevels(new List<SchoolGradeLevel>())
+            };
 
-            ViewBag.Districts = ViewBag.Entities = new SelectList(GetDistrictList, "Value", "Text");
+            ViewBag.Districts = new SelectList(GetDistrictList, "Value", "Text");
 
             return View(vm);
         }
@@ -80,7 +82,7 @@ namespace DataFlow.Web.Controllers
                 GradeLevels = GetGradeLevels(school.GradeLevels)
             };
 
-            ViewBag.Districts = ViewBag.Entities = new SelectList(GetDistrictList, "Value", "Text");
+            ViewBag.Districts = new SelectList(GetDistrictList, "Value", "Text");
 
             return View(vm);
         }
@@ -93,15 +95,47 @@ namespace DataFlow.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult AddOrUpdate(SchoolViewModel.AddOrUpdate vm)
+        public ActionResult Add(SchoolViewModel.AddOrUpdate vm)
         {
-            var selectedGradeLevels = vm.GradeLevels
-                .Where(x => x.Checked)
-                .Select(x => new SchoolGradeLevel()
-                {
-                    gradeLevelDescriptor = x.Text.Replace("_", " ") //In the view, for the labels to work we replace spaces with underscores
-                })
-                .ToList();
+            if (!GetSelectedGradeLevels(vm).Any())
+            {
+                ModelState.AddModelError("NoGradesSelected", "Please select the grade levels for this school.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Districts = new SelectList(GetDistrictList, "Value", "Text");
+                return View(vm);
+            }
+
+            SaveSchool(vm);
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(SchoolViewModel.AddOrUpdate vm)
+        {
+            if (!GetSelectedGradeLevels(vm).Any())
+            {
+                ModelState.AddModelError("NoGradesSelected", "Please select the grade levels for this school.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Districts = new SelectList(GetDistrictList, "Value", "Text");
+                return View(vm);
+            }
+
+            SaveSchool(vm);
+
+            return RedirectToAction("Index");
+        }
+
+        private void SaveSchool(SchoolViewModel.AddOrUpdate vm)
+        {
+            var selectedGradeLevels = GetSelectedGradeLevels(vm);
 
             var school = new EdFi.Models.Resources.School
             {
@@ -144,8 +178,17 @@ namespace DataFlow.Web.Controllers
             };
 
             edFiService.CreateSchool(school);
+        }
 
-            return RedirectToAction("Index");
+        private List<SchoolGradeLevel> GetSelectedGradeLevels(SchoolViewModel.AddOrUpdate vm)
+        {
+            return vm.GradeLevels
+                .Where(x => x.Checked)
+                .Select(x => new SchoolGradeLevel()
+                {
+                    gradeLevelDescriptor = x.Text.Replace("_", " ") //In the view, for the labels to work we replace spaces with underscores
+                })
+                .ToList();
         }
 
         private List<CheckBox> GetGradeLevels(List<SchoolGradeLevel> selectedGrades)
