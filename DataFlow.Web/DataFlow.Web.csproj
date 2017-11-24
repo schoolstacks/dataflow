@@ -340,6 +340,9 @@
     <Content Include="Views\Agent\Add.cshtml" />
     <Content Include="Views\Agent\Edit.cshtml" />
     <Content Include="Views\Agent\_PartialAgentForm.cshtml" />
+    <Content Include="Views\Lookup\Add.cshtml" />
+    <Content Include="Views\Lookup\Edit.cshtml" />
+    <Content Include="Views\Lookup\_PartialLookupForm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

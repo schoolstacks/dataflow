@@ -16,6 +16,10 @@
     white-space: normal;
 }
 
+.field-validation-error {
+    color: #b94a48;
+}
+
 /* Set width on the form input elements since they're 100% wide by default 
 input,
 select,
