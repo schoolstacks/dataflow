@@ -13,7 +13,7 @@ using DataFlow.Models;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Services;
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.File;
+using File = DataFlow.Models.File;
 
 namespace DataFlow.Web.Controllers
 {
@@ -41,7 +41,7 @@ namespace DataFlow.Web.Controllers
 
         public ActionResult Add()
         {
-            var agent = new DataFlow.Models.Agent();
+            var agent = new Agent();
 
             ViewBag.DataMaps = GetDataMapList;
 
@@ -75,20 +75,42 @@ namespace DataFlow.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult AddOrUpdate(DataFlow.Models.Agent vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
+        public ActionResult Add(Agent vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
             string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
         {
-            ViewBag.DataMaps = GetDataMapList;
-            
             if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("ModelError", "There was an error saving this agent.");
-                return View("Edit", vm);
+                ViewBag.DataMaps = GetDataMapList;
+                return View(vm);
             }
 
+            var agent = SaveAgent(vm, btnAddMap, ddlDataMaps, dataMapAgentNextOrder, btnAddSchedule, ddlDay, ddlHour, ddlMinute);
+
+            return RedirectToAction("Edit", new { agent.Id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(Agent vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
+            string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.DataMaps = GetDataMapList;
+                return View(vm);
+            }
+
+            var agent = SaveAgent(vm, btnAddMap, ddlDataMaps, dataMapAgentNextOrder, btnAddSchedule, ddlDay, ddlHour, ddlMinute);
+
+            return RedirectToAction("Edit", new { agent.Id });
+        }
+
+        private Agent SaveAgent(Agent vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
+            string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
+        {
             var isUpdate = false;
 
-            var agent = new DataFlow.Models.Agent();
+            var agent = new Agent();
             if (vm.Id > 0)
             {
                 isUpdate = true;
@@ -142,7 +164,7 @@ namespace DataFlow.Web.Controllers
             dataFlowDbContext.Agents.AddOrUpdate(agent);
             dataFlowDbContext.SaveChanges();
 
-            return RedirectToAction("Edit", new{ agent.Id });
+            return agent;
         }
 
         [HttpPost]
@@ -196,7 +218,7 @@ namespace DataFlow.Web.Controllers
 
         private void LogFile(int agentId, string fileName, string url, string status, int rows)
         {
-            var fileLog = new DataFlow.Models.File()
+            var fileLog = new File
             {
                 AgentId = agentId,
                 FileName = fileName,
@@ -224,9 +246,9 @@ namespace DataFlow.Web.Controllers
             get
             {
                 var entityList = new List<SelectListItem>();
-                entityList.Add(new SelectListItem() { Text = "Select Agent", Value = string.Empty });
+                entityList.Add(new SelectListItem { Text = "Select Agent", Value = string.Empty });
                 entityList.AddRange(dataFlowDbContext.Agents.Select(x =>
-                    new SelectListItem()
+                    new SelectListItem
                     {
                         Text = x.Name,
                         Value = x.Id.ToString()
@@ -241,9 +263,9 @@ namespace DataFlow.Web.Controllers
             get
             {
                 var entityList = new List<SelectListItem>();
-                entityList.Add(new SelectListItem() { Text = "Select Map", Value = string.Empty });
+                entityList.Add(new SelectListItem { Text = "Select Map", Value = string.Empty });
                 entityList.AddRange(dataFlowDbContext.DataMaps.Select(x =>
-                    new SelectListItem()
+                    new SelectListItem
                     {
                         Text = x.Name,
                         Value = x.Id.ToString()

@@ -58,7 +58,6 @@ namespace DataFlow.Web.Controllers
             return RedirectToAction("Index");
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Add(DataFlow.Models.Lookup vm)
@@ -83,7 +82,7 @@ namespace DataFlow.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        private void SaveLookup(DataFlow.Models.Lookup vm)
+        private DataFlow.Models.Lookup SaveLookup(DataFlow.Models.Lookup vm)
         {
             var isUpdate = vm.Id > 0;
 
@@ -101,6 +100,8 @@ namespace DataFlow.Web.Controllers
 
             dataFlowDbContext.Lookups.AddOrUpdate(lookup);
             dataFlowDbContext.SaveChanges();
+
+            return lookup;
         }
     }
 }

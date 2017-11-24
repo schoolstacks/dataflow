@@ -7,7 +7,7 @@
 
 <h2>@ViewBag.Title</h2>
 
-@using (Html.BeginForm("Update", "Map", FormMethod.Post, new { @class = "form-horizontal" }))
+@using (Html.BeginForm("Edit", "Map", FormMethod.Post, new { @class = "form-horizontal" }))
 {
     @Html.Partial("_PartialMapForm", Model)
 }

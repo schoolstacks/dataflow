@@ -9,6 +9,7 @@
     </div>
     <div class="col-sm-10">
         @Html.TextBoxFor(m => m.Name, new { @class = "form-control", type = "text", placeholder = "Name" })
+        @Html.ValidationMessageFor(m => m.Name)
     </div>
 </div>
 <div class="form-group">
@@ -17,6 +18,7 @@
     </div>
     <div class="col-sm-10">
         @Html.TextBoxFor(m => m.Url, new { @class = "form-control", type = "text", placeholder = "Url" })
+        @Html.ValidationMessageFor(m => m.Url)
     </div>
 </div>
 <div class="form-group">
@@ -25,6 +27,7 @@
     </div>
     <div class="col-sm-10">
         @Html.TextBoxFor(m => m.Username, new { @class = "form-control", type = "text", placeholder = "Username", autocomplete = "off" })
+        @Html.ValidationMessageFor(m => m.Username)
     </div>
 </div>
 <div class="form-group">
@@ -33,6 +36,7 @@
     </div>
     <div class="col-sm-10">
         @Html.TextBoxFor(m => m.Password, new { @class = "form-control", type = "text", placeholder = "Password", autocomplete = "off" })
+        @Html.ValidationMessageFor(m => m.Password)
     </div>
 </div>
 <div class="form-group">
@@ -41,6 +45,7 @@
     </div>
     <div class="col-sm-10">
         @Html.TextBoxFor(m => m.Directory, new { @class = "form-control", type = "text", placeholder = "Directory" })
+        @Html.ValidationMessageFor(m => m.Directory)
     </div>
 </div>
 <div class="form-group">
@@ -49,6 +54,7 @@
     </div>
     <div class="col-sm-10">
         @Html.TextBoxFor(m => m.FilePattern, new { @class = "form-control", type = "text", placeholder = "File Pattern" })
+        @Html.ValidationMessageFor(m => m.FilePattern)
     </div>
 </div>
 <div class="form-group">
