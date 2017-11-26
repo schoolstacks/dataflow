@@ -7,8 +7,8 @@
     <ProjectGuid>{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>transform_api_load_janitor</RootNamespace>
-    <AssemblyName>transform-api-load-janitor</AssemblyName>
+    <RootNamespace>DataFlow.Server.TransformLoad</RootNamespace>
+    <AssemblyName>DataFlow.Server.TransformLoad</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -128,11 +128,11 @@
     <None Include="Properties\webjob-publish-settings.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\edfi-api-client\edfi-api-client.csproj">
+    <ProjectReference Include="..\components\edfi-api-client\edfi-api-client.csproj">
       <Project>{f92104ff-f171-4516-9877-2c2b9815e913}</Project>
       <Name>edfi-api-client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\server-components-data-access\server-components-data-access.csproj">
+    <ProjectReference Include="..\components\server-components-data-access\server-components-data-access.csproj">
       <Project>{1db45f34-fa44-4c37-a240-e7b139d1bafb}</Project>
       <Name>server-components-data-access</Name>
     </ProjectReference>

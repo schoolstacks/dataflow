@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace transform_api_load_janitor.DataMaps.Interfaces
+namespace DataFlow.Server.TransformLoad.DataMaps.Interfaces
 {
     public interface IDataMap
     {
