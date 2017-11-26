@@ -7,8 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using transform_api_load_janitor.DataMaps.Interfaces;
-using transform_api_load_janitor.DataMaps.Student;
 using server_components_data_access.Dataflow;
 using CsvHelper;
 using System.Net.Http;
@@ -17,7 +15,7 @@ using server_components_data_access.Enums;
 using log4net.Core;
 using System.Configuration;
 
-namespace transform_api_load_janitor
+namespace DataFlow.Server.TransformLoad
 {
     class Program
     {
