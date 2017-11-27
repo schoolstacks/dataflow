@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
+using DataFlow.Common.Services;
 using DataFlow.Models;
 using DataFlow.Web.Helpers;
-using DataFlow.Web.Services;
 using Microsoft.WindowsAzure.Storage;
 using File = DataFlow.Models.File;
 
@@ -20,12 +20,10 @@ namespace DataFlow.Web.Controllers
     public class AgentController : BaseController
     {
         private readonly DataFlowDbContext dataFlowDbContext;
-        private readonly EdFiService edFiService;
 
-        public AgentController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService)
+        public AgentController(DataFlowDbContext dataFlowDbContext, ICentralLogger logger) : base(logger)
         {
             this.dataFlowDbContext = dataFlowDbContext;
-            this.edFiService = edFiService;
         }
 
         public ActionResult Index()
@@ -210,6 +208,7 @@ namespace DataFlow.Web.Controllers
             }
             catch (Exception ex)
             {
+                Logger.Error("Error Uploading File", ex);
                 TempData["FileStatus"] = "Error: " + ex.Message;
             }
 

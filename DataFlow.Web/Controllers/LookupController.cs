@@ -1,25 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity.Migrations;
+﻿using System.Data.Entity.Migrations;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
+using DataFlow.Common.Services;
 using DataFlow.Web.Helpers;
-using DataFlow.Web.Services;
 
 namespace DataFlow.Web.Controllers
 {
     public class LookupController : BaseController
     {
         private readonly DataFlowDbContext dataFlowDbContext;
-        private readonly EdFiService edFiService;
 
-        public LookupController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService)
+        public LookupController(DataFlowDbContext dataFlowDbContext, ICentralLogger logger) : base(logger)
         {
             this.dataFlowDbContext = dataFlowDbContext;
-            this.edFiService = edFiService;
         }
 
         public ActionResult Index()
