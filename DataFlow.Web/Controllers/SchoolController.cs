@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.UI.WebControls;
 using DataFlow.Common.DAL;
 using DataFlow.EdFi.Models.Resources;
-using DataFlow.Models;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Models;
 using DataFlow.Web.Services;
-using System;
+using DataFlow.Common.Services;
 
 namespace DataFlow.Web.Controllers
 {
@@ -17,7 +17,7 @@ namespace DataFlow.Web.Controllers
         private readonly DataFlowDbContext dataFlowDbContext;
         private readonly EdFiService edFiService;
 
-        public SchoolController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService)
+        public SchoolController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService, ICentralLogger logger) : base(logger)
         {
             this.dataFlowDbContext = dataFlowDbContext;
             this.edFiService = edFiService;

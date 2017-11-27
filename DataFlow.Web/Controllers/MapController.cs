@@ -6,21 +6,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
+using DataFlow.Common.Services;
 using DataFlow.Models;
 using DataFlow.Web.Helpers;
-using DataFlow.Web.Services;
 
 namespace DataFlow.Web.Controllers
 {
     public class MapController : BaseController
     {
         private readonly DataFlowDbContext dataFlowDbContext;
-        private readonly EdFiService edFiService;
 
-        public MapController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService)
+        public MapController(DataFlowDbContext dataFlowDbContext, ICentralLogger logger) : base(logger)
         {
             this.dataFlowDbContext = dataFlowDbContext;
-            this.edFiService = edFiService;
         }
 
         public ActionResult Index()

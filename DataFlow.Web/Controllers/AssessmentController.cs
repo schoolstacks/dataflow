@@ -7,6 +7,7 @@ using System.Web.Mvc;
 using System.Web.UI.WebControls;
 using Antlr.Runtime.Misc;
 using DataFlow.Common.DAL;
+using DataFlow.Common.Services;
 using DataFlow.EdFi.Models.Resources;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Services;
@@ -18,7 +19,7 @@ namespace DataFlow.Web.Controllers
         private readonly DataFlowDbContext dataFlowDbContext;
         private readonly EdFiService edFiService;
 
-        public AssessmentController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService)
+        public AssessmentController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService, ICentralLogger logger) : base(logger)
         {
             this.dataFlowDbContext = dataFlowDbContext;
             this.edFiService = edFiService;
@@ -189,6 +190,7 @@ namespace DataFlow.Web.Controllers
             }
             catch (Exception ex)
             {
+                Logger.Error("Error Saving Assessment", ex);
                 responseMsg = ex.Message;
             }
         }

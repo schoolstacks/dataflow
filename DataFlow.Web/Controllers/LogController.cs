@@ -1,25 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
+using DataFlow.Common.Services;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Models;
-using DataFlow.Web.Services;
 
 namespace DataFlow.Web.Controllers
 {
     public class LogController : BaseController
     {
         private readonly DataFlowDbContext dataFlowDbContext;
-        private readonly EdFiService edFiService;
 
-        public LogController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService)
+        public LogController(DataFlowDbContext dataFlowDbContext, ICentralLogger logger) : base(logger)
         {
             this.dataFlowDbContext = dataFlowDbContext;
-            this.edFiService = edFiService;
         }
 
         public ActionResult Index()
