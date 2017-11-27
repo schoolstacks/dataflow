@@ -35,5 +35,11 @@ namespace DataFlow.Web.Models
             [Display(Name = "Grade Levels")]
             public List<CheckBox> GradeLevels { get; set; }
         }
+
+        public class AssessmentDetail
+        {
+            public EdFi.Models.AssessmentComposite.Assessment Assessment { get; set; }
+            public List<EdFi.Models.AssessmentComposite.StudentAssessment> StudentAssessments { get; set; }
+        }
     }
 }
