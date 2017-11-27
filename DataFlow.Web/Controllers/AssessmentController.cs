@@ -5,6 +5,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.UI.WebControls;
+using Antlr.Runtime.Misc;
 using DataFlow.Common.DAL;
 using DataFlow.EdFi.Models.Resources;
 using DataFlow.Web.Helpers;
@@ -25,7 +26,9 @@ namespace DataFlow.Web.Controllers
 
         public ActionResult Index()
         {
-            var assessments = edFiService.GetAssessments(null, null);
+            var assessments = edFiService.GetResourceAssessments(null, null)
+                .OrderBy(x=>x.Title)
+                .ToList();
 
             return View(assessments);
         }
@@ -50,15 +53,35 @@ namespace DataFlow.Web.Controllers
             ViewBag.IdentificationSystems = new SelectList(GetIdentificationSystemList, "Value", "Text");
             ViewBag.AssessmentCategories = new SelectList(GetAssessmentCategoryList, "Value", "Text");
 
-            var assessment = edFiService.GetAssessmentResourceById(id);
+            var assessment = edFiService.GetResourceAssessmentById(id);
+            var objectiveAssessments = edFiService.GetObjectiveAssessments(0, 100, assessment.Title);
 
             var vm = new Models.AssessmentViewModel.AddOrEdit
             {
                 Assessment = assessment,
-                GradeLevels = GetGradeLevels(new List<SchoolGradeLevel>())
+                IdentificationCode = assessment.IdentificationCodes.FirstOrDefault(),
+                GradeLevels = GetGradeLevels(new ListStack<SchoolGradeLevel>()
+                {
+                    new SchoolGradeLevel() {GradeLevelDescriptor = assessment.AssessedGradeLevelDescriptor}
+                }),
+                ObjectiveAssessmentsText = string.Join(Environment.NewLine, objectiveAssessments.Select(x=>x.IdentificationCode))
             };
 
             return View(vm);
+        }
+
+        public ActionResult Delete(string id)
+        {
+            var assessment = edFiService.GetResourceAssessmentById(id);
+            var objectiveAssessments = edFiService.GetObjectiveAssessments(0, 100, assessment.Title);
+
+            objectiveAssessments.ForEach(x =>
+            {
+                edFiService.DeleteObjectiveAssessment(x.id);
+            });
+
+            edFiService.DeleteAssessment(id);
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -79,7 +102,7 @@ namespace DataFlow.Web.Controllers
 
             SaveAssessment(vm);
 
-            return View(vm);
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -100,14 +123,14 @@ namespace DataFlow.Web.Controllers
 
             SaveAssessment(vm);
 
-            return View(vm);
+            return RedirectToAction("Index");
         }
 
         private void SaveAssessment(Models.AssessmentViewModel.AddOrEdit vm)
         {
             var selectedGradeLevels = GetSelectedGradeLevels(vm);
 
-            var objectiveAssessments = vm.ObjectiveAssessment.IdentificationCode
+            var objectiveAssessments = vm.ObjectiveAssessmentsText
                 .Split(new[] { Environment.NewLine, "," }, StringSplitOptions.RemoveEmptyEntries)
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Select(x => x.Trim())

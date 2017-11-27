@@ -156,10 +156,22 @@ namespace DataFlow.Web.Services
             return api.GetLevelDescriptorsAll(offsent, limit).Data;
         }
 
-        public DataFlow.EdFi.Models.Resources.Assessment GetAssessmentResourceById(string id)
+        public List<DataFlow.EdFi.Models.Resources.Assessment> GetResourceAssessments(int? offset, int? limit)
+        {
+            var api = new DataFlow.EdFi.Api.Resources.AssessmentsApi(EstablishApiClient());
+            return api.GetAssessmentsAll(offset, limit).Data;
+        }
+
+        public DataFlow.EdFi.Models.Resources.Assessment GetResourceAssessmentById(string id)
         {
             var api = new DataFlow.EdFi.Api.Resources.AssessmentsApi(EstablishApiClient());
             return api.GetAssessmentsById(id).Data;
+        }
+
+        public List<ObjectiveAssessment> GetObjectiveAssessments(int offset, int limit, string assessmentTitle = null)
+        {
+            var api = new ObjectiveAssessmentsApi(EstablishApiClient());
+            return api.GetObjectiveAssessmentsAll(offset, limit, assessmentTitle).Data;
         }
 
         public List<AssessmentIdentificationSystemDescriptor> GetAssessmentIdentificationSystems(int? offset, int? limit)
@@ -214,6 +226,18 @@ namespace DataFlow.Web.Services
         {
             var api = new ObjectiveAssessmentsApi(EstablishApiClient());
             return api.PostObjectiveAssessments(objectiveAssessment);
+        }
+
+        public IRestResponse DeleteAssessment(string id)
+        {
+            var api = new AssessmentsApi(EstablishApiClient());
+            return api.DeleteAssessmentById(id);
+        }
+
+        public IRestResponse DeleteObjectiveAssessment(string id)
+        {
+            var api = new ObjectiveAssessmentsApi(EstablishApiClient());
+            return api.DeleteObjectiveAssessmentById(id);
         }
     }
 }

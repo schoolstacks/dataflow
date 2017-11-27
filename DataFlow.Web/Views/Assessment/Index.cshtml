@@ -1,4 +1,4 @@
-﻿@model System.Collections.Generic.List<DataFlow.EdFi.Models.AssessmentComposite.Assessment>
+﻿@model List<DataFlow.EdFi.Models.Resources.Assessment>
 
 @{
     ViewBag.Title = "Assessments";
@@ -6,3 +6,42 @@
 }
 
 <h2>@ViewBag.Title</h2>
+
+<div style="padding-bottom: 10px;">
+@Html.ActionLink("Add Assessment", "Add")
+</div>
+<table id="tblAssessments" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true">
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Subject</th>
+        <th>Grade</th>
+        <th>System</th>
+        <th data-sortable="false" data-filterable="false"></th>
+        <th data-sortable="false" data-filterable="false"></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var m in Model)
+    {
+        <tr>
+            <td>@m.Title</td>
+            <td>@m.CategoryDescriptor</td>
+            <td>@m.AcademicSubjectDescriptor</td>
+            <td>@m.AssessedGradeLevelDescriptor</td>
+            <td>@(m.IdentificationCodes.FirstOrDefault()?.AssessmentIdentificationSystemDescriptor)</td>
+            <td>@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
+            <td>@Html.ActionLink("Delete", "Delete", new { m.Id })</td>
+        </tr>
+    }
+    </tbody>
+</table>
+@section scripts
+{
+    <script type="text/javascript">
+        $(function($){
+            $('#tblAssessments').footable();
+        });
+    </script>
+}
