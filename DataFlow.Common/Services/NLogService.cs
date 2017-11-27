@@ -5,15 +5,15 @@ using NLog;
 
 namespace DataFlow.Common.Services
 {
-    public class NLogCentralLoggerService : ICentralLogger
+    public class NLogService : ICentralLogger
     {
         public string Name { get; set; }
 
         private readonly ILogger _logger;
 
-        public NLogCentralLoggerService(ILogger logger)
+        public NLogService(ILogger logger)
         {
-            this.Name = "Default Logger";
+            this.Name = "DataFlow Logger";
             this._logger = logger;
         }
 
