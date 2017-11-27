@@ -7,8 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using transform_api_load_janitor.DataMaps.Interfaces;
-using transform_api_load_janitor.DataMaps.Student;
 using server_components_data_access.Dataflow;
 using CsvHelper;
 using System.Net.Http;
@@ -17,12 +15,12 @@ using server_components_data_access.Enums;
 using log4net.Core;
 using System.Configuration;
 
-namespace transform_api_load_janitor
+namespace DataFlow.Server.TransformLoad
 {
-    class Program
+    internal class Program
     {
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        public static List<ResultingMapInfo> ApiData = new List<ResultingMapInfo>();
+        internal static List<ResultingMapInfo> ApiData = new List<ResultingMapInfo>();
         private static List<server_components_data_access.Dataflow.datamap> DataMapsList { get; set; } = null;
         private static List<server_components_data_access.Dataflow.lookup> MappingLookups { get; set; }
         private static List<KeyValuePair<string, string>> InsertedIds { get; set; } = new List<KeyValuePair<string, string>>();
@@ -68,7 +66,7 @@ namespace transform_api_load_janitor
         {
             return System.Configuration.ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString;
         }
-        private static EntityConnection BuildEntityConnection()
+        internal static EntityConnection BuildEntityConnection()
         {
             System.Data.SqlClient.SqlConnectionStringBuilder sqlConnStringBuilder =
     new System.Data.SqlClient.SqlConnectionStringBuilder(GetDataFlowConnectionString());
@@ -134,7 +132,7 @@ namespace transform_api_load_janitor
             ApiData.Clear();
         }
 
-        private static async Task InsertBootrapData(DataFlowContext ctx)
+        internal static async Task InsertBootrapData(DataFlowContext ctx)
         {
             var bootStrapPayloads =
                 ctx.bootstrapdatas.Where(p => p.ProcessedDate.HasValue == false).OrderBy(p => p.ProcessingOrder).ToList();
@@ -377,24 +375,24 @@ namespace transform_api_load_janitor
         {
             return ctx.configurations.Where(p => p.Key == "API_SERVER_BASEURL").First().Value;
         }
-        private static string GetAccessTokenUrl(DataFlowContext ctx)
+        internal static string GetAccessTokenUrl(DataFlowContext ctx)
         {
             string baseUrl = GetApiBaseUrl(ctx);
             return baseUrl + "/oauth/token";
         }
 
-        private static string GetAuthorizeUrl(DataFlowContext ctx)
+        internal static string GetAuthorizeUrl(DataFlowContext ctx)
         {
             string baseUrl = GetApiBaseUrl(ctx);
             return baseUrl + "/oauth/authorize";
         }
 
-        private static string GetApiClientSecret(DataFlowContext ctx)
+        internal static string GetApiClientSecret(DataFlowContext ctx)
         {
             return ctx.configurations.Where(p => p.Key == "API_SERVER_SECRET").First().Value;
         }
 
-        private static string GetApiClientId(DataFlowContext ctx)
+        internal static string GetApiClientId(DataFlowContext ctx)
         {
             return ctx.configurations.Where(p => p.Key == "API_SERVER_KEY").First().Value;
         }
@@ -416,7 +414,7 @@ namespace transform_api_load_janitor
             return strUrl;
         }
 
-        private static async Task<string> RetrieveAccessToken(string accessTokenUrl, string clientId, string clientSecret, string authCode)
+        internal static async Task<string> RetrieveAccessToken(string accessTokenUrl, string clientId, string clientSecret, string authCode)
         {
             if (_accessToken == null)
             {
@@ -446,7 +444,7 @@ namespace transform_api_load_janitor
             return _accessToken;
         }
 
-        private static async Task<string> RetrieveAuthorizationCode(string authorizeUrl, string clientId)
+        internal static async Task<string> RetrieveAuthorizationCode(string authorizeUrl, string clientId)
         {
             string code = string.Empty;
             using (HttpClient httpClient = new HttpClient())
