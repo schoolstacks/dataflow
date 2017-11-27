@@ -227,6 +227,7 @@
     <Compile Include="Controllers\AgentController.cs" />
     <Compile Include="Controllers\AssessmentController.cs" />
     <Compile Include="Controllers\ConfigurationController.cs" />
+    <Compile Include="Controllers\DataMapperController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Controllers\LookupController.cs" />
@@ -353,6 +354,7 @@
     <Content Include="Views\Assessment\Edit.cshtml" />
     <Content Include="Views\Assessment\_PartialAssessmentForm.cshtml" />
     <Content Include="Views\School\AssessmentDetails.cshtml" />
+    <Content Include="Views\DataMapper\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
