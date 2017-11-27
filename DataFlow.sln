@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2009
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Web", "DataFlow.Web\DataFlow.Web.csproj", "{43A3C714-FDFE-4F61-889C-7DBA8607A9D0}"
 EndProject
@@ -21,8 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server-components-data-acce
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "statistics-janitor", "DataFlow.Server\components\statistics-janitor\statistics-janitor.csproj", "{C3881D0B-5001-4605-9477-40AE1106C0B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "transform-api-load-janitor", "DataFlow.Server\components\transform-api-load-janitor\transform-api-load-janitor.csproj", "{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Common", "DataFlow.Common\DataFlow.Common.csproj", "{17FC1AF4-3EFE-4851-82AF-7C5D48EEF17B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Models", "DataFlow.Models\DataFlow.Models.csproj", "{54C8616A-ECCD-4AD5-A88B-A2266350BF0D}"
@@ -30,6 +28,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Server.FileTransport", "DataFlow.Server\DataFlow.Server.FileTransport\DataFlow.Server.FileTransport.csproj", "{0115FCCE-7DBB-46B3-A6DF-71FE93101604}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.EdFi", "DataFlow.EdFi\DataFlow.EdFi.csproj", "{22F2E398-25B6-46D6-9F58-D226D2A685B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Server.TransformLoad", "DataFlow.Server\DataFlow.Server.TransformLoad\DataFlow.Server.TransformLoad.csproj", "{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataFlow.Server.UnitTests", "DataFlow.Server.UnitTests", "{31F85B45-BDB5-4269-BB47-816B19588681}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Server.TransformLoad.Tests", "DataFlow.Server.TransformLoad.Tests\DataFlow.Server.TransformLoad.Tests.csproj", "{863850E2-B8B6-4605-9E36-987CBC3F8FD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,10 +75,6 @@ Global
 		{C3881D0B-5001-4605-9477-40AE1106C0B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3881D0B-5001-4605-9477-40AE1106C0B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3881D0B-5001-4605-9477-40AE1106C0B2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{17FC1AF4-3EFE-4851-82AF-7C5D48EEF17B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{17FC1AF4-3EFE-4851-82AF-7C5D48EEF17B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17FC1AF4-3EFE-4851-82AF-7C5D48EEF17B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -91,6 +91,14 @@ Global
 		{22F2E398-25B6-46D6-9F58-D226D2A685B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22F2E398-25B6-46D6-9F58-D226D2A685B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22F2E398-25B6-46D6-9F58-D226D2A685B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{863850E2-B8B6-4605-9E36-987CBC3F8FD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{863850E2-B8B6-4605-9E36-987CBC3F8FD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{863850E2-B8B6-4605-9E36-987CBC3F8FD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{863850E2-B8B6-4605-9E36-987CBC3F8FD7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,8 +110,10 @@ Global
 		{16ABF055-FFA8-462D-A676-431D64D2D05B} = {C3268160-8F52-46C9-9281-2EE24101BE63}
 		{1DB45F34-FA44-4C37-A240-E7B139D1BAFB} = {C3268160-8F52-46C9-9281-2EE24101BE63}
 		{C3881D0B-5001-4605-9477-40AE1106C0B2} = {C3268160-8F52-46C9-9281-2EE24101BE63}
-		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC} = {C3268160-8F52-46C9-9281-2EE24101BE63}
 		{0115FCCE-7DBB-46B3-A6DF-71FE93101604} = {C3268160-8F52-46C9-9281-2EE24101BE63}
+		{D0365EDB-AEC3-49DA-89AD-6FCFFE586DCC} = {C3268160-8F52-46C9-9281-2EE24101BE63}
+		{31F85B45-BDB5-4269-BB47-816B19588681} = {C3268160-8F52-46C9-9281-2EE24101BE63}
+		{863850E2-B8B6-4605-9E36-987CBC3F8FD7} = {31F85B45-BDB5-4269-BB47-816B19588681}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C8E4565E-D789-425C-80A7-C7A7F42A37CF}

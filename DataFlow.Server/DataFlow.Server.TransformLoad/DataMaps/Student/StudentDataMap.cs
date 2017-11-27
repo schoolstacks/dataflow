@@ -1,11 +1,11 @@
-﻿using System;
+﻿using DataFlow.Server.TransformLoad.DataMaps.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using transform_api_load_janitor.DataMaps.Interfaces;
 
-namespace transform_api_load_janitor.DataMaps.Student
+namespace DataFlow.Server.TransformLoad.Student
 {
 
     public class StudentDataMap : IDataMap
