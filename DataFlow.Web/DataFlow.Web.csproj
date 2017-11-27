@@ -258,6 +258,9 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\footable.bootstrap.css" />
     <Content Include="Content\footable.bootstrap.min.css" />
+    <Content Include="Content\Images\edfi-logo.png" />
+    <Content Include="Content\Images\minus.png" />
+    <Content Include="Content\Images\plus.png" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -349,6 +352,7 @@
     <Content Include="Views\Assessment\Add.cshtml" />
     <Content Include="Views\Assessment\Edit.cshtml" />
     <Content Include="Views\Assessment\_PartialAssessmentForm.cshtml" />
+    <Content Include="Views\School\AssessmentDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

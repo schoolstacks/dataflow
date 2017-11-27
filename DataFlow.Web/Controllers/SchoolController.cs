@@ -59,6 +59,20 @@ namespace DataFlow.Web.Controllers
             return View(vm);
         }
 
+        public ActionResult AssessmentDetails(string id)
+        {
+            var assessment = edFiService.GetAssessmentById(id);
+            var studentAssessments = edFiService.GetStudentAssessmentsByAssessmentId(id);
+
+            var vm = new SchoolViewModel.AssessmentDetail()
+            {
+                Assessment = assessment,
+                StudentAssessments = studentAssessments
+            };
+
+            return View(vm);
+        }
+
         public ActionResult Add()
         {
             var vm = new SchoolViewModel.AddOrUpdate
