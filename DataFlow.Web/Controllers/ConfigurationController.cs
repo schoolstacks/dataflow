@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using DataFlow.Common;
-using DataFlow.Common.DAL;
+using DataFlow.Common.Services;
 using DataFlow.EdFi.Api.Resources;
 using DataFlow.EdFi.Sdk;
 using DataFlow.Web.Helpers;
@@ -15,12 +12,10 @@ namespace DataFlow.Web.Controllers
 {
     public class ConfigurationController : BaseController
     {
-        private readonly DataFlowDbContext dataFlowDbContext;
         private readonly EdFiService edFiService;
 
-        public ConfigurationController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService)
+        public ConfigurationController(EdFiService edFiService, ICentralLogger logger) : base(logger)
         {
-            this.dataFlowDbContext = dataFlowDbContext;
             this.edFiService = edFiService;
         }
 
