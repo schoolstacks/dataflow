@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
+using DataFlow.Common.Services;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Services;
 
@@ -14,7 +15,7 @@ namespace DataFlow.Web.Controllers
         private readonly DataFlowDbContext dataFlowDbContext;
         private readonly EdFiService edFiService;
 
-        public DataMapperController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService)
+        public DataMapperController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService, ICentralLogger logger) : base(logger)
         {
             this.dataFlowDbContext = dataFlowDbContext;
             this.edFiService = edFiService;

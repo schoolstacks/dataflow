@@ -242,6 +242,7 @@
     <Compile Include="Helpers\Common.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AssessmentViewModel.cs" />
+    <Compile Include="Models\DataMapperViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\LogsViewModel.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
