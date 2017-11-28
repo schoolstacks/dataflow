@@ -16,7 +16,7 @@
     }
 </style>
 
-@using (Html.BeginForm("Index", "DataMapper", FormMethod.Post, new { @class = "form-horizontal" }))
+@using (Html.BeginForm("Index", "DataMapper", FormMethod.Post, new { @class = "form-horizontal", id="frmDataMapper" }))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -64,4 +64,26 @@
             @Html.ValidationMessageFor(m => m.JsonMap)
         </div>
     </div>
+    @Html.Hidden("FieldNames", string.Join(";",Model.Fields))
+}
+@section scripts{
+    <script type="text/javascript">
+        $(".field-block").change(function () {
+            var frmData = $("#frmDataMapper").serialize();
+            var jsonMap = $("#JsonMap");
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateJsonMap", "DataMapper")',
+                data: frmData,
+                dataType: "json",
+                success: function (data) {
+                    $("#JsonMap").val(data);
+                },
+                fail: function (data) {
+                    alert("Unable to connect to the API.");
+                }
+            });
+        });
+    </script>
 }

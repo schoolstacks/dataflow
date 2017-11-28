@@ -240,8 +240,10 @@
     <Compile Include="Helpers\BaseController.cs" />
     <Compile Include="Helpers\Constants.cs" />
     <Compile Include="Helpers\Common.cs" />
+    <Compile Include="Helpers\JsonHelper.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AssessmentViewModel.cs" />
+    <Compile Include="Models\DataMapper.cs" />
     <Compile Include="Models\DataMapperViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\LogsViewModel.cs" />
