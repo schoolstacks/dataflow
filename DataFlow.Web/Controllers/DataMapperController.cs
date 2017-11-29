@@ -31,10 +31,7 @@ namespace DataFlow.Web.Controllers
         {
             var vm = new DataMapperViewModel
             {
-                Entities = GetEntityList,
-                DataSources = GetDataSourceList,
-                SourceTables = GetSourceTableList,
-                Fields = new List<DataMapperViewModel.Field>()
+                Entities = GetEntityList
             };
 
             return View(vm);
@@ -81,7 +78,7 @@ namespace DataFlow.Web.Controllers
             {
                 MapName = formCollection["MapName"],
                 MapToEntity = formCollection["MapToEntity"],
-                JsonMap = formCollection["JsonMap"],
+                JsonMap = string.Empty,
                 Entities = GetEntityList,
                 DataSources = GetDataSourceList,
                 SourceTables = GetSourceTableList,
