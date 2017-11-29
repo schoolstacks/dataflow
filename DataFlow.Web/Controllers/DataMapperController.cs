@@ -36,6 +36,21 @@ namespace DataFlow.Web.Controllers
                 Entities = GetEntityList
             };
 
+            if (TempData["CsvColumnHeaders"] is string csvColumnHeaders)
+            {
+                vm.CsvColumnHeaders = csvColumnHeaders.Split(',').ToList();
+            }
+
+            if (TempData["ShowInfoMessage"] is bool showInfoMessage)
+            {
+                vm.ShowInfoMessage = showInfoMessage;
+            }
+
+            if (TempData["InfoMessage"] is string infoMessage)
+            {
+                vm.InfoMessage = infoMessage;
+            }
+
             return View(vm);
         }
 
@@ -65,10 +80,11 @@ namespace DataFlow.Web.Controllers
                 Entities = GetEntityList,
                 DataSources = GetDataSourceList,
                 SourceTables = GetSourceTableList,
-                Fields = new List<DataMapperViewModel.Field>()
+                Fields = new List<DataMapperViewModel.Field>(),
+                CsvColumnHeaders = new List<string>(),
+                ShowInfoMessage = true,
+                InfoMessage = "Data Map was created successfully!"
             };
-
-            ViewBag.Success = true;
 
             return View(vm);
         }
@@ -126,11 +142,11 @@ namespace DataFlow.Web.Controllers
                     Name = f,
                     DataMapperProperty = new DataMapperProperty
                     {
-                        Source = formCollection[$"txt{f}_SourceType"].NullIfWhiteSpace(),
-                        SourceColumn = formCollection[$"txt{f}_SourceColumn"].NullIfWhiteSpace(),
+                        Source = formCollection[$"ddl{f}_SourceType"].NullIfWhiteSpace(),
+                        SourceColumn = formCollection[$"ddl{f}_SourceColumn"].NullIfWhiteSpace(),
                         DataType = formCollection[$"hf{f}_DataType"].NullIfWhiteSpace(),
                         Default = formCollection[$"txt{f}_DefaultValue"].NullIfWhiteSpace(),
-                        SourceTable = formCollection[$"txt{f}_SourceTable"].NullIfWhiteSpace(),
+                        SourceTable = formCollection[$"ddl{f}_SourceTable"].NullIfWhiteSpace(),
                         Value = formCollection[$"txt{f}_StaticValue"].NullIfWhiteSpace()
                     }
                 };
@@ -150,18 +166,13 @@ namespace DataFlow.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UploadFile(HttpPostedFileBase uploadCsvFile)
         {
-            var vm = new DataMapperViewModel
-            {
-                Entities = GetEntityList
-            };
-
             try
             {
                 if (uploadCsvFile.ContentLength > 0)
                 {
                     using (var streamReader = new StreamReader(uploadCsvFile.InputStream))
                     {
-                        vm.CsvColumnHeaders = streamReader.ReadLine()?.Split(',').ToList();
+                        TempData["CsvColumnHeaders"] = streamReader.ReadLine();
                     }
                 }
             }
@@ -170,7 +181,10 @@ namespace DataFlow.Web.Controllers
                 Logger.Error("Data Mapper Error Uploading File", ex);
             }
 
-            return RedirectToAction("Index", vm);
+            TempData["ShowInfoMessage"] = true;
+            TempData["InfoMessage"] = "File Uploaded! Please continue creating your map below.";
+
+            return RedirectToAction("Index");
         }
 
         private List<SelectListItem> GetEntityList
