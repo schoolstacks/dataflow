@@ -2,7 +2,6 @@
 
 @Html.AntiForgeryToken()
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-<h4>API Server</h4>
 <div class="form-group">
     <div class="col-sm-2">
         @Html.LabelFor(m => m.Name, new { @class = "control-label" })

@@ -58,7 +58,7 @@ namespace DataFlow.Web.Services
                     {
                         if (field.Type == "array")
                         {
-                            var array = new JArray {GetApiPayloadfromSwaggerEntity(json, field.SubType)};
+                            var array = new JArray { GetApiPayloadfromSwaggerEntity(json, field.SubType) };
                             returnObject.Add(field.Name, array);
                         }
                         else
@@ -92,39 +92,45 @@ namespace DataFlow.Web.Services
 
             var fieldList = new List<EdFiMetadataProcessorField>();
 
-            foreach (var jToken in jsonObj["models"][entityJsonName]["properties"])
+            try
             {
-                var property = (JProperty) jToken;
-                var returnField = new EdFiMetadataProcessorField
+                foreach (var jToken in jsonObj["models"][entityJsonName]["properties"])
                 {
-                    Name = property.Name,
-                    Required = false
-                };
-                try
-                {
-
-                    foreach (var jToken1 in property)
+                    var property = (JProperty)jToken;
+                    var returnField = new EdFiMetadataProcessorField
                     {
-                        var variable = (JObject) jToken1;
-                        if (variable["required"].ToString() == "True")
+                        Name = property.Name,
+                        Required = false
+                    };
+                    try
+                    {
+                        foreach (var jToken1 in property)
                         {
-                            returnField.Required = true;
-                        }
-                        returnField.Type = variable["type"].ToString();
+                            var variable = (JObject)jToken1;
+                            if (variable["required"].ToString() == "True")
+                            {
+                                returnField.Required = true;
+                            }
+                            returnField.Type = variable["type"].ToString();
 
-                        if (returnField.Type == "array")
-                        {
-                            returnField.SubType = variable["items"]["$ref"].Value<string>();
+                            if (returnField.Type == "array")
+                            {
+                                returnField.SubType = variable["items"]["$ref"].Value<string>();
 
+                            }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    logger.Error("EdFiMetaDataProcessor Error", ex);
-                }
+                    catch (Exception ex)
+                    {
+                        logger.Error("EdFiMetaDataProcessor Error Getting Properties", ex);
+                    }
 
-                fieldList.Add(returnField);
+                    fieldList.Add(returnField);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error("EdFiMetaDataProcessor Error", ex);
             }
 
             return fieldList;

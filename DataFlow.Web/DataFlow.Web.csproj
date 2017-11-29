@@ -360,6 +360,7 @@
     <Content Include="Views\Assessment\_PartialAssessmentForm.cshtml" />
     <Content Include="Views\School\AssessmentDetails.cshtml" />
     <Content Include="Views\DataMapper\Index.cshtml" />
+    <Content Include="Views\DataMapper\_PartialDataMapperFields.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
