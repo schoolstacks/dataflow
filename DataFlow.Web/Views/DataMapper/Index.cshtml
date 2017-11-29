@@ -16,7 +16,7 @@
     }
 </style>
 
-@if (((bool?) ViewBag.Success).GetValueOrDefault(false))
+@if (((bool?)ViewBag.Success).GetValueOrDefault(false))
 {
     <div class="panel panel-success">
         <div class="panel-heading">Success</div>
@@ -24,7 +24,26 @@
     </div>
 }
 
-@using (Html.BeginForm("Index", "DataMapper", FormMethod.Post, new { @class = "form-horizontal", id="frmDataMapper" }))
+@using (Html.BeginForm("UploadFile", "DataMapper", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="form-group">
+        <div class="col-sm-2">
+            @Html.Label("CSV File", new { @class = "control-label", @for = "uploadCsvFile" })
+        </div>
+        <div class="col-sm-10">
+            @Html.TextBox("uploadCsvFile", null, new { @class = "form-control", type = "file" })
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button id="btnUpload" type="submit" class="btn btn-primary">Upload</button>
+        </div>
+    </div>
+}
+
+@using (Html.BeginForm("Index", "DataMapper", FormMethod.Post, new { @class = "form-horizontal", id = "frmDataMapper" }))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -58,6 +77,7 @@
     </div>
     <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10">
+            @Html.Hidden("CsvColumnHeaders", string.Join(",", Model.CsvColumnHeaders))
             <button id="btnSubmit" type="submit" class="btn btn-primary">Save Map</button>
         </div>
     </div>
