@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Web.Mvc;
 
 namespace DataFlow.Web.Models
@@ -15,6 +16,12 @@ namespace DataFlow.Web.Models
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an entity to map to.")]
         public string MapToEntity { get; set; }
         public List<Field> Fields { get; set; }
+        public List<string> CsvColumnHeaders { get; set; }
+
+        public List<SelectListItem> CsvColumnHeaderList
+        {
+            get { return CsvColumnHeaders.Select(x => new SelectListItem() {Text = x, Value = x}).ToList(); }
+        }
         [Display(Name = "Json Map")]
         public string JsonMap { get; set; }
 

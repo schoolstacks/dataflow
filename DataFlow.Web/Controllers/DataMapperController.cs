@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
 using DataFlow.Common.ExtensionMethods;
@@ -82,6 +84,7 @@ namespace DataFlow.Web.Controllers
                 Entities = GetEntityList,
                 DataSources = GetDataSourceList,
                 SourceTables = GetSourceTableList,
+                CsvColumnHeaders = formCollection["CsvColumnHeaders"].Split(',').ToList(),
                 Fields = new List<DataMapperViewModel.Field>()
             };
 
@@ -141,6 +144,33 @@ namespace DataFlow.Web.Controllers
             var jsonMap = cleanJson.ToString(Formatting.Indented);
 
             return Json(jsonMap);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UploadFile(HttpPostedFileBase uploadCsvFile)
+        {
+            var vm = new DataMapperViewModel
+            {
+                Entities = GetEntityList
+            };
+
+            try
+            {
+                if (uploadCsvFile.ContentLength > 0)
+                {
+                    using (var streamReader = new StreamReader(uploadCsvFile.InputStream))
+                    {
+                        vm.CsvColumnHeaders = streamReader.ReadLine()?.Split(',').ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Data Mapper Error Uploading File", ex);
+            }
+
+            return RedirectToAction("Index", vm);
         }
 
         private List<SelectListItem> GetEntityList
