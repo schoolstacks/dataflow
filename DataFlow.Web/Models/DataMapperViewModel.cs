@@ -8,6 +8,15 @@ namespace DataFlow.Web.Models
 {
     public class DataMapperViewModel
     {
+        public DataMapperViewModel()
+        {
+            Entities = new List<SelectListItem>();
+            Fields = new List<Field>();
+            CsvColumnHeaders = new List<string>();
+            SourceTables = new List<SelectListItem>();
+            DataSources = new List<SelectListItem>();
+        }
+
         [Display(Name = "Map Name")]
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a map name.")]
         public string MapName { get; set; }
@@ -18,15 +27,27 @@ namespace DataFlow.Web.Models
         public List<Field> Fields { get; set; }
         public List<string> CsvColumnHeaders { get; set; }
 
-        public List<SelectListItem> CsvColumnHeaderList
+        public List<SelectListItem> SourceColumns
         {
-            get { return CsvColumnHeaders.Select(x => new SelectListItem() {Text = x, Value = x}).ToList(); }
+            get
+            {
+                var souceColumns = new List<SelectListItem>
+                {
+                    new SelectListItem {Text = "Select Source Column", Value = string.Empty}
+                };
+                souceColumns.AddRange(CsvColumnHeaders.Select(x => new SelectListItem() { Text = x, Value = x }));
+
+                return souceColumns;
+            }
         }
         [Display(Name = "Json Map")]
         public string JsonMap { get; set; }
 
         public List<SelectListItem> SourceTables { get; set; }
         public List<SelectListItem> DataSources { get; set; }
+
+        public bool ShowInfoMessage { get; set; }
+        public string InfoMessage { get; set; }
 
         public class Field
         {

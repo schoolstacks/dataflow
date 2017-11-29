@@ -5,18 +5,23 @@
 {
     <div class="form-group">
         <div class="col-sm-2">
-            <label id="@($"lbl{t.Name}")" name="@($"lbl{t.Name}")" for="@($"txt{t.Name}_SourceColumn")">@($"{t.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
+            <label id="@($"lbl{t.Name}")" name="@($"lbl{t.Name}")" for="@($"ddl{t.Name}_SourceColumn")">@($"{t.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
         </div>
         <div class="col-sm-10 field-block">
-            <input id="@($"txt{t.Name}_SourceColumn")" name="@($"txt{t.Name}_SourceColumn")" type="text" class="form-control" placeholder="Source Column" />
-            <select id="@($"txt{t.Name}_SourceType")" name="@($"txt{t.Name}_SourceType")" class="form-control">
+            <select id="@($"ddl{t.Name}_SourceColumn")" name="@($"ddl{t.Name}_SourceColumn")" class="form-control">
+                @foreach (var sourceColumn in Model.SourceColumns)
+                {
+                    <option value="@sourceColumn.Value">@sourceColumn.Text</option>
+                }
+            </select>
+            <select id="@($"ddl{t.Name}_SourceType")" name="@($"ddl{t.Name}_SourceType")" class="form-control">
                 @foreach (var sourceType in Model.DataSources)
                 {
                     <option value="@sourceType.Value">@sourceType.Text</option>
                 }
             </select>
             <input id="@($"txt{t.Name}_DefaultValue")" name="@($"txt{t.Name}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" />
-            <select id="@($"txt{t.Name}_SourceTable")" name="@($"txt{t.Name}_SourceTable")" class="form-control">
+            <select id="@($"ddl{t.Name}_SourceTable")" name="@($"ddl{t.Name}_SourceTable")" class="form-control">
                 @foreach (var sourceTable in Model.SourceTables)
                 {
                     <option value="@sourceTable.Value">@sourceTable.Text</option>

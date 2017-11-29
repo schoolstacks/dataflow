@@ -16,11 +16,11 @@
     }
 </style>
 
-@if (((bool?)ViewBag.Success).GetValueOrDefault(false))
+@if (Model.ShowInfoMessage)
 {
     <div class="panel panel-success">
         <div class="panel-heading">Success</div>
-        <div class="panel-body">Data Map was created successfully!</div>
+        <div class="panel-body">@Model.InfoMessage</div>
     </div>
 }
 
