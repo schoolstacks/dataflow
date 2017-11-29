@@ -73,6 +73,7 @@
                 data: frmData,
                 success: function (data) {
                     $('#divModelFields').html(data);
+                    $("#JsonMap").val("");
                 },
                 fail: function (data) {
                     alert("Error: " + data);

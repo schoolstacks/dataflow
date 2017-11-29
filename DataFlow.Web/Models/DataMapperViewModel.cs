@@ -15,6 +15,7 @@ namespace DataFlow.Web.Models
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an entity to map to.")]
         public string MapToEntity { get; set; }
         public List<Field> Fields { get; set; }
+        [Display(Name = "Json Map")]
         public string JsonMap { get; set; }
 
         public List<SelectListItem> SourceTables { get; set; }
