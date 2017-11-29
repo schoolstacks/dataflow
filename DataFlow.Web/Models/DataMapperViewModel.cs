@@ -14,34 +14,22 @@ namespace DataFlow.Web.Models
         [Display(Name = "Map to Entity")]
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an entity to map to.")]
         public string MapToEntity { get; set; }
-        public List<string> Fields { get; set; }
+        public List<Field> Fields { get; set; }
         public string JsonMap { get; set; }
 
-        public class Enums
+        public List<SelectListItem> SourceTables { get; set; }
+        public List<SelectListItem> DataSources { get; set; }
+
+        public class Field
         {
-            public enum Sources
+            public Field(string name, string dataType)
             {
-                [Description("column")]
-                Column,
-                [Description("lookup_table")]
-                LookupTable,
-                [Description("static")]
-                Static
+                Name = name;
+                DataType = dataType;
             }
 
-            public enum DataTypes
-            {
-                [Description("boolean")]
-                Boolean,
-                [Description("date")]
-                Date,
-                [Description("date-time")]
-                DateTime,
-                [Description("integer")]
-                Integer,
-                [Description("string")]
-                String
-            }
+            public string Name { get; set; }
+            public string DataType { get; set; }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
@@ -28,22 +29,87 @@ namespace DataFlow.Web.Controllers
 
         public ActionResult Index()
         {
-            var vm = new DataMapperViewModel();
-            vm.Entities = GetEntityList;
-            vm.Fields = new List<string>
+            var vm = new DataMapperViewModel
             {
-                "FieldOne",
-                "FieldTwo",
-                "FieldThree"
+                Entities = GetEntityList,
+                DataSources = GetDataSourceList,
+                SourceTables = GetSourceTableList,
+                Fields = new List<DataMapperViewModel.Field>()
             };
 
             return View(vm);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Index(DataMapperViewModel vm)
         {
+            var map = new DataFlow.Models.DataMap
+            {
+                Name = vm.MapName,
+                EntityId = Convert.ToInt32(vm.MapToEntity),
+                Map = vm.JsonMap,
+                CreateDate = DateTime.Now,
+                UpdateDate = DateTime.Now
+            };
+
+            dataFlowDbContext.DataMaps.Add(map);
+            dataFlowDbContext.SaveChanges();
+
+            ModelState.Clear();
+
+            vm = new DataMapperViewModel
+            {
+                MapName = string.Empty,
+                MapToEntity = string.Empty,
+                JsonMap = string.Empty,
+                Entities = GetEntityList,
+                DataSources = GetDataSourceList,
+                SourceTables = GetSourceTableList,
+                Fields = new List<DataMapperViewModel.Field>()
+            };
+
+            ViewBag.Success = true;
+
             return View(vm);
+        }
+
+        [HttpPost]
+        public ActionResult AddModelFields(FormCollection formCollection)
+        {
+            var vm = new DataMapperViewModel
+            {
+                MapName = formCollection["MapName"],
+                MapToEntity = formCollection["MapToEntity"],
+                JsonMap = formCollection["JsonMap"],
+                Entities = GetEntityList,
+                DataSources = GetDataSourceList,
+                SourceTables = GetSourceTableList,
+                Fields = new List<DataMapperViewModel.Field>()
+            };
+
+            if (int.TryParse(vm.MapToEntity, out var entityId))
+            {
+                var entitySelected = dataFlowDbContext.Entities.FirstOrDefault(x => x.Id == entityId);
+                if (!string.IsNullOrWhiteSpace(entitySelected?.Url))
+                {
+                    var entityJson = edFiMetadataProcessor.GetJsonFromUrl(entitySelected.Url);
+                    var apiFields = edFiMetadataProcessor.GetFieldListFromJson(entityJson, entitySelected.Name)
+                        .Where(x => x.Required)
+                        .ToList();
+
+                    apiFields.ForEach(x =>
+                    {
+                        if (x.Name == "id")
+                            return;
+
+                        if (x.Required)
+                            vm.Fields.Add(new DataMapperViewModel.Field(x.Name, x.Type));
+                    });
+                }
+            }
+
+            return PartialView("_PartialDataMapperFields", vm);
         }
 
         [HttpPost]
@@ -62,7 +128,7 @@ namespace DataFlow.Web.Controllers
                     {
                         Source = formCollection[$"txt{f}_SourceType"].NullIfWhiteSpace(),
                         SourceColumn = formCollection[$"txt{f}_SourceColumn"].NullIfWhiteSpace(),
-                        DataType = "string",
+                        DataType = formCollection[$"hf{f}_DataType"].NullIfWhiteSpace(),
                         Default = formCollection[$"txt{f}_DefaultValue"].NullIfWhiteSpace(),
                         SourceTable = formCollection[$"txt{f}_SourceTable"].NullIfWhiteSpace(),
                         Value = formCollection[$"txt{f}_StaticValue"].NullIfWhiteSpace()
@@ -71,6 +137,8 @@ namespace DataFlow.Web.Controllers
 
                 jObject.Add(model.Name, JObject.FromObject(model.DataMapperProperty));
             });
+
+            jObject.Add("_required", JArray.FromObject(fields));
 
             var cleanJson = JsonHelper.RemoveEmptyChildren(jObject);
             var jsonMap = cleanJson.ToString(Formatting.Indented);
@@ -82,18 +150,47 @@ namespace DataFlow.Web.Controllers
         {
             get
             {
-                var entityList = new List<SelectListItem>();
-                entityList.Add(new SelectListItem { Text = "Select Entity", Value = string.Empty });
+                var entityList = new List<SelectListItem>
+                {
+                    new SelectListItem {Text = "Select Entity", Value = string.Empty}
+                };
                 entityList.AddRange(dataFlowDbContext.Entities
                     .OrderBy(x => x.Name)
-                    .Select(x =>
-                        new SelectListItem
-                        {
-                            Text = x.Name,
-                            Value = x.Id.ToString()
-                        }));
+                    .Select(x => new SelectListItem {Text = x.Name, Value = x.Id.ToString()}));
 
                 return entityList;
+            }
+        }
+
+        private List<SelectListItem> GetDataSourceList
+        {
+            get
+            {
+                var dataTypeList = new List<SelectListItem>
+                {
+                    new SelectListItem {Text = "Select Data Source", Value = string.Empty}
+                };
+                dataTypeList.AddRange(Enum.GetValues(typeof(DataMapperEnums.Sources))
+                    .Cast<DataMapperEnums.Sources>()
+                    .Select(x => new SelectListItem {Text = x.GetDescription(), Value = x.GetDescription()}));
+
+                return dataTypeList;
+            }
+        }
+
+        private List<SelectListItem> GetSourceTableList
+        {
+            get
+            {
+                var sourceTableList = new List<SelectListItem>
+                {
+                    new SelectListItem {Text = "Select Source Table", Value = string.Empty}
+                };
+                sourceTableList.AddRange(dataFlowDbContext.Lookups
+                    .Select(x => new SelectListItem {Text = x.GroupSet, Value = x.GroupSet})
+                    .Distinct());
+
+                return sourceTableList;
             }
         }
     }

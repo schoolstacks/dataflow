@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.ComponentModel;
+using Newtonsoft.Json;
 
 namespace DataFlow.Web.Models
 {
@@ -28,5 +29,32 @@ namespace DataFlow.Web.Models
 
         [JsonProperty(PropertyName = "value", NullValueHandling = NullValueHandling.Ignore)]
         public string Value { get; set; }
+    }
+
+    public class DataMapperEnums
+    {
+        public enum Sources
+        {
+            [Description("column")]
+            Column,
+            [Description("lookup_table")]
+            LookupTable,
+            [Description("static")]
+            Static
+        }
+
+        public enum DataTypes
+        {
+            [Description("boolean")]
+            Boolean,
+            [Description("date")]
+            Date,
+            [Description("date-time")]
+            DateTime,
+            [Description("integer")]
+            Integer,
+            [Description("string")]
+            String
+        }
     }
 }
