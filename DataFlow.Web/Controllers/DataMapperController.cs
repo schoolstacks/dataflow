@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Web;
+using System.Web.Helpers;
 using System.Web.Mvc;
+using CsvHelper;
 using DataFlow.Common.DAL;
 using DataFlow.Common.ExtensionMethods;
 using DataFlow.Common.Services;
@@ -41,6 +45,16 @@ namespace DataFlow.Web.Controllers
                 vm.CsvColumnHeaders = csvColumnHeaders.Split(',').ToList();
             }
 
+            if (TempData["CsvDataPreview"] is DataTable csvDataTable)
+            {
+                vm.CsvPreviewDataTable = csvDataTable;
+            }
+
+            if (TempData["IsSuccess"] is bool isSuccess)
+            {
+                vm.IsSuccess = isSuccess;
+            }
+
             if (TempData["ShowInfoMessage"] is bool showInfoMessage)
             {
                 vm.ShowInfoMessage = showInfoMessage;
@@ -58,35 +72,51 @@ namespace DataFlow.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Index(DataMapperViewModel vm)
         {
-            var map = new DataFlow.Models.DataMap
+            try
             {
-                Name = vm.MapName,
-                EntityId = Convert.ToInt32(vm.MapToEntity),
-                Map = vm.JsonMap,
-                CreateDate = DateTime.Now,
-                UpdateDate = DateTime.Now
-            };
+                var map = new DataFlow.Models.DataMap
+                {
+                    Name = vm.MapName,
+                    EntityId = Convert.ToInt32(vm.MapToEntity),
+                    Map = vm.JsonMap,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now
+                };
 
-            dataFlowDbContext.DataMaps.Add(map);
-            dataFlowDbContext.SaveChanges();
+                dataFlowDbContext.DataMaps.Add(map);
+                dataFlowDbContext.SaveChanges();
 
-            ModelState.Clear();
+                ModelState.Clear();
 
-            vm = new DataMapperViewModel
+                vm = new DataMapperViewModel
+                {
+                    MapName = string.Empty,
+                    MapToEntity = string.Empty,
+                    JsonMap = string.Empty,
+                    Entities = GetEntityList,
+                    DataSources = GetDataSourceList,
+                    SourceTables = GetSourceTableList,
+                    Fields = new List<DataMapperViewModel.Field>(),
+                    CsvColumnHeaders = new List<string>(),
+                    IsSuccess = true,
+                    ShowInfoMessage = true,
+                    InfoMessage = "Data Map was created successfully!"
+                };
+
+                return View(vm);
+            }
+            catch (Exception ex)
             {
-                MapName = string.Empty,
-                MapToEntity = string.Empty,
-                JsonMap = string.Empty,
-                Entities = GetEntityList,
-                DataSources = GetDataSourceList,
-                SourceTables = GetSourceTableList,
-                Fields = new List<DataMapperViewModel.Field>(),
-                CsvColumnHeaders = new List<string>(),
-                ShowInfoMessage = true,
-                InfoMessage = "Data Map was created successfully!"
-            };
+                Logger.Error("Error Saving Advanced Data Map", ex);
+                vm.Entities = GetEntityList;
+                vm.DataSources = GetDataSourceList;
+                vm.SourceTables = GetSourceTableList;
+                vm.IsSuccess = false;
+                vm.ShowInfoMessage = true;
+                vm.InfoMessage = "There was an error saving the data map.";
 
-            return View(vm);
+                return View(vm);
+            }
         }
 
         [HttpPost]
@@ -170,19 +200,66 @@ namespace DataFlow.Web.Controllers
             {
                 if (uploadCsvFile.ContentLength > 0)
                 {
+                    var csvDataTable = new DataTable();
+
+                    var csvPreviewHeaders = new List<string>();
+                    var linesToRead = 5;
+                    var linesRead = 1;
+
+                    var csvConfg = new CsvHelper.Configuration.Configuration
+                    {
+                        HasHeaderRecord = true,
+                        TrimOptions = CsvHelper.Configuration.TrimOptions.InsideQuotes,
+                        MissingFieldFound = null,
+                    };
+
                     using (var streamReader = new StreamReader(uploadCsvFile.InputStream))
                     {
-                        TempData["CsvColumnHeaders"] = streamReader.ReadLine();
+                        using (var csvHelper = new CsvReader(streamReader, csvConfg))
+                        {
+                            csvHelper.Read();
+                            csvHelper.ReadHeader();
+                            csvPreviewHeaders.AddRange(csvHelper.Context.HeaderRecord);
+                            TempData["CsvColumnHeaders"] = string.Join(",", csvPreviewHeaders);
+
+                            csvPreviewHeaders.ForEach(x =>
+                            {
+                                csvDataTable.Columns.Add(x);
+
+                            });
+                            csvHelper.Read();
+                            do
+                            {
+                                var row = csvDataTable.NewRow();
+                                foreach (DataColumn column in csvDataTable.Columns)
+                                {
+                                    row[column.ColumnName] = csvHelper.GetField(column.DataType, column.ColumnName);
+                                }
+                                csvDataTable.Rows.Add(row);
+                                linesRead++;
+                            } while (csvHelper.Read() && linesRead <= linesToRead);
+                        }
                     }
+
+                    TempData["CsvDataPreview"] = csvDataTable;
+                    TempData["IsSuccess"] = true;
+                    TempData["ShowInfoMessage"] = true;
+                    TempData["InfoMessage"] = "File Uploaded! Please continue creating your map below.";
+                }
+                else
+                {
+                    TempData["IsSuccess"] = false;
+                    TempData["ShowInfoMessage"] = true;
+                    TempData["InfoMessage"] = "The file you've uploaded does not contain any information.";
                 }
             }
             catch (Exception ex)
             {
                 Logger.Error("Data Mapper Error Uploading File", ex);
+                TempData["IsSuccess"] = false;
+                TempData["ShowInfoMessage"] = true;
+                TempData["InfoMessage"] = "There was an error uploading your file.";
             }
-
-            TempData["ShowInfoMessage"] = true;
-            TempData["InfoMessage"] = "File Uploaded! Please continue creating your map below.";
 
             return RedirectToAction("Index");
         }

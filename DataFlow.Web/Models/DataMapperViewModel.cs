@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -26,6 +27,7 @@ namespace DataFlow.Web.Models
         public string MapToEntity { get; set; }
         public List<Field> Fields { get; set; }
         public List<string> CsvColumnHeaders { get; set; }
+        public DataTable CsvPreviewDataTable { get; set; }
 
         public List<SelectListItem> SourceColumns
         {
@@ -46,6 +48,7 @@ namespace DataFlow.Web.Models
         public List<SelectListItem> SourceTables { get; set; }
         public List<SelectListItem> DataSources { get; set; }
 
+        public bool IsSuccess { get; set; }
         public bool ShowInfoMessage { get; set; }
         public string InfoMessage { get; set; }
 
