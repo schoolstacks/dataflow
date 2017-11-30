@@ -8,7 +8,7 @@
 <h2>@ViewBag.Title</h2>
 
 <div style="padding-bottom: 10px;">
-    @Html.ActionLink("Add Map", "Add")
+    @Html.ActionLink("Add Map", "Add") | @Html.ActionLink("Go to Advanced Data Mapper", "Index", new{ Controller = "DataMapper"})
 </div>
 <table id="tblMaps" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true">
     <thead>
