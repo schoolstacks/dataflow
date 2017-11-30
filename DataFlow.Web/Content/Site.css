@@ -19,3 +19,7 @@
 .field-validation-error {
     color: #b94a48;
 }
+
+.form-control.auto-height {
+    height: auto;
+}
