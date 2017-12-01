@@ -148,9 +148,9 @@ namespace DataFlow.Web.Controllers
                     {
                         if (x.Name == "id")
                             return;
-
+                        
                         if (x.Required)
-                            vm.Fields.Add(new DataMapperViewModel.Field(x.Name, x.Type));
+                            vm.Fields.Add(new DataMapperViewModel.Field(x.Name, x.Type, x.SubType));
                     });
                 }
             }
