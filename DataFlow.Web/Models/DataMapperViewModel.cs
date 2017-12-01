@@ -54,14 +54,16 @@ namespace DataFlow.Web.Models
 
         public class Field
         {
-            public Field(string name, string dataType)
+            public Field(string name, string dataType, string subType)
             {
                 Name = name;
                 DataType = dataType;
+                SubType = subType;
             }
 
             public string Name { get; set; }
             public string DataType { get; set; }
+            public string SubType { get; set; }
         }
     }
 }
