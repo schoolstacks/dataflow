@@ -14,28 +14,44 @@ using System.Data.Entity.Core.EntityClient;
 using server_components_data_access.Enums;
 using log4net.Core;
 using System.Configuration;
+using System.Diagnostics;
 
 namespace DataFlow.Server.TransformLoad
 {
     internal class Program
     {
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static Object ApiDataLock = new Object();
         internal static List<ResultingMapInfo> ApiData = new List<ResultingMapInfo>();
         private static List<server_components_data_access.Dataflow.datamap> DataMapsList { get; set; } = null;
         private static List<server_components_data_access.Dataflow.lookup> MappingLookups { get; set; }
         private static List<KeyValuePair<string, string>> InsertedIds { get; set; } = new List<KeyValuePair<string, string>>();
 
         private static string _accessToken = null;
-        static void Main(string[] args)
+        private static List<Action> lstRowsTransformingActions = new List<Action>();
+        private static Object lstRowsToPostActionsLock = new Object();
+        private static List<Action> lstRowsToPostActions = new List<Action>();
+        private static int numberOfSimultaneousTasks = GetNumberOfSimultaneousTasks();
+        private static ParallelOptions parallelOptions = null;
+        public static void Main(string[] args)
+        {
+            RunAsync().Wait();
+        }
+
+        private static async Task RunAsync()
         {
             try
             {
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+                parallelOptions = new ParallelOptions()
+                {
+                    MaxDegreeOfParallelism = GetNumberOfSimultaneousTasks(),
+                    TaskScheduler = TaskScheduler.Default
+                };
                 var config = log4net.Config.XmlConfigurator.Configure();
                 System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
                 watch.Start();
-                var tsk = StartProcessing();
-                tsk.Wait();
+                await  StartProcessing();
                 watch.Stop();
 
                 Log(log4net.Core.Level.Info, "Time Elapsed: {0}", watch.Elapsed.ToString());
@@ -95,9 +111,13 @@ namespace DataFlow.Server.TransformLoad
                         {
                             await ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.URL, fileEntity: singleFile, ctx: ctx);
                         }
+                        catch (AggregateException aggrEx)
+                        {
+                            Log(log4net.Core.Level.Info, "Error awaiting ProcessDataMapAgent: {0}", aggrEx.ToString());
+                        }
                         catch (Exception ex)
                         {
-                            Log(log4net.Core.Level.Error, "Error processing file: {0}. Message: {1}", singleFile.URL, ex.ToString());
+                            Log(log4net.Core.Level.Info, "Error processing file: {0}. Message: {1}", singleFile.URL, ex.ToString());
                         }
 
                         Log(log4net.Core.Level.Info, "Finished Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
@@ -108,7 +128,6 @@ namespace DataFlow.Server.TransformLoad
 
         private static async Task PostTransformedData(DataFlowContext ctx)
         {
-            List<log_ingestion> lstIngestionMessages = new List<log_ingestion>();
             string authorizeUrl = GetAuthorizeUrl(ctx);
             string accessTokenUrl = GetAccessTokenUrl(ctx);
             string clientId = GetApiClientId(ctx);
@@ -116,9 +135,7 @@ namespace DataFlow.Server.TransformLoad
             string authCode = await RetrieveAuthorizationCode(authorizeUrl, clientId: clientId);
             string accessToken = await RetrieveAccessToken(accessTokenUrl, clientId, clientSecret, authCode);
             Log(log4net.Core.Level.Info, "Start of Api Insertion: {0} records", ApiData.Count);
-            int iCurrentRecord = 1;
-            List<file> lstErroredFiles = new List<file>();
-            iCurrentRecord = await ProcessApiData(ctx, lstIngestionMessages, accessToken, iCurrentRecord, lstErroredFiles);
+            await ProcessApiData(ctx, accessToken);
             foreach (var singleErrorFile in lstErroredFiles)
             {
                 singleErrorFile.Status = FileStatus.ERROR_TRANSFORM;
@@ -190,121 +207,217 @@ namespace DataFlow.Server.TransformLoad
             }
         }
 
-        private static async Task<int> ProcessApiData(DataFlowContext ctx, List<log_ingestion> lstIngestionMessages, string accessToken, int iCurrentRecord, List<file> lstErroredFiles)
+        private static async Task ProcessApiData(DataFlowContext ctx, string accessToken)
         {
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             Log(log4net.Core.Level.Info, "Processing ApiData.");
-            foreach (var singleApiData in ApiData)
+            var sortedAndGroupApiData = ApiData.OrderBy(x => x.ProcessingOrder).GroupBy(p => p.Key.Name);
+            foreach (var singleApiDataEntity in sortedAndGroupApiData)
             {
-                Log(log4net.Core.Level.Info, "Inserting Data For File {0}", singleApiData.FileEntity.URL);
-                if (String.IsNullOrWhiteSpace(singleApiData.Key.Metadata))
+                foreach (var singleApiData in singleApiDataEntity)
                 {
-                    lstIngestionMessages.Add(new log_ingestion()
+                    Action taskPostSingleApiData = 
+                        CreatePostSingleApiDataAction(accessToken, singleApiData);
+                    lock (lstRowsToPostActionsLock)
                     {
-                        Date = DateTime.UtcNow,
-                        //Filename = singleApiData.Key
-                        Result = "ERROR",
-                        Message = string.Format("Entity has no Metadata. Entity ID: {0}", singleApiData.Key.ID),
-                        Level = "ERROR",
-                        Operation = "TransformingData",
-                        Process = "transform-api-load-janitor"
-                    });
-                    if (!lstErroredFiles.Contains(singleApiData.FileEntity))
-                        lstErroredFiles.Add(singleApiData.FileEntity);
-                    continue; // we will not process if we cannot read metadata
-                }
-                Log(log4net.Core.Level.Info, "Api Insertion Record: {0} of {1}", iCurrentRecord, ApiData.Count);
-                Log(log4net.Core.Level.Debug, "Payload: {0}", ApiData[iCurrentRecord - 1].Value);
-                iCurrentRecord++;
-                string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata, ctx);
-                if (!IsNewOrModified(singleApiData, endpointUrl, ctx))
-                    continue;
-                HttpMethod method = HttpMethod.Post;
-                using (HttpClient httpClient = new HttpClient())
-                {
-                    httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-                    string strId = string.Empty;
-                    string strIdName = string.Empty;
-                    switch (singleApiData.Key.Name)
-                    {
-                        case "students":
-                            strIdName = "studentUniqueId";
-                            strId = singleApiData.Value[strIdName].ToString();
-                            break;
-                        default:
-                            break;
+                        lstRowsToPostActions.Add(taskPostSingleApiData);
+                        if (lstRowsToPostActions.Count == numberOfSimultaneousTasks)
+                        {
+                            Parallel.Invoke(parallelOptions,lstRowsToPostActions.ToArray());
+                            lstRowsToPostActions.Clear();
+                        }
                     }
-                    StringContent strContent = new StringContent(singleApiData.Value.ToString());
-                    strContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-                    HttpResponseMessage response = null;
-                    response = await httpClient.PostAsync(endpointUrl, strContent);
-                    switch (response.StatusCode)
+                }
+                lock (lstRowsToPostActionsLock)
+                {
+                    if (lstRowsToPostActions.Count > 0)
                     {
-                        case System.Net.HttpStatusCode.OK:
-                            Log(log4net.Core.Level.Info, "Data Exists on endpoint: {0}", endpointUrl);
-                            lstIngestionMessages.Add(new log_ingestion()
+                        Parallel.Invoke(parallelOptions,lstRowsToPostActions.ToArray());
+                        lstRowsToPostActions.Clear();
+                    }
+                }
+            }
+            watch.Stop();
+            var elapsed = watch.Elapsed;
+            await Task.Yield();
+
+        }
+
+        private static Object lstIngestionMessagesLock = new Object();
+        private static Object lstErroredFilesLock = new Object();
+        private static List<log_ingestion> lstIngestionMessages = new List<log_ingestion>();
+        private static List<file> lstErroredFiles = new List<file>();
+        private static Action CreatePostSingleApiDataAction(
+            string accessToken, ResultingMapInfo singleApiData)
+        {
+            Action taskPostSingleApiData = new Action(async () =>
+            {
+                try
+                {
+                    using (DataFlowContext ctx = new DataFlowContext(BuildEntityConnection()))
+                    {
+                        Log(log4net.Core.Level.Info, "Inserting Data For File {0}", singleApiData.FileEntity.URL);
+                        if (String.IsNullOrWhiteSpace(singleApiData.Key.Metadata))
+                        {
+                            lock (lstIngestionMessagesLock)
                             {
-                                Date = DateTime.UtcNow,
-                                //Filename = singleApiData.Key
-                                Result = "SUCCESS",
-                                Message = string.Format("Record Exists:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nData:\r\n{2}", singleApiData.RowNumber, endpointUrl, singleApiData.Value.ToString()),
-                                Level = "INFORMATION",
-                                Operation = "TransformingData",
-                                Process = "transform-api-load-janitor"
-                            });
-                            break;
-                        case System.Net.HttpStatusCode.Created:
-                            Log(log4net.Core.Level.Info, "Data Inserted on endpoint: {0}", endpointUrl);
-                            InsertedIds.Add(new KeyValuePair<string, string>(strIdName, strId));
-                            lstIngestionMessages.Add(new log_ingestion()
-                            {
-                                Date = DateTime.UtcNow,
-                                //Filename = singleApiData.Key
-                                Result = "SUCCESS",
-                                Message = string.Format("Record Created:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nAgent ID:{2}\r\nFile Name:{3}\r\nData:\r\n{4}", singleApiData.RowNumber, endpointUrl, singleApiData.FileEntity.AgentID, singleApiData.FileEntity.Filename, singleApiData.Value.ToString()),
-                                Level = "INFORMATION",
-                                Operation = "TransformingData",
-                                Process = "transform-api-load-janitor"
-                            });
-                            break;
-                        default:
-                            string strError = await response.Content.ReadAsStringAsync();
-                            Log(log4net.Core.Level.Error, "Data Error on Insert on endpoint: {0}, Row Number: {1}, Status: {2}, Error: {3}", endpointUrl, singleApiData.RowNumber, response.StatusCode, strError);
-                            var singleIngestionError =
-                                new log_ingestion()
+                                lstIngestionMessages.Add(new log_ingestion()
                                 {
                                     Date = DateTime.UtcNow,
                                     //Filename = singleApiData.Key
                                     Result = "ERROR",
-                                    Message = string.Format("Message: {0}. Row Number: {1} EndPoint Url: {2}\r\nAgent ID:{3}\r\nFile Name:{4}\r\nData:\r\n{5}", strError, singleApiData.RowNumber, endpointUrl, singleApiData.FileEntity.AgentID, singleApiData.FileEntity.Filename, singleApiData.Value.ToString()),
+                                    Message = string.Format("Entity has no Metadata. Entity ID: {0}", singleApiData.Key.ID),
                                     Level = "ERROR",
                                     Operation = "TransformingData",
-                                    Process = "transform-api-load-janitor"
-                                };
-                            lstIngestionMessages.Add(singleIngestionError);
-                            if (!lstErroredFiles.Contains(singleApiData.FileEntity))
-                                lstErroredFiles.Add(singleApiData.FileEntity);
-                            break;
-                    }
-                }
-                if (lstIngestionMessages.Count > 0)
-                {
-                    try
-                    {
-                        lstIngestionMessages.ForEach((singleIngestionError) =>
+                                    Process = "transform-api-load-janitor",
+                                    Filename = singleApiData.FileEntity.Filename
+                                });
+                            }
+                            lock (lstErroredFilesLock)
+                            {
+                                if (!lstErroredFiles.Contains(singleApiData.FileEntity))
+                                    lstErroredFiles.Add(singleApiData.FileEntity);
+                            }
+                            return; // we will not process if we cannot read metadata
+                        }
+                        string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata, ctx);
+                        //if (!IsNewOrModified(singleApiData, endpointUrl, ctx))
+                        //    return;
+                        HttpMethod method = HttpMethod.Post;
+                        using (HttpClient httpClient = new HttpClient())
                         {
-                            ctx.log_ingestion.Add(singleIngestionError);
-                        });
-                        ctx.SaveChanges();
-                        lstIngestionMessages.Clear();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log(log4net.Core.Level.Error, ex.ToString());
+                            httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+                            string strId = string.Empty;
+                            string strIdName = string.Empty;
+                            switch (singleApiData.Key.Name)
+                            {
+                                case "students":
+                                    strIdName = "studentUniqueId";
+                                    strId = singleApiData.Value[strIdName].ToString();
+                                    break;
+                                default:
+                                    break;
+                            }
+                            StringContent strContent = new StringContent(singleApiData.Value.ToString());
+                            strContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                            HttpResponseMessage response = null;
+                            try
+                            {
+                                response = await httpClient.PostAsync(endpointUrl, strContent);
+                            }
+                            catch (AggregateException aggrEx)
+                            {
+                                Log(log4net.Core.Level.Info, "Error invoking httpClient.PostAsync. AggrEx: " + aggrEx.ToString());
+                            }
+                            catch (Exception ex)
+                            {
+                                Log(log4net.Core.Level.Info, "Error invoking httpClient.PostAsync. Ex: " + ex.ToString());
+                            }
+                            //TODO: Research why response was null, which exception happened?
+                            if (response != null)
+                                await ProcessResponse(singleApiData, endpointUrl, strId, strIdName, response);
+                            else
+                                Log(log4net.Core.Level.Info, "WARNING!!! response = await httpClient.PostAsync(endpointUrl, strContent) returned null or an exception happened");
+                        }
+                        lock (lstIngestionMessagesLock)
+                        {
+                            if (lstIngestionMessages.Count > 0)
+                            {
+                                try
+                                {
+                                    lstIngestionMessages.ForEach((singleIngestionError) =>
+                                    {
+                                        ctx.log_ingestion.Add(singleIngestionError);
+                                    });
+                                    ctx.SaveChanges();
+                                    lstIngestionMessages.Clear();
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log(log4net.Core.Level.Info, ex.ToString());
+                                }
+                            }
+                        }
                     }
                 }
-            }
+                catch (AggregateException aggrEx)
+                {
+                    Log(log4net.Core.Level.Info, "Error on method for posting single Api Data. AggrEx: {0}", aggrEx.ToString());
+                }
+                catch (Exception ex)
+                {
+                    Log(log4net.Core.Level.Info, "Error on method for posting single Api Data. Ex: {0}", ex.ToString());
+                }
+            });
+            return taskPostSingleApiData;
+        }
 
-            return iCurrentRecord;
+        private static async Task ProcessResponse(ResultingMapInfo singleApiData, string endpointUrl, string strId, string strIdName, HttpResponseMessage response)
+        {
+            switch (response.StatusCode)
+            {
+                case System.Net.HttpStatusCode.OK:
+                    Log(log4net.Core.Level.Info, "Data Exists on endpoint: {0}", endpointUrl);
+                    lock (lstIngestionMessagesLock)
+                    {
+                        lstIngestionMessages.Add(new log_ingestion()
+                        {
+                            Date = DateTime.UtcNow,
+                            //Filename = singleApiData.Key
+                            Result = "SUCCESS",
+                            Message = string.Format("Record Exists:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nData:\r\n{2}", singleApiData.RowNumber, endpointUrl, singleApiData.Value.ToString()),
+                            Level = "INFORMATION",
+                            Operation = "TransformingData",
+                            Process = "transform-api-load-janitor",
+                            Filename = singleApiData.FileEntity.Filename
+                        });
+                    }
+                    break;
+                case System.Net.HttpStatusCode.Created:
+                    Log(log4net.Core.Level.Info, "Data Inserted on endpoint: {0}", endpointUrl);
+                    lock (lstIngestionMessagesLock)
+                    {
+                        InsertedIds.Add(new KeyValuePair<string, string>(strIdName, strId));
+                        lstIngestionMessages.Add(new log_ingestion()
+                        {
+                            Date = DateTime.UtcNow,
+                            //Filename = singleApiData.Key
+                            Result = "SUCCESS",
+                            Message = string.Format("Record Created:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nAgent ID:{2}\r\nFile Name:{3}\r\nData:\r\n{4}", singleApiData.RowNumber, endpointUrl, singleApiData.FileEntity.AgentID, singleApiData.FileEntity.Filename, singleApiData.Value.ToString()),
+                            Level = "INFORMATION",
+                            Operation = "TransformingData",
+                            Process = "transform-api-load-janitor",
+                            Filename = singleApiData.FileEntity.Filename
+                        });
+                    }
+                    break;
+                default:
+                    string strError = await response.Content.ReadAsStringAsync();
+                    Log(log4net.Core.Level.Info, "Data Error on Insert on endpoint: {0}, Row Number: {1}, Status: {2}, Error: {3}", endpointUrl, singleApiData.RowNumber, response.StatusCode, strError);
+                    lock (lstIngestionMessagesLock)
+                    {
+                        var singleIngestionError =
+                            new log_ingestion()
+                            {
+                                Date = DateTime.UtcNow,
+                                //Filename = singleApiData.Key
+                                Result = "ERROR",
+                                Message = string.Format("Message: {0}. Row Number: {1} EndPoint Url: {2}\r\nAgent ID:{3}\r\nFile Name:{4}\r\nData:\r\n{5}", strError, singleApiData.RowNumber, endpointUrl, singleApiData.FileEntity.AgentID, singleApiData.FileEntity.Filename, singleApiData.Value.ToString()),
+                                Level = "ERROR",
+                                Operation = "TransformingData",
+                                Process = "transform-api-load-janitor",
+                                Filename = singleApiData.FileEntity.Filename
+                            };
+                        lstIngestionMessages.Add(singleIngestionError);
+                    }
+                    lock (lstErroredFilesLock)
+                    {
+                        if (!lstErroredFiles.Contains(singleApiData.FileEntity))
+                            lstErroredFiles.Add(singleApiData.FileEntity);
+                    }
+                    break;
+            }
         }
 
         private static bool IsNewOrModified(ResultingMapInfo singleApiData, string endPoint, DataFlowContext ctx)
@@ -434,6 +547,11 @@ namespace DataFlow.Server.TransformLoad
                             var jsonResult = await result.Content.ReadAsStringAsync();
                             var jsonToken = JToken.Parse(jsonResult);
                             _accessToken = jsonToken["access_token"].ToString();
+                            /*
+                             * Check https://techdocs.ed-fi.org/display/ODSAPI23/Authentication
+                             * Most platform hosts issue an access token that expires on a 30 minute sliding expiration. The sliding expiration window is extended on every operation with the API.
+                            */
+                            //string _tokenExpiresIn = jsonToken["expires_in"].ToString();
                             break;
                         default:
                             break;
@@ -505,6 +623,8 @@ namespace DataFlow.Server.TransformLoad
 
         private static void TransformFile(IOrderedEnumerable<datamap_agent> dataMapAgents, file fileEntity, string strFileText)
         {
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             using (StringReader strReader = new StringReader(strFileText))
             {
                 using (CsvHelper.CsvReader reader = new CsvHelper.CsvReader(strReader))
@@ -512,6 +632,8 @@ namespace DataFlow.Server.TransformLoad
                     ReadAndTransformFile(dataMapAgents, fileEntity, reader);
                 }
             }
+            watch.Stop();
+            var elapsed = watch.Elapsed;
         }
 
         private static void ReadAndTransformFile(IOrderedEnumerable<datamap_agent> dataMapAgents, file fileEntity, CsvReader reader)
@@ -519,8 +641,14 @@ namespace DataFlow.Server.TransformLoad
             int rowNum = 1;
             while (reader.Read())
             {
+                Dictionary<string, string> currentRowDictionary = new Dictionary<string, string>();
+                var headers = reader.FieldHeaders;
+                var currentRecord = reader.CurrentRecord;
+                foreach (var singleHeader in reader.FieldHeaders)
+                {
+                    currentRowDictionary.Add(singleHeader, reader[singleHeader]);
+                }
                 rowNum++;
-
                 foreach (var singleDataMapAgent in dataMapAgents)
                 {
                     Log(log4net.Core.Level.Info, "Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Family: {4}. Row #: {5}",
@@ -528,18 +656,45 @@ namespace DataFlow.Server.TransformLoad
                         singleDataMapAgent.datamap.entity.Family, rowNum);
                     var entity = singleDataMapAgent.datamap.entity;
                     var dataMap = singleDataMapAgent.datamap;
-
-                    JToken generatedRow = ProcessCSVRow(entity, dataMap, reader);
-                    RemoveCustomHints(ref generatedRow, reader.FieldHeaders, reader.CurrentRecord);
-                    ApiData.Add(new ResultingMapInfo()
+                    Action tskGeneratedRow = new Action(() =>
                     {
-                        Key = entity,
-                        Value = generatedRow,
-                        FileEntity = fileEntity,
-                        RowNumber = rowNum
+                        JToken generatedRow = ProcessCSVRow(entity, dataMap, currentRowDictionary);
+                        RemoveCustomHints(ref generatedRow, headers, currentRecord);
+                        lock (ApiDataLock)
+                        {
+                            ApiData.Add(new ResultingMapInfo()
+                            {
+                                Key = entity,
+                                Value = generatedRow,
+                                FileEntity = fileEntity,
+                                RowNumber = rowNum,
+                                ProcessingOrder = singleDataMapAgent.ProcessingOrder
+                            });
+                        }
                     });
+                    lstRowsTransformingActions.Add(tskGeneratedRow);
+                    if (lstRowsTransformingActions.Count == numberOfSimultaneousTasks)
+                    {
+                        Parallel.Invoke(parallelOptions,lstRowsTransformingActions.ToArray());
+                        lstRowsTransformingActions.Clear();
+                    }
+                }
+                if (lstRowsTransformingActions.Count == numberOfSimultaneousTasks)
+                {
+                    Parallel.Invoke(parallelOptions,lstRowsTransformingActions.ToArray());
+                    lstRowsTransformingActions.Clear();
                 }
             }
+            if (lstRowsTransformingActions.Count > 0)
+            {
+                Parallel.Invoke(parallelOptions,lstRowsTransformingActions.ToArray());
+                lstRowsTransformingActions.Clear();
+            }
+        }
+
+        private static int GetNumberOfSimultaneousTasks()
+        {
+            return Convert.ToInt32(ConfigurationManager.AppSettings["SimultaneousTasks"]);
         }
 
         private static void RemoveCustomHints(ref JToken generatedRow, string[] headers, string[] currentRecord)
@@ -627,7 +782,7 @@ namespace DataFlow.Server.TransformLoad
         }
 
 
-        private static JToken ProcessCSVRow(entity entity, datamap dataMap, CsvReader reader)
+        private static JToken ProcessCSVRow(entity entity, datamap dataMap, Dictionary<string,string> reader)
         {
             JToken originalMap = JToken.Parse(dataMap.Map);
             JToken result = originalMap.DeepClone();
@@ -637,10 +792,10 @@ namespace DataFlow.Server.TransformLoad
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            Log(log4net.Core.Level.Error, "An unhandled exception has occurred: " + ((Exception)e.ExceptionObject).ToString());
+            Log(log4net.Core.Level.Info, "An unhandled exception has occurred: " + ((Exception)e.ExceptionObject).ToString());
         }
 
-        private static void TransformCSVRow(JToken originalMap, ref JToken outputData, CsvReader reader,
+        private static void TransformCSVRow(JToken originalMap, ref JToken outputData, Dictionary<string,string> reader,
             JArray originalArray = null, bool? hasArrayElementBeingProcessed = null, string arrayItemName = null, int? arrayPos = null)
         {
             if (originalMap.Type == JTokenType.Array)
@@ -685,8 +840,10 @@ namespace DataFlow.Server.TransformLoad
                                 {
                                     string strColumnName = subSingleTokenChild.ToString();
                                     string fieldValue = string.Empty;
-                                    if (!reader.TryGetField(strColumnName, out fieldValue))
+                                    if (!reader.ContainsKey(strColumnName))
                                         lstMissingColumnsInCSV.Add(strColumnName);
+                                    else
+                                        fieldValue = reader[strColumnName];
                                 }
                             }
                             if (lstMissingColumnsInCSV.Count > 0)
@@ -751,7 +908,7 @@ namespace DataFlow.Server.TransformLoad
             }
         }
 
-        private static void SetFieldValue(JToken originalMap, JToken outputData, CsvReader reader,
+        private static void SetFieldValue(JToken originalMap, JToken outputData, Dictionary<string,string> reader,
             JArray originalArray, ref bool? hasArrayElementBeingProcessed, ref bool wasValueSet,
             JProperty dataTypeField, JProperty sourceField, JProperty sourceTable, JProperty sourceColumnField,
             JProperty valueField, JProperty defaultValueField, JToken initialOutputData, string[] splittedPath)
@@ -956,7 +1113,8 @@ namespace DataFlow.Server.TransformLoad
             return initialOutputData;
         }
 
-        private static string GetValueFromLookupTable(string lookupTable, string lookupColumn, CsvReader csvRow)
+        private static string GetValueFromLookupTable(string lookupTable, string lookupColumn, 
+            Dictionary<string,string> csvRow)
         {
             string result = string.Empty;
             string valueInCSV = csvRow[lookupColumn];
@@ -994,6 +1152,7 @@ namespace DataFlow.Server.TransformLoad
     {
         public file FileEntity { get; set; }
         public entity Key { get; set; }
+        public int ProcessingOrder { get; set; }
         public int RowNumber { get; set; }
         public JToken Value { get; set; }
     }
