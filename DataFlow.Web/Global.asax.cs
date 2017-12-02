@@ -19,6 +19,7 @@ namespace DataFlow.Web
             builder.RegisterModule<AutofacWebTypesModule>();
             builder.RegisterType<DataFlowDbContext>().InstancePerRequest();
             builder.RegisterType<EdFiService>().InstancePerRequest();
+            builder.RegisterType<EdFiMetadataProcessor>().InstancePerRequest();
             builder.Register(c => LogManager.GetLogger("DataFlow.Web")).As<ILogger>().InstancePerRequest();
             builder.RegisterType<NLogService>().AsImplementedInterfaces().InstancePerRequest();
 
