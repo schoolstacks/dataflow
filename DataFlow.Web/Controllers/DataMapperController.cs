@@ -11,6 +11,7 @@ using CsvHelper;
 using DataFlow.Common.DAL;
 using DataFlow.Common.ExtensionMethods;
 using DataFlow.Common.Services;
+using DataFlow.Models;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Models;
 using DataFlow.Web.Services;
@@ -25,7 +26,7 @@ namespace DataFlow.Web.Controllers
         private readonly EdFiService edFiService;
         private readonly EdFiMetadataProcessor edFiMetadataProcessor;
 
-        public DataMapperController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService, 
+        public DataMapperController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService,
             EdFiMetadataProcessor edFiMetadataProcessor, ICentralLogger logger) : base(logger)
         {
             this.dataFlowDbContext = dataFlowDbContext;
@@ -136,6 +137,7 @@ namespace DataFlow.Web.Controllers
 
             if (int.TryParse(vm.MapToEntity, out var entityId))
             {
+                //TODO: This can be vastly improved.
                 var entitySelected = dataFlowDbContext.Entities.FirstOrDefault(x => x.Id == entityId);
                 if (!string.IsNullOrWhiteSpace(entitySelected?.Url))
                 {
@@ -148,9 +150,25 @@ namespace DataFlow.Web.Controllers
                     {
                         if (x.Name == "id")
                             return;
-                        
+
                         if (x.Required)
-                            vm.Fields.Add(new DataMapperViewModel.Field(x.Name, x.Type, x.SubType));
+                        {
+                            var dataMapperField = new DataMapperViewModel.Field(x.Name, x.Type, x.SubType, string.Empty);
+                            if (!string.IsNullOrWhiteSpace(x.SubType) && x.SubFields.Any())
+                            {
+                                x.SubFields.ForEach(subField =>
+                                {
+                                    if (subField.Name == "id")
+                                        return;
+                                    ;
+                                    if (subField.Required)
+                                    {
+                                        dataMapperField.SubFields.Add(new DataMapperViewModel.Field(subField.Name, subField.Type, subField.SubType, x.SubType));
+                                    }
+                                });
+                            }
+                            vm.Fields.Add(dataMapperField);
+                        }
                     });
                 }
             }
@@ -162,26 +180,103 @@ namespace DataFlow.Web.Controllers
         public JsonResult UpdateJsonMap(FormCollection formCollection)
         {
             var fields = formCollection["FieldNames"].Split(';').ToList();
+            var subFields = new List<Tuple<string,List<string>>>();
 
             var jObject = new JObject();
 
             fields.ForEach(f =>
             {
-                var model = new DataMapper
+                var subType = formCollection[$"hf{f}_SubType"].NullIfWhiteSpace();
+                if (subType != null)
                 {
-                    Name = f,
-                    DataMapperProperty = new DataMapperProperty
+                    if (subFields.All(x => x.Item1 != subType))
                     {
-                        Source = formCollection[$"ddl{f}_SourceType"].NullIfWhiteSpace(),
-                        SourceColumn = formCollection[$"ddl{f}_SourceColumn"].NullIfWhiteSpace(),
-                        DataType = formCollection[$"hf{f}_DataType"].NullIfWhiteSpace(),
-                        Default = formCollection[$"txt{f}_DefaultValue"].NullIfWhiteSpace(),
-                        SourceTable = formCollection[$"ddl{f}_SourceTable"].NullIfWhiteSpace(),
-                        Value = formCollection[$"txt{f}_StaticValue"].NullIfWhiteSpace()
+                        subFields.Add(new Tuple<string, List<string>>(subType, formCollection.AllKeys.Where(x=>x.EndsWith(subType)).Select(x=>x).ToList()));
                     }
-                };
+                }
+               
 
-                jObject.Add(model.Name, JObject.FromObject(model.DataMapperProperty));
+                //if (subType == null)
+                //{
+                    var model = new DataMapper
+                    {
+                        Name = f,
+                        DataMapperProperty = new DataMapperProperty
+                        {
+                            Source = formCollection[$"ddl{f}_SourceType"]?.NullIfWhiteSpace(),
+                            SourceColumn = formCollection[$"ddl{f}_SourceColumn"]?.NullIfWhiteSpace(),
+                            DataType = formCollection[$"hf{f}_DataType"]?.NullIfWhiteSpace(),
+                            Default = formCollection[$"txt{f}_DefaultValue"]?.NullIfWhiteSpace(),
+                            SourceTable = formCollection[$"ddl{f}_SourceTable"]?.NullIfWhiteSpace(),
+                            Value = formCollection[$"txt{f}_StaticValue"]?.NullIfWhiteSpace(),
+                        }
+                    };
+
+                    jObject.Add(model.Name, JObject.FromObject(model.DataMapperProperty));
+                //}
+                //else
+                //{
+                //    var model = new DataMapper()
+                //    {
+                //        Name = f,
+                //        SubDataMappers = new List<DataMapper>()
+                //        {
+                //            new DataMapper()
+                //            {
+                //                Name = f,
+                //                DataMapperProperty = new DataMapperProperty
+                //                {
+                //                    Source = formCollection[$"ddl{f}_SourceType"]?.NullIfWhiteSpace(),
+                //                    SourceColumn = formCollection[$"ddl{f}_SourceColumn"]?.NullIfWhiteSpace(),
+                //                    DataType = formCollection[$"hf{f}_DataType"]?.NullIfWhiteSpace(),
+                //                    Default = formCollection[$"txt{f}_DefaultValue"]?.NullIfWhiteSpace(),
+                //                    SourceTable = formCollection[$"ddl{f}_SourceTable"]?.NullIfWhiteSpace(),
+                //                    Value = formCollection[$"txt{f}_StaticValue"]?.NullIfWhiteSpace(),
+                //                }
+                //            }
+                //        }
+                //    };
+
+                //    var subDataJObjectList = new JArray();
+                //    model.SubDataMappers.ForEach(x =>
+                //    {
+                //        var subDataJObject = new JObject
+                //        {
+                //            {x.Name, JObject.FromObject(x.DataMapperProperty)}
+                //        };
+
+                //        subDataJObjectList.Add(subDataJObject);
+                //    });
+
+                    //jObject.Add(model.Name, subDataJObjectList);
+                //}
+            });
+
+            subFields.ForEach(p =>
+            {
+                var subJArray = new JArray();
+                
+                p.Item2.ForEach(f =>
+                {
+                    var model = new DataMapper
+                    {
+                        Name = f,
+                        DataMapperProperty = new DataMapperProperty
+                        {
+                            Source = formCollection[$"ddl{f}_SourceType_{p}"]?.NullIfWhiteSpace(),
+                            SourceColumn = formCollection[$"ddl{f}_SourceColumn_{p}"]?.NullIfWhiteSpace(),
+                            DataType = formCollection[$"hf{f}_DataType_{p}"]?.NullIfWhiteSpace(),
+                            Default = formCollection[$"txt{f}_DefaultValue_{p}"]?.NullIfWhiteSpace(),
+                            SourceTable = formCollection[$"ddl{f}_SourceTable_{p}"]?.NullIfWhiteSpace(),
+                            Value = formCollection[$"txt{f}_StaticValue_{p}"]?.NullIfWhiteSpace(),
+                        }
+                    };
+                    var j = new JObject();
+                    j.Add(model.Name, JObject.FromObject(model.DataMapperProperty));
+                    subJArray.Add(j);
+                });
+
+                jObject.Add(p.Item1, subJArray);
             });
 
             jObject.Add("_required", JArray.FromObject(fields));
@@ -274,7 +369,7 @@ namespace DataFlow.Web.Controllers
                 };
                 entityList.AddRange(dataFlowDbContext.Entities
                     .OrderBy(x => x.Name)
-                    .Select(x => new SelectListItem {Text = x.Name, Value = x.Id.ToString()}));
+                    .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }));
 
                 return entityList;
             }
@@ -290,7 +385,7 @@ namespace DataFlow.Web.Controllers
                 };
                 dataTypeList.AddRange(Enum.GetValues(typeof(DataMapperEnums.Sources))
                     .Cast<DataMapperEnums.Sources>()
-                    .Select(x => new SelectListItem {Text = x.GetDescription(), Value = x.GetDescription()}));
+                    .Select(x => new SelectListItem { Text = x.GetDescription(), Value = x.GetDescription() }));
 
                 return dataTypeList;
             }
@@ -305,7 +400,7 @@ namespace DataFlow.Web.Controllers
                     new SelectListItem {Text = "Select Source Table", Value = string.Empty}
                 };
                 sourceTableList.AddRange(dataFlowDbContext.Lookups
-                    .Select(x => new SelectListItem {Text = x.GroupSet, Value = x.GroupSet})
+                    .Select(x => new SelectListItem { Text = x.GroupSet, Value = x.GroupSet })
                     .Distinct());
 
                 return sourceTableList;
