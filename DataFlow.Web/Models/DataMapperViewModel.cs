@@ -48,22 +48,49 @@ namespace DataFlow.Web.Models
         public List<SelectListItem> SourceTables { get; set; }
         public List<SelectListItem> DataSources { get; set; }
 
+        public List<string> GetAllFieldNames()
+        {
+            var fields = new List<string>();
+            
+            Fields.ForEach(f =>
+            {
+                fields.Add(f.Name);
+                fields.AddRange(f.SubFields.Select(x => x.Name));
+                fields.AddRange(f.SubFields.SelectMany(x => x.SubFields.Select(y => y.Name)));
+                //if (f.SubFields.Any())
+                //{
+                //    fields.AddRange(f.SubFields.Select(x => x.Name));
+
+                //    if (f.SubFields.Any(x => x.SubFields.Any()))
+                //    {
+                //        fields.AddRange(f.SubFields.SelectMany(x => x.SubFields.Select(y => y.Name)));
+                //    }
+                //}
+            });
+
+            return fields;
+        }
+
         public bool IsSuccess { get; set; }
         public bool ShowInfoMessage { get; set; }
         public string InfoMessage { get; set; }
 
         public class Field
         {
-            public Field(string name, string dataType, string subType)
+            public Field(string name, string dataType, string subType, string parentType = null)
             {
                 Name = name;
                 DataType = dataType;
                 SubType = subType;
+                ParentType = parentType;
+                SubFields = new List<Field>();
             }
 
             public string Name { get; set; }
             public string DataType { get; set; }
             public string SubType { get; set; }
+            public string ParentType { get; set; }
+            public List<Field> SubFields { get; set; }
         }
     }
 }
