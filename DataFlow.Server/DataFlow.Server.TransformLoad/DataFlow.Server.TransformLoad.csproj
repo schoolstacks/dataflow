@@ -134,12 +134,6 @@
     <None Include="ConfigurationFiles\Dev\DevConnectionStrings.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ConfigurationFiles\BranchingMinds\TestAppSettings.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="ConfigurationFiles\BranchingMinds\TestConnectionStrings.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

@@ -411,11 +411,6 @@ namespace DataFlow.Server.TransformLoad
                             };
                         lstIngestionMessages.Add(singleIngestionError);
                     }
-                    lock (lstErroredFilesLock)
-                    {
-                        if (!lstErroredFiles.Contains(singleApiData.FileEntity))
-                            lstErroredFiles.Add(singleApiData.FileEntity);
-                    }
                     break;
             }
         }
@@ -610,7 +605,19 @@ namespace DataFlow.Server.TransformLoad
                 string strFileText = file.DownloadText();
                 TransformFile(dataMapAgents, fileEntity, strFileText);
             }
-            await PostTransformedData(ctx);
+            try
+            {
+                await PostTransformedData(ctx);
+            }
+            catch (Exception ex)
+            {
+                Log(log4net.Core.Level.Error, "Error on PostTransformedData: {0}: ", ex.ToString());
+                lock (lstErroredFilesLock)
+                {
+                    if (!lstErroredFiles.Contains(fileEntity))
+                        lstErroredFiles.Add(fileEntity);
+                }
+            }
         }
 
         private static void TransformExcelFile(IOrderedEnumerable<datamap_agent> dataMapAgents, file fileEntity, string tempFileFullPath)
