@@ -59,6 +59,9 @@
     <Reference Include="Autofac.Integration.WebApi, Version=3.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.WebApi.3.1.0\lib\net40\Autofac.Integration.WebApi.dll</HintPath>
     </Reference>
+    <Reference Include="CsvHelper, Version=6.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.6.0.0\lib\net45\CsvHelper.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -227,6 +230,7 @@
     <Compile Include="Controllers\AgentController.cs" />
     <Compile Include="Controllers\AssessmentController.cs" />
     <Compile Include="Controllers\ConfigurationController.cs" />
+    <Compile Include="Controllers\DataMapperController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Controllers\LookupController.cs" />
@@ -239,13 +243,17 @@
     <Compile Include="Helpers\BaseController.cs" />
     <Compile Include="Helpers\Constants.cs" />
     <Compile Include="Helpers\Common.cs" />
+    <Compile Include="Helpers\JsonHelper.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AssessmentViewModel.cs" />
+    <Compile Include="Models\DataMapper.cs" />
+    <Compile Include="Models\DataMapperViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\LogsViewModel.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\SchoolViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\EdFiMetadataProcessor.cs" />
     <Compile Include="Services\EdFiService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -354,6 +362,8 @@
     <Content Include="Views\Assessment\Edit.cshtml" />
     <Content Include="Views\Assessment\_PartialAssessmentForm.cshtml" />
     <Content Include="Views\School\AssessmentDetails.cshtml" />
+    <Content Include="Views\DataMapper\Index.cshtml" />
+    <Content Include="Views\DataMapper\_PartialDataMapperFields.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

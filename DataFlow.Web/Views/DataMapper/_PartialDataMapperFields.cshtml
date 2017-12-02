@@ -1,0 +1,56 @@
+﻿@using DataFlow.Common.ExtensionMethods
+@model DataFlow.Web.Models.DataMapperViewModel
+
+@foreach (var t in Model.Fields)
+{
+    <div class="form-group">
+        <div class="col-sm-2">
+            <label id="@($"lbl{t.Name}")" name="@($"lbl{t.Name}")" for="@($"ddl{t.Name}_SourceColumn")">@($"{t.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
+        </div>
+        <div class="col-sm-10 field-block">
+            <select id="@($"ddl{t.Name}_SourceColumn")" name="@($"ddl{t.Name}_SourceColumn")" class="form-control">
+                @foreach (var sourceColumn in Model.SourceColumns)
+                {
+                    <option value="@sourceColumn.Value">@sourceColumn.Text</option>
+                }
+            </select>
+            <select id="@($"ddl{t.Name}_SourceType")" name="@($"ddl{t.Name}_SourceType")" class="form-control">
+                @foreach (var sourceType in Model.DataSources)
+                {
+                    <option value="@sourceType.Value">@sourceType.Text</option>
+                }
+            </select>
+            <input id="@($"txt{t.Name}_DefaultValue")" name="@($"txt{t.Name}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" />
+            <select id="@($"ddl{t.Name}_SourceTable")" name="@($"ddl{t.Name}_SourceTable")" class="form-control">
+                @foreach (var sourceTable in Model.SourceTables)
+                {
+                    <option value="@sourceTable.Value">@sourceTable.Text</option>
+                }
+            </select>
+            <input id="@($"txt{t.Name}_StaticValue")" name="@($"txt{t.Name}_StaticValue")" type="text" class="form-control" placeholder="Static Value" />
+            <input id="@($"hf{t.Name}_DataType")" name="@($"hf{t.Name}_DataType")" type="hidden" value="@t.DataType" />
+        </div>
+    </div>
+}
+@Html.Hidden("FieldNames", string.Join(";", Model.Fields.Select(x => x.Name)))
+<script type="text/javascript">
+    $(".field-block").change(function () {
+        var frmData = $("#frmDataMapper").serialize();
+
+        console.log(frmData);
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("UpdateJsonMap", "DataMapper")',
+            data: frmData,
+            dataType: "json",
+            success: function (data) {
+                $("#JsonMap").val(data);
+            },
+            fail: function (data) {
+                alert("Error: " + data);
+            }
+        });
+    });
+</script>
+</script>

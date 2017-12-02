@@ -166,6 +166,7 @@ namespace DataFlow.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult UploadFile(HttpPostedFileBase File, string Agents)
         {
             TempData["FileStatus"] = string.Empty;

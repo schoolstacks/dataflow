@@ -54,6 +54,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DAL\DataFlowDbContext.cs" />
+    <Compile Include="ExtensionMethods\EnumExtensions.cs" />
+    <Compile Include="ExtensionMethods\StringExtensions.cs" />
     <Compile Include="Mapping\AgentMap.cs" />
     <Compile Include="Mapping\AgentScheduleMap.cs" />
     <Compile Include="Mapping\AspNetRoleMap.cs" />

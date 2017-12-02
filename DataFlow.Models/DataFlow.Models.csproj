@@ -55,6 +55,7 @@
     <Compile Include="DataMap.cs" />
     <Compile Include="DataMapAgent.cs" />
     <Compile Include="EdfiDictionary.cs" />
+    <Compile Include="EdFiMetadataProcessorField.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="File.cs" />
     <Compile Include="FileStatus.cs" />
