@@ -7,7 +7,7 @@
         <div class="col-sm-2">
             <label id="@($"lbl{t.Name}")" name="@($"lbl{t.Name}")" for="@($"ddl{t.Name}_SourceColumn")">@($"{t.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
         </div>
-        <div class="col-sm-10 field-block" style="display: @(string.IsNullOrWhiteSpace(t.SubType) ? "block": "none");">
+        <div class="col-sm-10 field-block" style="display: @(string.IsNullOrWhiteSpace(t.ChildType) ? "block": "none");">
             <select id="@($"ddl{t.Name}_SourceColumn")" name="@($"ddl{t.Name}_SourceColumn")" class="form-control">
                 @foreach (var sourceColumn in Model.SourceColumns)
                 {
@@ -29,7 +29,8 @@
             </select>
             <input id="@($"txt{t.Name}_StaticValue")" name="@($"txt{t.Name}_StaticValue")" type="text" class="form-control" placeholder="Static Value" />
             <input id="@($"hf{t.Name}_DataType")" name="@($"hf{t.Name}_DataType")" type="hidden" value="@t.DataType" />
-            <input id="@($"hf{t.Name}_SubType")" name="@($"hf{t.Name}_SubType")" type="hidden" value="@t.SubType" />
+            <input id="@($"hf{t.Name}_ChildType")" name="@($"hf{t.Name}_ChildType")" type="hidden" value="@t.ChildType" />
+            <input id="@($"hf{t.Name}_ParentType")" name="@($"hf{t.Name}_ParentType")" type="hidden" value="@t.ParentType" />
         </div>
     </div>
     foreach (var s in t.SubFields)
@@ -39,7 +40,7 @@
                 <div class="col-sm-2" style="padding-left: 30px;">
                     <label id="@($"lbl{s.Name}_{s.ParentType}")" name="@($"lbl{s.Name}_{s.ParentType}")" for="@($"ddl{s.Name}_SourceColumn_{s.ParentType}")">@($"{s.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
                 </div>
-                <div class="col-sm-10 field-block" style="display: @(string.IsNullOrWhiteSpace(s.SubType) ? "block": "none");">
+                <div class="col-sm-10 field-block" style="display: @(string.IsNullOrWhiteSpace(s.ChildType) ? "block": "none");">
                     <select id="@($"ddl{s.Name}_SourceColumn_{s.ParentType}")" name="@($"ddl{s.Name}_SourceColumn_{s.ParentType}")" class="form-control">
                         @foreach (var sourceColumn in Model.SourceColumns)
                         {
@@ -61,7 +62,8 @@
                     </select>
                     <input id="@($"txt{s.Name}_StaticValue_{s.ParentType}")" name="@($"txt{s.Name}_StaticValue_{s.ParentType}")" type="text" class="form-control" placeholder="Static Value" />
                     <input id="@($"hf{s.Name}_DataType_{s.ParentType}")" name="@($"hf{s.Name}_DataType_{s.ParentType}")" type="hidden" value="@s.DataType" />
-                    <input id="@($"hf{s.Name}_SubType")" name="@($"hf{s.Name}_SubType")" type="hidden" value="@s.SubType" />
+                    <input id="@($"hf{s.Name}_ChildType")" name="@($"hf{s.Name}_ChildType")" type="hidden" value="@s.ChildType" />
+                    <input id="@($"hf{s.Name}_ParentType")" name="@($"hf{s.Name}_ParentType")" type="hidden" value="@s.ParentType" />
                 </div>
             </div>
         </div>
