@@ -40,6 +40,12 @@ namespace DataFlow.Web.Models
 
         [JsonProperty(PropertyName = "value", NullValueHandling = NullValueHandling.Ignore)]
         public string Value { get; set; }
+
+        [JsonIgnore]
+        public string ChildType { get; set; }
+
+        [JsonIgnore]
+        public string ParentType { get; set; }
     }
 
     public class DataMapperEnums
