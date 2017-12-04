@@ -55,8 +55,8 @@ namespace DataFlow.Web.Models
             Fields.ForEach(f =>
             {
                 fields.Add(f.Name);
-                //fields.AddRange(f.SubFields.Select(x => x.Name));
-                //fields.AddRange(f.SubFields.SelectMany(x => x.SubFields.Select(y => y.Name)));
+                fields.AddRange(f.SubFields.Select(x => x.Name));
+                fields.AddRange(f.SubFields.SelectMany(x => x.SubFields.Select(y => y.Name)));
                 //if (f.SubFields.Any())
                 //{
                 //    fields.AddRange(f.SubFields.Select(x => x.Name));

@@ -198,10 +198,13 @@ namespace DataFlow.Web.Controllers
 
                 //if (subType == null)
                 //{
+                var parentType = formCollection[$"hf{f}_ParentType"]?.NullIfWhiteSpace();
+                var dataType = formCollection[$"hf{f}_DataType"]?.NullIfWhiteSpace();
+
                 var model = new DataMapper();
                 model.Name = f;
 
-                if (string.IsNullOrWhiteSpace(formCollection[$"hf{f}_ChildType"].NullIfWhiteSpace()))
+                if (parentType == null && dataType != "array")
                 {
                     model.DataMapperProperty = new DataMapperProperty
                     {
@@ -217,73 +220,32 @@ namespace DataFlow.Web.Controllers
 
                     jObject.Add(model.Name, JObject.FromObject(model.DataMapperProperty));
                 }
+                else if(parentType != null)
+                {
+                    model.DataMapperProperty = new DataMapperProperty
+                    {
+                        Source = formCollection[$"ddl{f}_SourceType_{parentType}"]?.NullIfWhiteSpace(),
+                        SourceColumn = formCollection[$"ddl{f}_SourceColumn_{parentType}"]?.NullIfWhiteSpace(),
+                        DataType = formCollection[$"hf{f}_DataType_{parentType}"]?.NullIfWhiteSpace(),
+                        Default = formCollection[$"txt{f}_DefaultValue_{parentType}"]?.NullIfWhiteSpace(),
+                        SourceTable = formCollection[$"ddl{f}_SourceTable_{parentType}"]?.NullIfWhiteSpace(),
+                        Value = formCollection[$"txt{f}_StaticValue_{parentType}"]?.NullIfWhiteSpace(),
+                        ChildType = formCollection[$"hf{f}_ChildType"].NullIfWhiteSpace(),
+                        ParentType = formCollection[$"hf{f}_ParentType"].NullIfWhiteSpace()
+                    };
 
-                
-                //}
-                //else
-                //{
-                //    var model = new DataMapper()
-                //    {
-                //        Name = f,
-                //        SubDataMappers = new List<DataMapper>()
-                //        {
-                //            new DataMapper()
-                //            {
-                //                Name = f,
-                //                DataMapperProperty = new DataMapperProperty
-                //                {
-                //                    Source = formCollection[$"ddl{f}_SourceType"]?.NullIfWhiteSpace(),
-                //                    SourceColumn = formCollection[$"ddl{f}_SourceColumn"]?.NullIfWhiteSpace(),
-                //                    DataType = formCollection[$"hf{f}_DataType"]?.NullIfWhiteSpace(),
-                //                    Default = formCollection[$"txt{f}_DefaultValue"]?.NullIfWhiteSpace(),
-                //                    SourceTable = formCollection[$"ddl{f}_SourceTable"]?.NullIfWhiteSpace(),
-                //                    Value = formCollection[$"txt{f}_StaticValue"]?.NullIfWhiteSpace(),
-                //                }
-                //            }
-                //        }
-                //    };
+                    var jObjectChild = new JObject(new JProperty(f, (JObject)JToken.FromObject(model.DataMapperProperty)));
 
-                //    var subDataJObjectList = new JArray();
-                //    model.SubDataMappers.ForEach(x =>
-                //    {
-                //        var subDataJObject = new JObject
-                //        {
-                //            {x.Name, JObject.FromObject(x.DataMapperProperty)}
-                //        };
-
-                //        subDataJObjectList.Add(subDataJObject);
-                //    });
-
-                //jObject.Add(model.Name, subDataJObjectList);
-                //}
+                    if (jObject.Property(parentType) == null)
+                    {
+                        jObject.Add(parentType, new JArray(jObjectChild));
+                    }
+                    else
+                    {
+                        ((JArray)jObject[parentType]).Last().AddAfterSelf(jObjectChild);
+                    }
+                }
             });
-
-            //subFields.ForEach(p =>
-            //{
-            //    var subJArray = new JArray();
-
-            //    p.Item2.ForEach(f =>
-            //    {
-            //        var model = new DataMapper
-            //        {
-            //            Name = f,
-            //            DataMapperProperty = new DataMapperProperty
-            //            {
-            //                Source = formCollection[$"ddl{f}_SourceType_{p}"]?.NullIfWhiteSpace(),
-            //                SourceColumn = formCollection[$"ddl{f}_SourceColumn_{p}"]?.NullIfWhiteSpace(),
-            //                DataType = formCollection[$"hf{f}_DataType_{p}"]?.NullIfWhiteSpace(),
-            //                Default = formCollection[$"txt{f}_DefaultValue_{p}"]?.NullIfWhiteSpace(),
-            //                SourceTable = formCollection[$"ddl{f}_SourceTable_{p}"]?.NullIfWhiteSpace(),
-            //                Value = formCollection[$"txt{f}_StaticValue_{p}"]?.NullIfWhiteSpace(),
-            //            }
-            //        };
-            //        var j = new JObject();
-            //        j.Add(model.Name, JObject.FromObject(model.DataMapperProperty));
-            //        subJArray.Add(j);
-            //    });
-
-            //    jObject.Add(p.Item1, subJArray);
-            //});
 
             jObject.Add("_required", JArray.FromObject(fields));
 
