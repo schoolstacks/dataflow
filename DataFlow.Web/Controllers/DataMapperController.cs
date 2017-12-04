@@ -143,7 +143,7 @@ namespace DataFlow.Web.Controllers
                 {
                     var entityJson = edFiMetadataProcessor.GetJsonFromUrl(entitySelected.Url);
                     var apiFields = edFiMetadataProcessor.GetFieldListFromJson(entityJson, entitySelected.Name)
-                        .Where(x => x.Required)
+                        .Where(x => x.Required || GetAdditionalFields(entitySelected.Name).Contains(x.Name))
                         .ToList();
 
                     apiFields.ForEach(x =>
@@ -151,24 +151,35 @@ namespace DataFlow.Web.Controllers
                         if (x.Name == "id")
                             return;
 
-                        if (x.Required)
+                        var dataMapperField = new DataMapperViewModel.Field(x.Name, x.Type, !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty, string.Empty);
+                        if (!string.IsNullOrWhiteSpace(x.SubType) && x.SubFields.Any())
                         {
-                            var dataMapperField = new DataMapperViewModel.Field(x.Name, x.Type, !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty, string.Empty);
-                            if (!string.IsNullOrWhiteSpace(x.SubType) && x.SubFields.Any())
+                            x.SubFields.ForEach(subField =>
                             {
-                                x.SubFields.ForEach(subField =>
+                                if (subField.Name == "id")
+                                    return;
+                                ;
+                                if (subField.Required)
                                 {
-                                    if (subField.Name == "id")
-                                        return;
-                                    ;
-                                    if (subField.Required)
+                                    dataMapperField.SubFields.Add(new DataMapperViewModel.Field(subField.Name, subField.Type, !string.IsNullOrWhiteSpace(subField.SubType) ? subField.Name : string.Empty, !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty));
+                                }
+
+                                if (!string.IsNullOrWhiteSpace(subField.SubType) && subField.SubFields.Any())
+                                {
+                                    subField.SubFields.ForEach(triField =>
                                     {
-                                        dataMapperField.SubFields.Add(new DataMapperViewModel.Field(subField.Name, subField.Type,  !string.IsNullOrWhiteSpace(subField.SubType) ? subField.Name : string.Empty, !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty));
-                                    }
-                                });
-                            }
-                            vm.Fields.Add(dataMapperField);
+                                        if (triField.Name == "id")
+                                            return;
+                                        ;
+                                        if (triField.Required)
+                                        {
+                                            dataMapperField.SubFields.Add(new DataMapperViewModel.Field(triField.Name, triField.Type, !string.IsNullOrWhiteSpace(triField.SubType) ? triField.Name : string.Empty, !string.IsNullOrWhiteSpace(subField.SubType) ? subField.Name : string.Empty));
+                                        }
+                                    });
+                                }
+                            });
                         }
+                        vm.Fields.Add(dataMapperField);
                     });
                 }
             }
@@ -177,34 +188,21 @@ namespace DataFlow.Web.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateJsonMap(FormCollection formCollection)
+        public JsonResult UpdateJsonMap(FormCollection formCollection, string triggeredBy)
         {
             var fields = formCollection["FieldNames"].Split(';').ToList();
-            //var subFields = new List<Tuple<string,List<string>>>();
 
             var jObject = new JObject();
 
             fields.ForEach(f =>
             {
-                //var subType = formCollection[$"hf{f}_SubType"].NullIfWhiteSpace();
-                //if (subType != null)
-                //{
-                //    if (subFields.All(x => x.Item1 != subType))
-                //    {
-                //        subFields.Add(new Tuple<string, List<string>>(subType, formCollection.AllKeys.Where(x=>x.EndsWith(subType)).Select(x=>x).ToList()));
-                //    }
-                //}
-
-
-                //if (subType == null)
-                //{
-                var parentType = formCollection[$"hf{f}_ParentType"]?.NullIfWhiteSpace();
+                var parentType = formCollection[$"hf{f}_ParentType"]?.Split(',').LastOrDefault()?.NullIfWhiteSpace();
                 var dataType = formCollection[$"hf{f}_DataType"]?.NullIfWhiteSpace();
 
                 var model = new DataMapper();
                 model.Name = f;
 
-                if (parentType == null && dataType != "array")
+                if (parentType == null && new[]{"string","date-time","boolean","integer"}.Contains(dataType))
                 {
                     model.DataMapperProperty = new DataMapperProperty
                     {
@@ -220,7 +218,7 @@ namespace DataFlow.Web.Controllers
 
                     jObject.Add(model.Name, JObject.FromObject(model.DataMapperProperty));
                 }
-                else if(parentType != null)
+                else if (parentType != null)
                 {
                     model.DataMapperProperty = new DataMapperProperty
                     {
@@ -233,17 +231,33 @@ namespace DataFlow.Web.Controllers
                         ChildType = formCollection[$"hf{f}_ChildType"].NullIfWhiteSpace(),
                         ParentType = formCollection[$"hf{f}_ParentType"].NullIfWhiteSpace()
                     };
+                    dataType = model.DataMapperProperty.DataType;
 
                     var jObjectChild = new JObject(new JProperty(f, (JObject)JToken.FromObject(model.DataMapperProperty)));
 
                     if (jObject.Property(parentType) == null)
                     {
-                        jObject.Add(parentType, new JArray(jObjectChild));
+                        if (dataType == "array")
+                        {
+                            jObject.Add(parentType, new JArray(jObjectChild));
+                        }
+                        else if(new[] { "string", "date-time", "boolean", "integer" }.Contains(dataType))
+                        {
+                            jObject.Add(parentType, new JObject(jObjectChild));
+                        }
                     }
                     else
                     {
-                        ((JArray)jObject[parentType]).Last().AddAfterSelf(jObjectChild);
+                        if (jObject[parentType] is JArray array)
+                        {
+                            array.Last().AddAfterSelf(jObjectChild);
+                        }
+                        else if(jObject[parentType] is JObject job)
+                        {
+                            job.Add(f, JObject.FromObject(model.DataMapperProperty));
+                        }
                     }
+
                 }
             });
 
@@ -325,6 +339,18 @@ namespace DataFlow.Web.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        private List<string> GetAdditionalFields(string entityName)
+        {
+            var addtFields = new List<string>();
+
+            if (entityName == "studentAssessments")
+            {
+                addtFields.AddRange(new[] { "performanceLevels", "scoreResults", "studentObjectiveAssessments" });
+            }
+
+            return addtFields;
         }
 
         private List<SelectListItem> GetEntityList
