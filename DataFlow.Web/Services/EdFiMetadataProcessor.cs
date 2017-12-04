@@ -109,11 +109,19 @@ namespace DataFlow.Web.Services
                             }
                             returnField.Type = variable["type"].ToString();
 
-                            if (returnField.Type == "array")
+                            if (returnField.Type != "string" && returnField.Type != "date-time" && returnField.Type != "boolean" && returnField.Type != "integer")
                             {
-                                returnField.SubType = variable["items"]["$ref"].Value<string>();
-                                returnField.SubFields = GetFieldListFromJson(jsonObj, returnField.SubType);
+                                if (returnField.Type == "array")
+                                {
+                                    returnField.SubType = variable["items"]["$ref"].Value<string>();
+                                    returnField.SubFields = GetFieldListFromJson(jsonObj, returnField.SubType);
 
+                                }
+                                else
+                                {
+                                    returnField.SubType = returnField.Name;
+                                    returnField.SubFields = GetFieldListFromJson(jsonObj, returnField.SubType);
+                                }
                             }
                         }
                     }

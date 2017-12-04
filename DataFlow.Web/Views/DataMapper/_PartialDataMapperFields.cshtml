@@ -62,8 +62,8 @@
                     </select>
                     <input id="@($"txt{s.Name}_StaticValue_{s.ParentType}")" name="@($"txt{s.Name}_StaticValue_{s.ParentType}")" type="text" class="form-control" placeholder="Static Value" />
                     <input id="@($"hf{s.Name}_DataType_{s.ParentType}")" name="@($"hf{s.Name}_DataType_{s.ParentType}")" type="hidden" value="@s.DataType" />
-                    <input id="@($"hf{s.Name}_ChildType")" name="@($"hf{s.Name}_ChildType")" type="hidden" value="@s.ChildType" />
-                    <input id="@($"hf{s.Name}_ParentType")" name="@($"hf{s.Name}_ParentType")" type="hidden" value="@s.ParentType" />
+                    <input id="@($"hf{s.Name}_ChildType_{s.ParentType}")" name="@($"hf{s.Name}_ChildType_{s.ParentType}")" type="hidden" value="@s.ChildType" />
+                    <input id="@($"hf{s.Name}_ParentType_{s.ParentType}")" name="@($"hf{s.Name}_ParentType_{s.ParentType}")" type="hidden" value="@s.ParentType" />
                 </div>
             </div>
         </div>
@@ -71,14 +71,12 @@
 }
 @Html.Hidden("FieldNames", string.Join(";", Model.GetAllFieldNames()))
 <script type="text/javascript">
-    $(".field-block").change(function () {
+    $(".field-block").change(function (e) {
         var frmData = $("#frmDataMapper").serialize();
-
-        console.log(frmData);
-
+        
         $.ajax({
             type: "POST",
-            url: '@Url.Action("UpdateJsonMap", "DataMapper")',
+            url: "/DataMapper/UpdateJsonMap?triggeredBy=" + e.target.id,
             data: frmData,
             dataType: "json",
             success: function (data) {
