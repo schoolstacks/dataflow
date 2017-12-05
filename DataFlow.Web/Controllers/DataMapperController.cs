@@ -257,18 +257,18 @@ namespace DataFlow.Web.Controllers
                             jObject.Add(firstParent, new JArray());
                         }
 
-                        if (jObject[firstParent] is JArray)
-                        {
-                            ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
-                        }
-                        else if (jObject[firstParent] is JObject)
-                        {
-                            ((JObject) jObject[firstParent]).Add(new JObject(new JProperty(childType, new JArray())));
-                        }
-                        else
-                        {
-                            errorAddingToJsonMap.Add($"Error adding {firstParent} for child {childType}");
-                        }
+                        //if (jObject[firstParent] is JArray)
+                        //{
+                        //    ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
+                        //}
+                        //else if (jObject[firstParent] is JObject)
+                        //{
+                        //    ((JObject) jObject[firstParent]).Add(new JObject(new JProperty(childType, new JArray())));
+                        //}
+                        //else
+                        //{
+                        //    errorAddingToJsonMap.Add($"Error adding {firstParent} for child {childType}");
+                        //}
                     }
                     else
                     {
