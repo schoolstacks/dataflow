@@ -255,35 +255,11 @@ namespace DataFlow.Web.Controllers
                         if (jObject.Property(firstParent) == null)
                         {
                             jObject.Add(firstParent, new JArray());
-
-                            if (secondParent != null)
-                            {
-                                if (jObject.Property(secondParent) == null)
-                                {
-                                    ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(secondParent, new JArray())));
-                                }
-                            }
-                        }
-
-                        if (secondParent != null)
-                        {
-                            if (jObject[firstParent][secondParent] is JArray)
-                            {
-                                ((JArray)jObject[firstParent][secondParent]).Add(new JObject(new JProperty(childType, new JArray())));
-                            }
-                            else if (jObject[firstParent][secondParent] is JObject)
-                            {
-                                ((JObject) jObject[firstParent][secondParent]).Add(new JObject(new JProperty(childType, new JArray())));
-                            }
-                            else
-                            {
-                                errorAddingToJsonMap.Add($"Error adding {firstParent}:{secondParent} for child {childType}");
-                            }
                         }
 
                         if (jObject[firstParent] is JArray)
                         {
-                            ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JArray())));
+                            ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
                         }
                         else if (jObject[firstParent] is JObject)
                         {
@@ -299,30 +275,6 @@ namespace DataFlow.Web.Controllers
                         if (jObject.Property(firstParent) == null)
                         {
                             jObject.Add(firstParent, new JObject());
-
-                            if (secondParent != null)
-                            {
-                                if (jObject.Property(secondParent) == null)
-                                {
-                                    ((JObject)jObject[firstParent]).Add(new JObject(new JProperty(secondParent, new JObject())));
-                                }
-                            }
-                        }
-
-                        if (secondParent != null)
-                        {
-                            if (jObject[firstParent] is JArray)
-                            {
-                                ((JArray)jObject[firstParent][secondParent]).Add(new JObject(new JProperty(childType, new JObject())));
-                            }
-                            else if (jObject[firstParent] is JObject)
-                            {
-                                ((JObject) jObject[firstParent][secondParent]).Add(new JObject(new JProperty(childType, new JObject())));
-                            }
-                            else
-                            {
-                                errorAddingToJsonMap.Add($"Error adding {firstParent}:{secondParent} for child {childType}");
-                            }
                         }
 
                         if (jObject[firstParent] is JArray)
@@ -354,19 +306,6 @@ namespace DataFlow.Web.Controllers
                 {
                     var jObjectChild = new JObject(new JProperty(GetJsonFieldName(f), (JObject)JToken.FromObject(model.DataMapperProperty)));
 
-                    //if (jObject.Property(parentType) == null)
-                    //{
-                    //    if (dataType == "array")
-                    //    {
-                    //        jObject.Add(parentType, new JArray(jObjectChild));
-                    //    }
-                    //    else if(new[] { "string", "date-time", "boolean", "integer" }.Contains(dataType))
-                    //    {
-                    //        jObject.Add(parentType, new JObject(jObjectChild));
-                    //    }
-                    //}
-                    //else
-                    //{
                     if (secondParent != null)
                     {
                         if (jObject[firstParent][0][secondParent] is JArray)
@@ -391,7 +330,6 @@ namespace DataFlow.Web.Controllers
                     }
                     else
                     {
-                        //Console.WriteLine(jObject[firstParent].Type);
                         if (jObject[firstParent] is JArray)
                         {
                             ((JArray)jObject[firstParent]).Add(jObjectChild);
@@ -402,14 +340,9 @@ namespace DataFlow.Web.Controllers
                         }
                         else
                         {
-                            //((JObject)jObject[firstParent]).Add(GetJsonFieldName(f), JObject.FromObject(model.DataMapperProperty));
                             errorAddingToJsonMap.Add($"Error adding {firstParent} for {f}");
                         }
                     }
-
-                    
-                    //}
-
                 }
                 else
                 {
