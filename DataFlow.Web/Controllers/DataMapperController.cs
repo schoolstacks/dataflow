@@ -151,7 +151,12 @@ namespace DataFlow.Web.Controllers
                         if (x.Name == "id")
                             return;
 
-                        var dataMapperField = new DataMapperViewModel.Field(x.Name, x.Type, !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty, string.Empty);
+                        var dataMapperField = new DataMapperViewModel.Field(
+                            name: x.Name, 
+                            dataType: x.Type, 
+                            childType: !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty, 
+                            parentType: string.Empty, 
+                            formFieldName: x.Name);
                         if (!string.IsNullOrWhiteSpace(x.SubType) && x.SubFields.Any())
                         {
                             x.SubFields.ForEach(subField =>
@@ -161,7 +166,14 @@ namespace DataFlow.Web.Controllers
                                 ;
                                 if (subField.Required)
                                 {
-                                    dataMapperField.SubFields.Add(new DataMapperViewModel.Field(subField.Name, subField.Type, !string.IsNullOrWhiteSpace(subField.SubType) ? subField.Name : string.Empty, !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty));
+                                    dataMapperField.SubFields.Add(
+                                        item: new DataMapperViewModel.Field(
+                                            name: subField.Name,
+                                            dataType: subField.Type,
+                                            childType: !string.IsNullOrWhiteSpace(subField.SubType) ? subField.Name : string.Empty,
+                                            parentType: !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty,
+                                            formFieldName: $"{x.Name}_{subField.Name}")
+                                    );
                                 }
 
                                 if (!string.IsNullOrWhiteSpace(subField.SubType) && subField.SubFields.Any())
@@ -173,7 +185,14 @@ namespace DataFlow.Web.Controllers
                                         ;
                                         if (triField.Required)
                                         {
-                                            dataMapperField.SubFields.Add(new DataMapperViewModel.Field(triField.Name, triField.Type, !string.IsNullOrWhiteSpace(triField.SubType) ? triField.Name : string.Empty, !string.IsNullOrWhiteSpace(subField.SubType) ? subField.Name : string.Empty));
+                                            dataMapperField.SubFields.Add(
+                                                item: new DataMapperViewModel.Field(
+                                                    name: triField.Name,
+                                                    dataType: triField.Type,
+                                                    childType: !string.IsNullOrWhiteSpace(triField.SubType) ? triField.Name : string.Empty,
+                                                    parentType: !string.IsNullOrWhiteSpace(subField.SubType) ? $"{x.Name}:{subField.Name}" : string.Empty,
+                                                    formFieldName: $"{x.Name}_{subField.Name}_{triField.Name}")
+                                            );
                                         }
                                     });
                                 }
@@ -191,20 +210,28 @@ namespace DataFlow.Web.Controllers
         public JsonResult UpdateJsonMap(FormCollection formCollection, string triggeredBy)
         {
             var fields = formCollection["FieldNames"].Split(';').ToList();
+            var errorAddingToJsonMap = new List<string>();
 
             var jObject = new JObject();
 
             fields.ForEach(f =>
             {
-                var parentType = formCollection[$"hf{f}_ParentType"]?.Split(',').LastOrDefault()?.NullIfWhiteSpace();
+                //var parentType = triggeredBy.Count(x => x == '_') == 1 ? null : triggeredBy.Substring(triggeredBy.LastIndexOf('_') + 1);
+                //var dataType = (parentType == null ? formCollection[$"hf{f}_DataType"] : formCollection[$"hf{f}_DataType_{parentType}"]).NullIfWhiteSpace();
+
+                var childType = formCollection[$"hf{f}_ChildType"]?.NullIfWhiteSpace();
+                var parentType = formCollection[$"hf{f}_ParentType"]?.NullIfWhiteSpace();
                 var dataType = formCollection[$"hf{f}_DataType"]?.NullIfWhiteSpace();
+                var nonObjectsOrArrays = new[] {"string", "date-time", "boolean", "integer"};
 
-                var model = new DataMapper();
-                model.Name = f;
+                var parentTypes = parentType?.Split(':').ToList() ?? new List<string>();
+                var firstParent = parentTypes.ElementAtOrDefault(0).NullIfWhiteSpace();
+                var secondParent = parentTypes.ElementAtOrDefault(1).NullIfWhiteSpace();
 
-                if (parentType == null && new[]{"string","date-time","boolean","integer"}.Contains(dataType))
+                var model = new DataMapper
                 {
-                    model.DataMapperProperty = new DataMapperProperty
+                    Name = GetJsonFieldName(f),
+                    DataMapperProperty = new DataMapperProperty
                     {
                         Source = formCollection[$"ddl{f}_SourceType"]?.NullIfWhiteSpace(),
                         SourceColumn = formCollection[$"ddl{f}_SourceColumn"]?.NullIfWhiteSpace(),
@@ -214,59 +241,161 @@ namespace DataFlow.Web.Controllers
                         Value = formCollection[$"txt{f}_StaticValue"]?.NullIfWhiteSpace(),
                         ChildType = formCollection[$"hf{f}_ChildType"].NullIfWhiteSpace(),
                         ParentType = formCollection[$"hf{f}_ParentType"].NullIfWhiteSpace()
-                    };
+                    }
+                };
 
+                if (firstParent == null && childType == null && nonObjectsOrArrays.Contains(dataType))
+                {
                     jObject.Add(model.Name, JObject.FromObject(model.DataMapperProperty));
                 }
-                else if (parentType != null)
+                else if (firstParent != null && childType != null)
                 {
-                    model.DataMapperProperty = new DataMapperProperty
+                    if (dataType == "array")
                     {
-                        Source = formCollection[$"ddl{f}_SourceType_{parentType}"]?.NullIfWhiteSpace(),
-                        SourceColumn = formCollection[$"ddl{f}_SourceColumn_{parentType}"]?.NullIfWhiteSpace(),
-                        DataType = formCollection[$"hf{f}_DataType_{parentType}"]?.NullIfWhiteSpace(),
-                        Default = formCollection[$"txt{f}_DefaultValue_{parentType}"]?.NullIfWhiteSpace(),
-                        SourceTable = formCollection[$"ddl{f}_SourceTable_{parentType}"]?.NullIfWhiteSpace(),
-                        Value = formCollection[$"txt{f}_StaticValue_{parentType}"]?.NullIfWhiteSpace(),
-                        ChildType = formCollection[$"hf{f}_ChildType"].NullIfWhiteSpace(),
-                        ParentType = formCollection[$"hf{f}_ParentType"].NullIfWhiteSpace()
-                    };
-                    dataType = model.DataMapperProperty.DataType;
-
-                    var jObjectChild = new JObject(new JProperty(f, (JObject)JToken.FromObject(model.DataMapperProperty)));
-
-                    if (jObject.Property(parentType) == null)
-                    {
-                        if (dataType == "array")
+                        if (jObject.Property(firstParent) == null)
                         {
-                            jObject.Add(parentType, new JArray(jObjectChild));
+                            jObject.Add(firstParent, new JArray());
+
+                            if (secondParent != null)
+                            {
+                                if (jObject.Property(secondParent) == null)
+                                {
+                                    ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(secondParent, new JArray())));
+                                }
+                            }
                         }
-                        else if(new[] { "string", "date-time", "boolean", "integer" }.Contains(dataType))
+
+                        if (secondParent != null)
                         {
-                            jObject.Add(parentType, new JObject(jObjectChild));
+                            if (jObject[firstParent][secondParent] is JArray)
+                            {
+                                ((JArray)jObject[firstParent][secondParent]).Add(new JObject(new JProperty(childType, new JArray())));
+                            }
+                            else if (jObject[firstParent][secondParent] is JObject)
+                            {
+                                ((JObject)jObject[firstParent][secondParent]).Add(new JObject(new JProperty(childType, new JObject())));
+                            }
+                        }
+
+                        if (jObject[firstParent] is JArray)
+                        {
+                            ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JArray())));
+                        }
+                        else if (jObject[firstParent] is JObject)
+                        {
+                            ((JObject)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
                         }
                     }
                     else
                     {
-                        if (jObject[parentType] is JArray array)
+                        if (jObject.Property(firstParent) == null)
                         {
-                            array.Last().AddAfterSelf(jObjectChild);
+                            jObject.Add(firstParent, new JObject());
+
+                            if (secondParent != null)
+                            {
+                                if (jObject.Property(secondParent) == null)
+                                {
+                                    ((JObject)jObject[firstParent]).Add(new JObject(new JProperty(secondParent, new JObject())));
+                                }
+                            }
                         }
-                        else if(jObject[parentType] is JObject job)
+
+                        if (secondParent != null)
                         {
-                            job.Add(f, JObject.FromObject(model.DataMapperProperty));
+                            if (jObject[firstParent] is JArray)
+                            {
+                                ((JArray)jObject[firstParent][secondParent]).Add(new JObject(new JProperty(childType, new JArray())));
+                            }
+                            else if (jObject[firstParent] is JObject)
+                            {
+                                ((JObject)jObject[firstParent][secondParent]).Add(new JObject(new JProperty(childType, new JObject())));
+                            }
+                        }
+
+                        if (jObject[firstParent] is JArray)
+                        {
+                            ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JArray())));
+                        }
+                        else if (jObject[firstParent] is JObject)
+                        {
+                            ((JObject)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
+                        }
+                    }
+                }
+                else if (firstParent == null &&childType != null)
+                {
+                    if (dataType == "array")
+                    {
+                        jObject.Add(childType, new JArray());
+                    }
+                    else
+                    {
+                        jObject.Add(childType, new JObject());
+                    }
+                }
+                else if (firstParent != null && childType == null)
+                {
+                    var jObjectChild = new JObject(new JProperty(GetJsonFieldName(f), (JObject)JToken.FromObject(model.DataMapperProperty)));
+
+                    //if (jObject.Property(parentType) == null)
+                    //{
+                    //    if (dataType == "array")
+                    //    {
+                    //        jObject.Add(parentType, new JArray(jObjectChild));
+                    //    }
+                    //    else if(new[] { "string", "date-time", "boolean", "integer" }.Contains(dataType))
+                    //    {
+                    //        jObject.Add(parentType, new JObject(jObjectChild));
+                    //    }
+                    //}
+                    //else
+                    //{
+                    if (secondParent != null)
+                    {
+                        if (jObject[firstParent][0][secondParent] is JArray)
+                        {
+                            ((JArray)jObject[firstParent][0][secondParent]).Add(jObjectChild);
+                        }
+                        else if (jObject[firstParent][0][secondParent] is JObject)
+                        {
+                            ((JObject)jObject[firstParent][0][secondParent]).Add(GetJsonFieldName(f), JObject.FromObject(model.DataMapperProperty));
+                        }
+                    }
+                    else
+                    {
+                        if (jObject[firstParent] is JArray)
+                        {
+                            ((JArray)jObject[firstParent]).Add(jObjectChild);
+                        }
+                        else if (jObject[firstParent] is JObject)
+                        {
+                            ((JObject)jObject[firstParent]).Add(GetJsonFieldName(f), JObject.FromObject(model.DataMapperProperty));
                         }
                     }
 
+                    
+                    //}
+
+                }
+                else
+                {
+                    errorAddingToJsonMap.Add(f);
                 }
             });
 
             jObject.Add("_required", JArray.FromObject(fields));
+            jObject.Add("_errors", JArray.FromObject(errorAddingToJsonMap));
 
             var cleanJson = JsonHelper.RemoveEmptyChildren(jObject);
             var jsonMap = cleanJson.ToString(Formatting.Indented);
 
             return Json(jsonMap);
+        }
+
+        private string GetJsonFieldName(string formField)
+        {
+            return formField.LastIndexOf('_') > 0 ? formField.Substring(formField.LastIndexOf('_') + 1) : formField;
         }
 
         [HttpPost]

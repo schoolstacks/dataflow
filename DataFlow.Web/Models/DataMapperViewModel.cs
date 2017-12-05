@@ -54,9 +54,9 @@ namespace DataFlow.Web.Models
             
             Fields.ForEach(f =>
             {
-                fields.Add(f.Name);
-                fields.AddRange(f.SubFields.Select(x => x.Name));
-                fields.AddRange(f.SubFields.SelectMany(x => x.SubFields.Select(y => y.Name)));
+                fields.Add(f.FormFieldName);
+                fields.AddRange(f.SubFields.Select(x => x.FormFieldName));
+                //fields.AddRange(f.SubFields.SelectMany(x => x.SubFields.Select(y => x.FormFieldName)));
                 //if (f.SubFields.Any())
                 //{
                 //    fields.AddRange(f.SubFields.Select(x => x.Name));
@@ -77,12 +77,13 @@ namespace DataFlow.Web.Models
 
         public class Field
         {
-            public Field(string name, string dataType, string childType, string parentType = null)
+            public Field(string name, string dataType, string childType, string parentType, string formFieldName)
             {
                 Name = name;
                 DataType = dataType;
                 ChildType = childType;
                 ParentType = parentType;
+                FormFieldName = formFieldName;
                 SubFields = new List<Field>();
             }
 
@@ -90,6 +91,7 @@ namespace DataFlow.Web.Models
             public string DataType { get; set; }
             public string ChildType { get; set; }
             public string ParentType { get; set; }
+            public string FormFieldName { get; set; }
             public List<Field> SubFields { get; set; }
         }
     }
