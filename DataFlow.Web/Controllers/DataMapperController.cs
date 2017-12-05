@@ -224,7 +224,9 @@ namespace DataFlow.Web.Controllers
                 var dataType = formCollection[$"hf{f}_DataType"]?.NullIfWhiteSpace();
                 var nonObjectsOrArrays = new[] {"string", "date-time", "boolean", "integer"};
 
-                var parentTypes = parentType?.Split(':').ToList() ?? new List<string>();
+                childType = childType?.Split(',').FirstOrDefault().NullIfWhiteSpace();
+                dataType = dataType?.Split(',').FirstOrDefault().NullIfWhiteSpace();
+                var parentTypes = parentType?.Split(',').FirstOrDefault()?.Split(':').ToList() ?? new List<string>();
                 var firstParent = parentTypes.ElementAtOrDefault(0).NullIfWhiteSpace();
                 var secondParent = parentTypes.ElementAtOrDefault(1).NullIfWhiteSpace();
 
