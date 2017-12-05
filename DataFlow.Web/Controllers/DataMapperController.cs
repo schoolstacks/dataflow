@@ -359,7 +359,11 @@ namespace DataFlow.Web.Controllers
                         }
                         else if (jObject[firstParent][0][secondParent] is JObject)
                         {
-                            ((JObject)jObject[firstParent][0][secondParent]).Add(GetJsonFieldName(f), JObject.FromObject(model.DataMapperProperty));
+                            ((JObject) jObject[firstParent][0][secondParent]).Add(GetJsonFieldName(f), JObject.FromObject(model.DataMapperProperty));
+                        }
+                        else
+                        {
+                            errorAddingToJsonMap.Add($"Error adding {secondParent} to {firstParent} for {f}");
                         }
                     }
                     else
@@ -370,7 +374,11 @@ namespace DataFlow.Web.Controllers
                         }
                         else if (jObject[firstParent] is JObject)
                         {
-                            ((JObject)jObject[firstParent]).Add(GetJsonFieldName(f), JObject.FromObject(model.DataMapperProperty));
+                            ((JObject) jObject[firstParent]).Add(GetJsonFieldName(f), JObject.FromObject(model.DataMapperProperty));
+                        }
+                        else
+                        {
+                            errorAddingToJsonMap.Add($"Error adding {firstParent} for {f}");
                         }
                     }
 
