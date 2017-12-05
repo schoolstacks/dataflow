@@ -152,10 +152,10 @@ namespace DataFlow.Web.Controllers
                             return;
 
                         var dataMapperField = new DataMapperViewModel.Field(
-                            name: x.Name, 
-                            dataType: x.Type, 
-                            childType: !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty, 
-                            parentType: string.Empty, 
+                            name: x.Name,
+                            dataType: x.Type,
+                            childType: !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty,
+                            parentType: string.Empty,
                             formFieldName: x.Name);
                         if (!string.IsNullOrWhiteSpace(x.SubType) && x.SubFields.Any())
                         {
@@ -211,144 +211,151 @@ namespace DataFlow.Web.Controllers
         {
             var fields = formCollection["FieldNames"].Split(';').ToList();
             var errorAddingToJsonMap = new List<string>();
+            var nonObjectsOrArrays = new[] { "string", "date-time", "boolean", "integer" };
 
             var jObject = new JObject();
 
             fields.ForEach(f =>
             {
-                //var parentType = triggeredBy.Count(x => x == '_') == 1 ? null : triggeredBy.Substring(triggeredBy.LastIndexOf('_') + 1);
-                //var dataType = (parentType == null ? formCollection[$"hf{f}_DataType"] : formCollection[$"hf{f}_DataType_{parentType}"]).NullIfWhiteSpace();
-
-                var childType = formCollection[$"hf{f}_ChildType"]?.NullIfWhiteSpace();
-                var parentType = formCollection[$"hf{f}_ParentType"]?.NullIfWhiteSpace();
-                var dataType = formCollection[$"hf{f}_DataType"]?.NullIfWhiteSpace();
-                var nonObjectsOrArrays = new[] {"string", "date-time", "boolean", "integer"};
-
-                childType = childType?.Split(',').FirstOrDefault().NullIfWhiteSpace();
-                dataType = dataType?.Split(',').FirstOrDefault().NullIfWhiteSpace();
-                var parentTypes = parentType?.Split(',').FirstOrDefault()?.Split(':').ToList() ?? new List<string>();
-                var firstParent = parentTypes.ElementAtOrDefault(0).NullIfWhiteSpace();
-                var secondParent = parentTypes.ElementAtOrDefault(1).NullIfWhiteSpace();
-
-                var model = new DataMapper
+                var fieldCount = formCollection[$"hf{f}_ChildType"]?.Split(',').Length ?? 0;
+                for (var i = 0; i < fieldCount; i++)
                 {
-                    Name = GetJsonFieldName(f),
-                    DataMapperProperty = new DataMapperProperty
-                    {
-                        Source = formCollection[$"ddl{f}_SourceType"]?.NullIfWhiteSpace(),
-                        SourceColumn = formCollection[$"ddl{f}_SourceColumn"]?.NullIfWhiteSpace(),
-                        DataType = formCollection[$"hf{f}_DataType"]?.NullIfWhiteSpace(),
-                        Default = formCollection[$"txt{f}_DefaultValue"]?.NullIfWhiteSpace(),
-                        SourceTable = formCollection[$"ddl{f}_SourceTable"]?.NullIfWhiteSpace(),
-                        Value = formCollection[$"txt{f}_StaticValue"]?.NullIfWhiteSpace(),
-                        ChildType = formCollection[$"hf{f}_ChildType"].NullIfWhiteSpace(),
-                        ParentType = formCollection[$"hf{f}_ParentType"].NullIfWhiteSpace()
-                    }
-                };
+                    var childType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i);
+                    var parentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i);
+                    var dataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i);
 
-                if (firstParent == null && childType == null && nonObjectsOrArrays.Contains(dataType))
-                {
-                    jObject.Add(model.Name, JObject.FromObject(model.DataMapperProperty));
-                }
-                else if (firstParent != null && childType != null)
-                {
-                    if (dataType == "array")
-                    {
-                        if (jObject.Property(firstParent) == null)
-                        {
-                            jObject.Add(firstParent, new JArray());
-                        }
+                    //childType = childType?.Split(',').FirstOrDefault().NullIfWhiteSpace();
+                    //dataType = dataType?.Split(',').FirstOrDefault().NullIfWhiteSpace();
+                    var parentTypes = parentType.SplitGetElementAt(',', i)?.Split(':').ToList() ?? new List<string>();
+                    var firstParent = parentTypes.ElementAtOrDefault(0).NullIfWhiteSpace();
+                    var secondParent = parentTypes.ElementAtOrDefault(1).NullIfWhiteSpace();
 
-                        //if (jObject[firstParent] is JArray)
-                        //{
-                        //    ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
-                        //}
-                        //else if (jObject[firstParent] is JObject)
-                        //{
-                        //    ((JObject) jObject[firstParent]).Add(new JObject(new JProperty(childType, new JArray())));
-                        //}
-                        //else
-                        //{
-                        //    errorAddingToJsonMap.Add($"Error adding {firstParent} for child {childType}");
-                        //}
-                    }
-                    else
+                    var model = new DataMapper
                     {
-                        if (jObject.Property(firstParent) == null)
+                        Name = GetJsonFieldName(f),
+                        DataMapperProperty = new DataMapperProperty
                         {
-                            jObject.Add(firstParent, new JObject());
+                            Source = formCollection[$"ddl{f}_SourceType"].SplitGetElementAt(',', i),
+                            SourceColumn = formCollection[$"ddl{f}_SourceColumn"].SplitGetElementAt(',', i),
+                            DataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i),
+                            Default = formCollection[$"txt{f}_DefaultValue"].SplitGetElementAt(',', i),
+                            SourceTable = formCollection[$"ddl{f}_SourceTable"].SplitGetElementAt(',', i),
+                            Value = formCollection[$"txt{f}_StaticValue"].SplitGetElementAt(',', i),
+                            ChildType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i),
+                            ParentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i)
                         }
+                    };
 
-                        if (jObject[firstParent] is JArray)
-                        {
-                            ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
-                        }
-                        else if (jObject[firstParent] is JObject)
-                        {
-                            ((JObject) jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
-                        }
-                        else
-                        {
-                            errorAddingToJsonMap.Add($"Error adding {firstParent} for child {childType}");
-                        }
-                    }
-                }
-                else if (firstParent == null &&childType != null)
-                {
-                    if (dataType == "array")
+                    if (firstParent == null && childType == null && nonObjectsOrArrays.Contains(dataType))
                     {
-                        jObject.Add(childType, new JArray());
+                        if (jObject.Property(model.Name) == null)
+                            jObject.Add(model.Name, JObject.FromObject(model.DataMapperProperty));
                     }
-                    else
+                    else if (firstParent != null && childType != null)
                     {
-                        jObject.Add(childType, new JObject());
-                    }
-                }
-                else if (firstParent != null && childType == null)
-                {
-                    var jObjectChild = new JObject(new JProperty(GetJsonFieldName(f), (JObject)JToken.FromObject(model.DataMapperProperty)));
-
-                    if (secondParent != null)
-                    {
-                        if (jObject[firstParent][0][secondParent] is JArray)
+                        if (dataType == "array")
                         {
-                            ((JArray)jObject[firstParent][0][secondParent]).Add(jObjectChild);
-                        }
-                        else if (jObject[firstParent][0][secondParent] is JObject)
-                        {
-                            ((JObject) jObject[firstParent][0][secondParent]).Add(GetJsonFieldName(f), JObject.FromObject(model.DataMapperProperty));
-                        }
-                        else
-                        {
-                            try
+                            if (jObject.Property(firstParent) == null)
                             {
-                                jObject[firstParent][0][secondParent] = new JArray(jObjectChild);
+                                jObject.Add(firstParent, new JArray());
                             }
-                            catch (Exception ex)
+
+                            //if (jObject[firstParent] is JArray)
+                            //{
+                            //    ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
+                            //}
+                            //else if (jObject[firstParent] is JObject)
+                            //{
+                            //    ((JObject) jObject[firstParent]).Add(new JObject(new JProperty(childType, new JArray())));
+                            //}
+                            //else
+                            //{
+                            //    errorAddingToJsonMap.Add($"Error adding {firstParent} for child {childType}");
+                            //}
+                        }
+                        else
+                        {
+                            if (jObject.Property(firstParent) == null)
                             {
-                                errorAddingToJsonMap.Add($"Error adding {secondParent} to {firstParent} for {f}. {ex.Message}");
+                                jObject.Add(firstParent, new JObject());
+                            }
+
+                            if (jObject[firstParent] is JArray)
+                            {
+                                ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
+                            }
+                            else if (jObject[firstParent] is JObject)
+                            {
+                                ((JObject)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
+                            }
+                            else
+                            {
+                                errorAddingToJsonMap.Add($"Error adding {firstParent} for child {childType}");
                             }
                         }
                     }
-                    else
+                    else if (firstParent == null && childType != null)
                     {
-                        if (jObject[firstParent] is JArray)
+                        if (jObject.Property(childType) == null)
                         {
-                            ((JArray)jObject[firstParent]).Add(jObjectChild);
+                            if (dataType == "array")
+                            {
+                                jObject.Add(childType, new JArray());
+                            }
+                            else
+                            {
+                                jObject.Add(childType, new JObject());
+                            }
                         }
-                        else if (jObject[firstParent] is JObject)
+                    }
+                    else if (firstParent != null && childType == null)
+                    {
+                        var jObjectChild = new JObject(new JProperty(GetJsonFieldName(f), (JObject)JToken.FromObject(model.DataMapperProperty)));
+
+                        if (secondParent != null)
                         {
-                            ((JObject) jObject[firstParent]).Add(GetJsonFieldName(f), JObject.FromObject(model.DataMapperProperty));
+                            if (jObject[firstParent][0][secondParent] is JArray)
+                            {
+                                ((JArray)jObject[firstParent][0][secondParent]).Add(jObjectChild);
+                            }
+                            else if (jObject[firstParent][0][secondParent] is JObject)
+                            {
+                                if (((JObject)jObject[firstParent][0][secondParent]).Property(GetJsonFieldName(f)) == null)
+                                    ((JObject)jObject[firstParent][0][secondParent]).Add(GetJsonFieldName(f), JObject.FromObject(model.DataMapperProperty));
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    jObject[firstParent][0][secondParent] = new JArray(jObjectChild);
+                                }
+                                catch (Exception ex)
+                                {
+                                    errorAddingToJsonMap.Add($"Error adding {secondParent} to {firstParent} for {f}. {ex.Message}");
+                                }
+                            }
                         }
                         else
                         {
-                            errorAddingToJsonMap.Add($"Error adding {firstParent} for {f}");
+                            if (jObject[firstParent] is JArray)
+                            {
+                                ((JArray)jObject[firstParent]).Add(jObjectChild);
+                            }
+                            else if (jObject[firstParent] is JObject)
+                            {
+                                if (((JObject)jObject[firstParent]).Property(GetJsonFieldName(f)) == null)
+                                    ((JObject)jObject[firstParent]).Add(GetJsonFieldName(f), JObject.FromObject(model.DataMapperProperty));
+                            }
+                            else
+                            {
+                                errorAddingToJsonMap.Add($"Error adding {firstParent} for {f}");
+                            }
                         }
                     }
-                }
-                else
-                {
-                    errorAddingToJsonMap.Add(f);
+                    else
+                    {
+                        errorAddingToJsonMap.Add(f);
+                    }
                 }
             });
 

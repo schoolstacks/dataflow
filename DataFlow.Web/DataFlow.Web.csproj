@@ -246,6 +246,7 @@
     <Compile Include="Helpers\BaseController.cs" />
     <Compile Include="Helpers\Constants.cs" />
     <Compile Include="Helpers\Common.cs" />
+    <Compile Include="Helpers\ExtensionMethods.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AssessmentViewModel.cs" />
