@@ -77,7 +77,8 @@
             @Html.LabelFor(m => m.INSTANCE_COMPANY_LOGO, new { @class = "control-label" })
         </div>
         <div class="col-sm-10">
-            @Html.TextBoxFor(m => m.INSTANCE_COMPANY_LOGO, new { @class = "form-control", type = "text", placeholder = "Company Logo" })
+            @Html.TextBoxFor(m => m.INSTANCE_COMPANY_LOGO, new { @class = "form-control", type = "url", placeholder = "Company Logo" })
+            @Html.ValidationMessageFor(m => m.INSTANCE_COMPANY_LOGO)
         </div>
     </div>
     <div class="form-group">
@@ -86,6 +87,7 @@
         </div>
         <div class="col-sm-10">
             @Html.TextBoxFor(m => m.INSTANCE_COMPANY_URL, new { @class = "form-control", type = "url", placeholder = "Company URL" })
+            @Html.ValidationMessageFor(m => m.INSTANCE_COMPANY_URL)
         </div>
     </div>
     <div class="form-group">
@@ -104,6 +106,8 @@
 }
 @section scripts
 {
+    @Scripts.Render("~/bundles/jqueryval")
+
     <script type="text/javascript">
         $("#btnTest").click(function () {
             var apiServerUrl = $("#API_SERVER_URL").val();

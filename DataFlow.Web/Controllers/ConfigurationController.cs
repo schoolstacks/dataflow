@@ -57,6 +57,11 @@ namespace DataFlow.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Index(DataFlow.Models.ApiConfigurationValues vm)
         {
+            if (!string.IsNullOrWhiteSpace(vm.INSTANCE_COMPANY_LOGO) && !vm.INSTANCE_COMPANY_LOGO.HasImageExtension())
+            {
+                ModelState.AddModelError("INSTANCE_COMPANY_LOGO", "Company logo must end with the following file extensions: jpg, gif, png, or svg.");
+            }
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Months = new SelectList(Helpers.Common.MonthSelectList(), "Value", "Text");
