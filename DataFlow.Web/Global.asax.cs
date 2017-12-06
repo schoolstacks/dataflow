@@ -20,7 +20,7 @@ namespace DataFlow.Web
             {
                 settings.WithUpdateMode(CacheUpdateMode.None)
                     .WithSystemRuntimeCacheHandle("DataFlow.Web")
-                    .WithExpiration(ExpirationMode.Sliding, TimeSpan.FromHours(1));
+                    .WithExpiration(ExpirationMode.Sliding, TimeSpan.FromHours(2));
             });
             var cacheFactory = CacheFactory.FromConfiguration<string>("DataFlow.Web", cacheConfig);
 
@@ -29,6 +29,7 @@ namespace DataFlow.Web
             builder.RegisterModule<AutofacWebTypesModule>();
             builder.RegisterType<DataFlowDbContext>().InstancePerRequest();
             builder.RegisterType<EdFiService>().InstancePerRequest();
+            builder.RegisterType<ConfigurationService>().InstancePerRequest();
             builder.RegisterType<EdFiMetadataProcessor>().InstancePerRequest();
             builder.Register(c => LogManager.GetLogger("DataFlow.Web")).As<ILogger>().InstancePerRequest();
             builder.RegisterType<NLogService>().AsImplementedInterfaces().InstancePerRequest();

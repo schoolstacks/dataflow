@@ -13,18 +13,18 @@ namespace DataFlow.Web.Controllers
 {
     public class ConfigurationController : BaseController
     {
-        private readonly EdFiService edFiService;
+        private readonly ConfigurationService configurationService;
         private readonly ICacheService cacheService;
 
-        public ConfigurationController(EdFiService edFiService, ICentralLogger logger, ICacheService cacheService) : base(logger)
+        public ConfigurationController(ConfigurationService configurationService, ICentralLogger logger, ICacheService cacheService) : base(logger)
         {
-            this.edFiService = edFiService;
+            this.configurationService = configurationService;
             this.cacheService = cacheService;
         }
 
         public ActionResult Index()
         {
-            var vm = edFiService.GetConfiguration();
+            var vm = configurationService.GetConfiguration();
 
             ViewBag.Months = new SelectList(Helpers.Common.MonthSelectList(), "Value", "Text");
             ViewBag.Years = new SelectList(Helpers.Common.YearSelectList(), "Value", "Text");
@@ -72,15 +72,15 @@ namespace DataFlow.Web.Controllers
                 return View(vm);
             }
 
-            var apiServerUrl = edFiService.GetConfigurationByKey(Constants.API_SERVER_URL);
-            var apiServerKey = edFiService.GetConfigurationByKey(Constants.API_SERVER_KEY);
-            var apiServerSecret = edFiService.GetConfigurationByKey(Constants.API_SERVER_SECRET);
-            var defaultsTermMonth = edFiService.GetConfigurationByKey(Constants.DEFAULTS_TERM_MONTH);
-            var defaultsTermYear = edFiService.GetConfigurationByKey(Constants.DEFAULTS_TERM_YEAR);
-            var instanceCompanyName = edFiService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME);
-            var instanceCompanyLogo = edFiService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO);
-            var instanceCompanyUrl = edFiService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL);
-            var instanceEduUseText = edFiService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT);
+            var apiServerUrl = configurationService.GetConfigurationByKey(Constants.API_SERVER_URL);
+            var apiServerKey = configurationService.GetConfigurationByKey(Constants.API_SERVER_KEY);
+            var apiServerSecret = configurationService.GetConfigurationByKey(Constants.API_SERVER_SECRET);
+            var defaultsTermMonth = configurationService.GetConfigurationByKey(Constants.DEFAULTS_TERM_MONTH);
+            var defaultsTermYear = configurationService.GetConfigurationByKey(Constants.DEFAULTS_TERM_YEAR);
+            var instanceCompanyName = configurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME);
+            var instanceCompanyLogo = configurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO);
+            var instanceCompanyUrl = configurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL);
+            var instanceEduUseText = configurationService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT);
 
             apiServerUrl.Value = vm.API_SERVER_URL;
             apiServerKey.Value = vm.API_SERVER_KEY;
@@ -105,9 +105,7 @@ namespace DataFlow.Web.Controllers
                 instanceEduUseText
             };
 
-            edFiService.SaveConfiguration(confs);
-
-            cacheService.AddOrUpdate("config", JsonConvert.SerializeObject(confs));
+            configurationService.SaveConfiguration(confs);
 
             return RedirectToAction("Index");
         }
