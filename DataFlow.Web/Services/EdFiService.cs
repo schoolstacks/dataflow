@@ -25,46 +25,19 @@ namespace DataFlow.Web.Services
     public class EdFiService
     {
         private readonly DataFlowDbContext dataFlowDbContext;
+        private readonly ConfigurationService configurationService;
 
-        public EdFiService(DataFlowDbContext dataFlowDbContext)
+        public EdFiService(DataFlowDbContext dataFlowDbContext, ConfigurationService configurationService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
-        }
-
-        public Configuration GetConfigurationByKey(string key)
-        {
-            var conf = dataFlowDbContext.Configurations.FirstOrDefault(a => a.Key.Equals(key));
-            return conf ?? new Configuration();
-        }
-
-        public void SaveConfiguration(List<Configuration> confs)
-        {
-            dataFlowDbContext.Configurations.AddOrUpdate(confs.ToArray());
-            dataFlowDbContext.SaveChanges();
-        }
-
-        public ApiConfigurationValues GetConfiguration()
-        {
-            var conf = new ApiConfigurationValues();
-
-            conf.API_SERVER_URL = GetConfigurationByKey(Constants.API_SERVER_URL).Value;
-            conf.API_SERVER_KEY = GetConfigurationByKey(Constants.API_SERVER_KEY).Value;
-            conf.API_SERVER_SECRET = GetConfigurationByKey(Constants.API_SERVER_SECRET).Value;
-            conf.DEFAULTS_TERM_MONTH = GetConfigurationByKey(Constants.DEFAULTS_TERM_MONTH).Value;
-            conf.DEFAULTS_TERM_YEAR = GetConfigurationByKey(Constants.DEFAULTS_TERM_YEAR).Value;
-            conf.INSTANCE_COMPANY_NAME = GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME).Value;
-            conf.INSTANCE_COMPANY_LOGO = GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO).Value;
-            conf.INSTANCE_COMPANY_URL = GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL).Value;
-            conf.INSTANCE_EDU_USE_TEXT = GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT).Value;
-
-            return conf;
+            this.configurationService = configurationService;
         }
 
         private IRestClient EstablishApiClient()
         {
             // Ignore SSL errors for now
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            var conf = GetConfiguration();
+            var conf = configurationService.GetConfiguration();
             var odsapiurlbase = conf.API_SERVER_URL;
             var odsapioauthurl = Helpers.Common.GetUntilOrEmpty(odsapiurlbase, "/api/");
             var odsapikey = conf.API_SERVER_KEY;
