@@ -6,6 +6,7 @@ using DataFlow.EdFi.Api.Resources;
 using DataFlow.EdFi.Sdk;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Services;
+using Newtonsoft.Json;
 using RestSharp;
 
 namespace DataFlow.Web.Controllers
@@ -13,10 +14,12 @@ namespace DataFlow.Web.Controllers
     public class ConfigurationController : BaseController
     {
         private readonly EdFiService edFiService;
+        private readonly ICacheService cacheService;
 
-        public ConfigurationController(EdFiService edFiService, ICentralLogger logger) : base(logger)
+        public ConfigurationController(EdFiService edFiService, ICentralLogger logger, ICacheService cacheService) : base(logger)
         {
             this.edFiService = edFiService;
+            this.cacheService = cacheService;
         }
 
         public ActionResult Index()
@@ -103,6 +106,8 @@ namespace DataFlow.Web.Controllers
             };
 
             edFiService.SaveConfiguration(confs);
+
+            cacheService.AddOrUpdate("config", JsonConvert.SerializeObject(confs));
 
             return RedirectToAction("Index");
         }
