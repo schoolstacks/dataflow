@@ -17,21 +17,21 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("DataFlow Admin", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("Data Flow Admin", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("Schools", "Index", "School")</li>
-                    <li>@Html.ActionLink("Agents", "Index", "Agent")</li>
-                    <li>@Html.ActionLink("Maps", "Index", "Map")</li>
-                    <li>@Html.ActionLink("Logs", "Index", "Log")</li>
-                    <li>@Html.ActionLink("Lookups", "Index", "Lookup")</li>
-                    <li>@Html.ActionLink("Assessments", "Index", "Assessment")</li>
-                    <li>@Html.ActionLink("Config", "Index", "Configuration")</li>
-                    @*<li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
-                </ul>
+                @if (Request.IsAuthenticated)
+                {
+                    <ul class="nav navbar-nav">
+                        <li>@Html.ActionLink("Schools", "Index", "School")</li>
+                        <li>@Html.ActionLink("Agents", "Index", "Agent")</li>
+                        <li>@Html.ActionLink("Maps", "Index", "Map")</li>
+                        <li>@Html.ActionLink("Logs", "Index", "Log")</li>
+                        <li>@Html.ActionLink("Lookups", "Index", "Lookup")</li>
+                        <li>@Html.ActionLink("Assessments", "Index", "Assessment")</li>
+                        <li>@Html.ActionLink("Config", "Index", "Configuration")</li>
+                    </ul>
+                }
                 @Html.Partial("_LoginPartial")
             </div>
         </div>
