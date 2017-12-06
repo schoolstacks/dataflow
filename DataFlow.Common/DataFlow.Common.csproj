@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CacheManager.Core, Version=1.1.2.0, Culture=neutral, PublicKeyToken=5b450b4fb65c4cdb, processorArchitecture=MSIL">
+      <HintPath>..\packages\CacheManager.Core.1.1.2\lib\net45\CacheManager.Core.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -78,6 +81,8 @@
     <Compile Include="Mapping\ProcessedDataMap.cs" />
     <Compile Include="Mapping\StatisticMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\CacheService.cs" />
+    <Compile Include="Services\ICacheService.cs" />
     <Compile Include="Services\ICentralLogger.cs" />
     <Compile Include="Services\NLogService.cs" />
   </ItemGroup>
