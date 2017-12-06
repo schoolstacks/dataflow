@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.UI.WebControls;
 using Antlr.Runtime.Misc;
 using DataFlow.Common.DAL;
-using DataFlow.Common.Services;
 using DataFlow.EdFi.Models.Resources;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Services;
@@ -19,7 +17,7 @@ namespace DataFlow.Web.Controllers
         private readonly DataFlowDbContext dataFlowDbContext;
         private readonly EdFiService edFiService;
 
-        public AssessmentController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService, ICentralLogger logger) : base(logger)
+        public AssessmentController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService, IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
             this.edFiService = edFiService;

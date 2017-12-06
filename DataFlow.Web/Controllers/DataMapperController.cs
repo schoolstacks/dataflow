@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Web;
-using System.Web.Helpers;
 using System.Web.Mvc;
 using CsvHelper;
 using DataFlow.Common.DAL;
 using DataFlow.Common.ExtensionMethods;
-using DataFlow.Common.Services;
-using DataFlow.Models;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Models;
 using DataFlow.Web.Services;
@@ -27,7 +23,7 @@ namespace DataFlow.Web.Controllers
         private readonly EdFiMetadataProcessor edFiMetadataProcessor;
 
         public DataMapperController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService,
-            EdFiMetadataProcessor edFiMetadataProcessor, ICentralLogger logger) : base(logger)
+            EdFiMetadataProcessor edFiMetadataProcessor, IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
             this.edFiService = edFiService;

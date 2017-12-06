@@ -11,5 +11,6 @@
         public const string INSTANCE_COMPANY_LOGO = "INSTANCE_COMPANY_LOGO";
         public const string INSTANCE_COMPANY_URL = "INSTANCE_COMPANY_URL";
         public const string INSTANCE_EDU_USE_TEXT = "INSTANCE_EDU_USE_TEXT";
+        public const string ConfigurationCacheKey = "ConfigurationCacheKey";
     }
 }

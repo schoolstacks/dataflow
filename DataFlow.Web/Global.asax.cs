@@ -3,10 +3,12 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using Autofac;
+using Autofac.Extras.AggregateService;
 using Autofac.Integration.Mvc;
 using CacheManager.Core;
 using DataFlow.Common.DAL;
 using DataFlow.Common.Services;
+using DataFlow.Web.Helpers;
 using DataFlow.Web.Services;
 using NLog;
 
@@ -26,6 +28,7 @@ namespace DataFlow.Web
 
             var builder = new ContainerBuilder();
             builder.RegisterControllers(typeof(MvcApplication).Assembly);
+            builder.RegisterAggregateService<IBaseServices>();
             builder.RegisterModule<AutofacWebTypesModule>();
             builder.RegisterType<DataFlowDbContext>().InstancePerRequest();
             builder.RegisterType<EdFiService>().InstancePerRequest();
@@ -39,6 +42,14 @@ namespace DataFlow.Web
                 new TypedParameter(typeof(ICacheManagerConfiguration), cacheConfig),
                 new TypedParameter(typeof(ICacheManager<string>), cacheFactory)
             }).As<ICacheService>().SingleInstance();
+
+            //builder.Register(c =>
+            //{
+            //    var result = new BaseController();
+            //    var dep = c.Resolve<ConfigurationService>();
+            //    result.ConfigurationService = dep;
+            //    return result;
+            //});
 
             var container = builder.Build();
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));

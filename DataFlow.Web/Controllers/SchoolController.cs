@@ -8,7 +8,6 @@ using DataFlow.EdFi.Models.Resources;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Models;
 using DataFlow.Web.Services;
-using DataFlow.Common.Services;
 
 namespace DataFlow.Web.Controllers
 {
@@ -17,7 +16,7 @@ namespace DataFlow.Web.Controllers
         private readonly DataFlowDbContext dataFlowDbContext;
         private readonly EdFiService edFiService;
 
-        public SchoolController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService, ICentralLogger logger) : base(logger)
+        public SchoolController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService, IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
             this.edFiService = edFiService;
