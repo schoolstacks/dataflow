@@ -57,6 +57,11 @@ namespace DataFlow.Web.Controllers
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "School");
+            }
+
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
@@ -139,7 +144,7 @@ namespace DataFlow.Web.Controllers
         [AllowAnonymous]
         public ActionResult Register()
         {
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Account");
             //return View();
         }
 
@@ -150,7 +155,7 @@ namespace DataFlow.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Account");
             //if (ModelState.IsValid)
             //{
             //    var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
@@ -394,7 +399,7 @@ namespace DataFlow.Web.Controllers
         public ActionResult LogOff()
         {
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Account");
         }
 
         //
@@ -451,7 +456,7 @@ namespace DataFlow.Web.Controllers
             {
                 return Redirect(returnUrl);
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "School");
         }
 
         internal class ChallengeResult : HttpUnauthorizedResult
