@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
-using DataFlow.Common.Services;
 using DataFlow.Models;
 using DataFlow.Web.Helpers;
+using DataFlow.Web.Services;
 using Microsoft.WindowsAzure.Storage;
 using File = DataFlow.Models.File;
 
@@ -21,7 +21,7 @@ namespace DataFlow.Web.Controllers
     {
         private readonly DataFlowDbContext dataFlowDbContext;
 
-        public AgentController(DataFlowDbContext dataFlowDbContext, ICentralLogger logger) : base(logger)
+        public AgentController(DataFlowDbContext dataFlowDbContext, IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
         }

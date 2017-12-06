@@ -1,30 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
-using DataFlow.Common.Services;
 using DataFlow.EdFi.Api.Resources;
 using DataFlow.EdFi.Sdk;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Services;
-using Newtonsoft.Json;
 using RestSharp;
 
 namespace DataFlow.Web.Controllers
 {
     public class ConfigurationController : BaseController
     {
-        private readonly ConfigurationService configurationService;
-        private readonly ICacheService cacheService;
-
-        public ConfigurationController(ConfigurationService configurationService, ICentralLogger logger, ICacheService cacheService) : base(logger)
+        public ConfigurationController(IBaseServices baseService) : base(baseService)
         {
-            this.configurationService = configurationService;
-            this.cacheService = cacheService;
+            
         }
 
         public ActionResult Index()
         {
-            var vm = configurationService.GetConfiguration();
+            var vm = ConfigurationService.GetConfiguration();
 
             ViewBag.Months = new SelectList(Helpers.Common.MonthSelectList(), "Value", "Text");
             ViewBag.Years = new SelectList(Helpers.Common.YearSelectList(), "Value", "Text");
@@ -72,15 +66,15 @@ namespace DataFlow.Web.Controllers
                 return View(vm);
             }
 
-            var apiServerUrl = configurationService.GetConfigurationByKey(Constants.API_SERVER_URL);
-            var apiServerKey = configurationService.GetConfigurationByKey(Constants.API_SERVER_KEY);
-            var apiServerSecret = configurationService.GetConfigurationByKey(Constants.API_SERVER_SECRET);
-            var defaultsTermMonth = configurationService.GetConfigurationByKey(Constants.DEFAULTS_TERM_MONTH);
-            var defaultsTermYear = configurationService.GetConfigurationByKey(Constants.DEFAULTS_TERM_YEAR);
-            var instanceCompanyName = configurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME);
-            var instanceCompanyLogo = configurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO);
-            var instanceCompanyUrl = configurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL);
-            var instanceEduUseText = configurationService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT);
+            var apiServerUrl = ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_URL);
+            var apiServerKey = ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_KEY);
+            var apiServerSecret = ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_SECRET);
+            var defaultsTermMonth = ConfigurationService.GetConfigurationByKey(Constants.DEFAULTS_TERM_MONTH);
+            var defaultsTermYear = ConfigurationService.GetConfigurationByKey(Constants.DEFAULTS_TERM_YEAR);
+            var instanceCompanyName = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME);
+            var instanceCompanyLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO);
+            var instanceCompanyUrl = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL);
+            var instanceEduUseText = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT);
 
             apiServerUrl.Value = vm.API_SERVER_URL;
             apiServerKey.Value = vm.API_SERVER_KEY;
@@ -105,7 +99,7 @@ namespace DataFlow.Web.Controllers
                 instanceEduUseText
             };
 
-            configurationService.SaveConfiguration(confs);
+            ConfigurationService.SaveConfiguration(confs);
 
             return RedirectToAction("Index");
         }

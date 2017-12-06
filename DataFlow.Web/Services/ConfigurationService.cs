@@ -11,8 +11,6 @@ namespace DataFlow.Web.Services
 {
     public class ConfigurationService
     {
-        private const string ConfigurationCacheKey = "ConfigurationCacheKey";
-
         private readonly DataFlowDbContext dataFlowDbContext;
         private readonly ICacheService cacheService;
 
@@ -24,12 +22,12 @@ namespace DataFlow.Web.Services
 
         public List<Configuration> GetConfigurationFromCache()
         {
-            if (!cacheService.Exists(ConfigurationCacheKey))
+            if (!cacheService.Exists(Constants.ConfigurationCacheKey))
             {
                 var conf = dataFlowDbContext.Configurations.ToList();
-                cacheService.Add(ConfigurationCacheKey, JsonConvert.SerializeObject(conf));
+                cacheService.Add(Constants.ConfigurationCacheKey, JsonConvert.SerializeObject(conf));
             }
-            var cacheValue =  cacheService.Get(ConfigurationCacheKey);
+            var cacheValue =  cacheService.Get(Constants.ConfigurationCacheKey);
             return JsonConvert.DeserializeObject<List<Configuration>>(cacheValue);
         }
 
@@ -43,7 +41,7 @@ namespace DataFlow.Web.Services
             dataFlowDbContext.Configurations.AddOrUpdate(confs.ToArray());
             dataFlowDbContext.SaveChanges();
 
-            cacheService.AddOrUpdate(ConfigurationCacheKey, JsonConvert.SerializeObject(confs));
+            cacheService.AddOrUpdate(Constants.ConfigurationCacheKey, JsonConvert.SerializeObject(confs));
         }
 
         public ApiConfigurationValues GetConfiguration()
