@@ -11,6 +11,7 @@ using CsvHelper;
 using DataFlow.Common.DAL;
 using DataFlow.Common.ExtensionMethods;
 using DataFlow.Common.Services;
+using DataFlow.Models;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Models;
 using DataFlow.Web.Services;
@@ -25,7 +26,7 @@ namespace DataFlow.Web.Controllers
         private readonly EdFiService edFiService;
         private readonly EdFiMetadataProcessor edFiMetadataProcessor;
 
-        public DataMapperController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService, 
+        public DataMapperController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService,
             EdFiMetadataProcessor edFiMetadataProcessor, ICentralLogger logger) : base(logger)
         {
             this.dataFlowDbContext = dataFlowDbContext;
@@ -136,12 +137,13 @@ namespace DataFlow.Web.Controllers
 
             if (int.TryParse(vm.MapToEntity, out var entityId))
             {
+                //TODO: This can be vastly improved.
                 var entitySelected = dataFlowDbContext.Entities.FirstOrDefault(x => x.Id == entityId);
                 if (!string.IsNullOrWhiteSpace(entitySelected?.Url))
                 {
                     var entityJson = edFiMetadataProcessor.GetJsonFromUrl(entitySelected.Url);
                     var apiFields = edFiMetadataProcessor.GetFieldListFromJson(entityJson, entitySelected.Name)
-                        .Where(x => x.Required)
+                        .Where(x => x.Required || GetAdditionalFields(entitySelected.Name).Contains(x.Name))
                         .ToList();
 
                     apiFields.ForEach(x =>
@@ -149,8 +151,54 @@ namespace DataFlow.Web.Controllers
                         if (x.Name == "id")
                             return;
 
-                        if (x.Required)
-                            vm.Fields.Add(new DataMapperViewModel.Field(x.Name, x.Type));
+                        var dataMapperField = new DataMapperViewModel.Field(
+                            name: x.Name,
+                            dataType: x.Type,
+                            childType: !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty,
+                            parentType: string.Empty,
+                            formFieldName: x.Name);
+                        if (!string.IsNullOrWhiteSpace(x.SubType) && x.SubFields.Any())
+                        {
+                            x.SubFields.ForEach(subField =>
+                            {
+                                if (subField.Name == "id")
+                                    return;
+                                ;
+                                if (subField.Required)
+                                {
+                                    dataMapperField.SubFields.Add(
+                                        item: new DataMapperViewModel.Field(
+                                            name: subField.Name,
+                                            dataType: subField.Type,
+                                            childType: !string.IsNullOrWhiteSpace(subField.SubType) ? subField.Name : string.Empty,
+                                            parentType: !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty,
+                                            formFieldName: $"{x.Name}_{subField.Name}")
+                                    );
+                                }
+
+                                if (!string.IsNullOrWhiteSpace(subField.SubType) && subField.SubFields.Any())
+                                {
+                                    subField.SubFields.ForEach(triField =>
+                                    {
+                                        if (triField.Name == "id")
+                                            return;
+                                        ;
+                                        if (triField.Required)
+                                        {
+                                            dataMapperField.SubFields.Add(
+                                                item: new DataMapperViewModel.Field(
+                                                    name: triField.Name,
+                                                    dataType: triField.Type,
+                                                    childType: !string.IsNullOrWhiteSpace(triField.SubType) ? triField.Name : string.Empty,
+                                                    parentType: !string.IsNullOrWhiteSpace(subField.SubType) ? $"{x.Name}:{subField.Name}" : string.Empty,
+                                                    formFieldName: $"{x.Name}_{subField.Name}_{triField.Name}")
+                                            );
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        vm.Fields.Add(dataMapperField);
                     });
                 }
             }
@@ -159,37 +207,170 @@ namespace DataFlow.Web.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateJsonMap(FormCollection formCollection)
+        public JsonResult UpdateJsonMap(FormCollection formCollection, string triggeredBy)
         {
             var fields = formCollection["FieldNames"].Split(';').ToList();
+            var errorAddingToJsonMap = new List<string>();
+            var nonObjectsOrArrays = new[] { "string", "date-time", "boolean", "integer" };
 
             var jObject = new JObject();
 
             fields.ForEach(f =>
             {
-                var model = new DataMapper
+                var fieldCount = formCollection[$"hf{f}_ChildType"]?.Split(',').Length ?? 0;
+                for (var i = 0; i < fieldCount; i++)
                 {
-                    Name = f,
-                    DataMapperProperty = new DataMapperProperty
-                    {
-                        Source = formCollection[$"ddl{f}_SourceType"].NullIfWhiteSpace(),
-                        SourceColumn = formCollection[$"ddl{f}_SourceColumn"].NullIfWhiteSpace(),
-                        DataType = formCollection[$"hf{f}_DataType"].NullIfWhiteSpace(),
-                        Default = formCollection[$"txt{f}_DefaultValue"].NullIfWhiteSpace(),
-                        SourceTable = formCollection[$"ddl{f}_SourceTable"].NullIfWhiteSpace(),
-                        Value = formCollection[$"txt{f}_StaticValue"].NullIfWhiteSpace()
-                    }
-                };
+                    var childType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i);
+                    var parentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i);
+                    var dataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i);
 
-                jObject.Add(model.Name, JObject.FromObject(model.DataMapperProperty));
+                    //childType = childType?.Split(',').FirstOrDefault().NullIfWhiteSpace();
+                    //dataType = dataType?.Split(',').FirstOrDefault().NullIfWhiteSpace();
+                    var parentTypes = parentType.SplitGetElementAt(',', i)?.Split(':').ToList() ?? new List<string>();
+                    var firstParent = parentTypes.ElementAtOrDefault(0).NullIfWhiteSpace();
+                    var secondParent = parentTypes.ElementAtOrDefault(1).NullIfWhiteSpace();
+
+                    var model = new DataMapper
+                    {
+                        Name = GetJsonFieldName(f),
+                        DataMapperProperty = new DataMapperProperty
+                        {
+                            Source = formCollection[$"ddl{f}_SourceType"].SplitGetElementAt(',', i),
+                            SourceColumn = formCollection[$"ddl{f}_SourceColumn"].SplitGetElementAt(',', i),
+                            DataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i),
+                            Default = formCollection[$"txt{f}_DefaultValue"].SplitGetElementAt(',', i),
+                            SourceTable = formCollection[$"ddl{f}_SourceTable"].SplitGetElementAt(',', i),
+                            Value = formCollection[$"txt{f}_StaticValue"].SplitGetElementAt(',', i),
+                            ChildType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i),
+                            ParentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i)
+                        }
+                    };
+
+                    if (firstParent == null && childType == null && nonObjectsOrArrays.Contains(dataType))
+                    {
+                        if (jObject.Property(model.Name) == null)
+                            jObject.Add(model.Name, JObject.FromObject(model.DataMapperProperty));
+                    }
+                    else if (firstParent != null && childType != null)
+                    {
+                        if (dataType == "array")
+                        {
+                            if (jObject.Property(firstParent) == null)
+                            {
+                                jObject.Add(firstParent, new JArray());
+                            }
+
+                            //if (jObject[firstParent] is JArray)
+                            //{
+                            //    ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
+                            //}
+                            //else if (jObject[firstParent] is JObject)
+                            //{
+                            //    ((JObject) jObject[firstParent]).Add(new JObject(new JProperty(childType, new JArray())));
+                            //}
+                            //else
+                            //{
+                            //    errorAddingToJsonMap.Add($"Error adding {firstParent} for child {childType}");
+                            //}
+                        }
+                        else
+                        {
+                            if (jObject.Property(firstParent) == null)
+                            {
+                                jObject.Add(firstParent, new JObject());
+                            }
+
+                            if (jObject[firstParent] is JArray)
+                            {
+                                ((JArray)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
+                            }
+                            else if (jObject[firstParent] is JObject)
+                            {
+                                ((JObject)jObject[firstParent]).Add(new JObject(new JProperty(childType, new JObject())));
+                            }
+                            else
+                            {
+                                errorAddingToJsonMap.Add($"Error adding {firstParent} for child {childType}");
+                            }
+                        }
+                    }
+                    else if (firstParent == null && childType != null)
+                    {
+                        if (jObject.Property(childType) == null)
+                        {
+                            if (dataType == "array")
+                            {
+                                jObject.Add(childType, new JArray());
+                            }
+                            else
+                            {
+                                jObject.Add(childType, new JObject());
+                            }
+                        }
+                    }
+                    else if (firstParent != null && childType == null)
+                    {
+                        var jObjectChild = new JObject(new JProperty(GetJsonFieldName(f), (JObject)JToken.FromObject(model.DataMapperProperty)));
+
+                        if (secondParent != null)
+                        {
+                            if (jObject[firstParent][0][secondParent] is JArray)
+                            {
+                                ((JArray)jObject[firstParent][0][secondParent]).Add(jObjectChild);
+                            }
+                            else if (jObject[firstParent][0][secondParent] is JObject)
+                            {
+                                if (((JObject)jObject[firstParent][0][secondParent]).Property(GetJsonFieldName(f)) == null)
+                                    ((JObject)jObject[firstParent][0][secondParent]).Add(GetJsonFieldName(f), JObject.FromObject(model.DataMapperProperty));
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    jObject[firstParent][0][secondParent] = new JArray(jObjectChild);
+                                }
+                                catch (Exception ex)
+                                {
+                                    errorAddingToJsonMap.Add($"Error adding {secondParent} to {firstParent} for {f}. {ex.Message}");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (jObject[firstParent] is JArray)
+                            {
+                                ((JArray)jObject[firstParent]).Add(jObjectChild);
+                            }
+                            else if (jObject[firstParent] is JObject)
+                            {
+                                if (((JObject)jObject[firstParent]).Property(GetJsonFieldName(f)) == null)
+                                    ((JObject)jObject[firstParent]).Add(GetJsonFieldName(f), JObject.FromObject(model.DataMapperProperty));
+                            }
+                            else
+                            {
+                                errorAddingToJsonMap.Add($"Error adding {firstParent} for {f}");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        errorAddingToJsonMap.Add(f);
+                    }
+                }
             });
 
             jObject.Add("_required", JArray.FromObject(fields));
+            jObject.Add("_errors", JArray.FromObject(errorAddingToJsonMap));
 
             var cleanJson = JsonHelper.RemoveEmptyChildren(jObject);
             var jsonMap = cleanJson.ToString(Formatting.Indented);
 
             return Json(jsonMap);
+        }
+
+        private string GetJsonFieldName(string formField)
+        {
+            return formField.LastIndexOf('_') > 0 ? formField.Substring(formField.LastIndexOf('_') + 1) : formField;
         }
 
         [HttpPost]
@@ -264,6 +445,18 @@ namespace DataFlow.Web.Controllers
             return RedirectToAction("Index");
         }
 
+        private List<string> GetAdditionalFields(string entityName)
+        {
+            var addtFields = new List<string>();
+
+            if (entityName == "studentAssessments")
+            {
+                addtFields.AddRange(new[] { "performanceLevels", "scoreResults", "studentObjectiveAssessments" });
+            }
+
+            return addtFields;
+        }
+
         private List<SelectListItem> GetEntityList
         {
             get
@@ -274,7 +467,7 @@ namespace DataFlow.Web.Controllers
                 };
                 entityList.AddRange(dataFlowDbContext.Entities
                     .OrderBy(x => x.Name)
-                    .Select(x => new SelectListItem {Text = x.Name, Value = x.Id.ToString()}));
+                    .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }));
 
                 return entityList;
             }
@@ -290,7 +483,7 @@ namespace DataFlow.Web.Controllers
                 };
                 dataTypeList.AddRange(Enum.GetValues(typeof(DataMapperEnums.Sources))
                     .Cast<DataMapperEnums.Sources>()
-                    .Select(x => new SelectListItem {Text = x.GetDescription(), Value = x.GetDescription()}));
+                    .Select(x => new SelectListItem { Text = x.GetDescription(), Value = x.GetDescription() }));
 
                 return dataTypeList;
             }
@@ -305,7 +498,7 @@ namespace DataFlow.Web.Controllers
                     new SelectListItem {Text = "Select Source Table", Value = string.Empty}
                 };
                 sourceTableList.AddRange(dataFlowDbContext.Lookups
-                    .Select(x => new SelectListItem {Text = x.GroupSet, Value = x.GroupSet})
+                    .Select(x => new SelectListItem { Text = x.GroupSet, Value = x.GroupSet })
                     .Distinct());
 
                 return sourceTableList;
