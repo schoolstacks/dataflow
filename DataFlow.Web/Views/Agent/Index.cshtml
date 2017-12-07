@@ -30,7 +30,7 @@
             <td data-type="number">@m.Files.Count</td>
             <td data-type="date" data-format-string="yyyy-MM-dd hh:MM tt">@(m.LastExecuted?.ToString("yyyy-MM-dd hh:MM tt"))</td>
             <td>@m.Enabled</td>
-            <td>@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
+            <td style="text-align: center;">@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
         </tr>
     }
     </tbody>

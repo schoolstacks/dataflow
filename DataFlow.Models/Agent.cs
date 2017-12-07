@@ -19,6 +19,8 @@ namespace DataFlow.Models
         public int Id { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a name for this agent.")]
         public string Name { get; set; }
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select agent type.")]
+        [Display(Name = "Agent Type")]
         public string AgentTypeCode { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a url or connection string.")]
         public string Url { get; set; }
