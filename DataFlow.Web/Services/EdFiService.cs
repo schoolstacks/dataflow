@@ -123,6 +123,12 @@ namespace DataFlow.Web.Services
             return api.GetLocalEducationAgenciesAll(offset, limit).Data;
         }
 
+        public LocalEducationAgency GetLocalEducationAgencyById(string id)
+        {
+            var api = new LocalEducationAgenciesApi(EstablishApiClient());
+            return api.GetLocalEducationAgenciesById(id).Data;
+        }
+
         public List<LevelDescriptor> GetGradeLevels(int? offsent, int? limit)
         {
             var api = new LevelDescriptorsApi(EstablishApiClient());

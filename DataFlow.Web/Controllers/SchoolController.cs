@@ -25,6 +25,19 @@ namespace DataFlow.Web.Controllers
         public ActionResult Index()
         {
             var schools = edFiService.GetSchools(0, 50);
+            var uniqueDistrictIds = schools
+                .Where(x => x.localEducationAgencyReference != null)
+                .Select(x => x.localEducationAgencyReference.id)
+                .Distinct()
+                .ToList();
+
+            var districts = new List<LocalEducationAgency>();
+
+            uniqueDistrictIds.ForEach(districtId =>
+            {
+                var district = edFiService.GetLocalEducationAgencyById(districtId);
+                districts.Add(district);
+            });
 
             var schoolGrid = new List<SchoolViewModel.Grid>();
             schools.ForEach(x =>
@@ -33,10 +46,13 @@ namespace DataFlow.Web.Controllers
                 {
                     Id = x.id,
                     Name = x.nameOfInstitution,
-                    Abbreviation = x.shortNameOfInstitution
+                    Abbreviation = x.shortNameOfInstitution,
+                    District = districts.FirstOrDefault(d=>d.id == x.localEducationAgencyReference.id)?.nameOfInstitution ?? string.Empty
                 };
                 schoolGrid.Add(school);
             });
+
+            schoolGrid = schoolGrid.OrderBy(x => x.District).ThenBy(x => x.Name).ToList();
 
             return View(schoolGrid);
         }

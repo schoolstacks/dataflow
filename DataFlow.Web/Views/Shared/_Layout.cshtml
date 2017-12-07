@@ -19,7 +19,7 @@
                 </button>
                 @if (!string.IsNullOrWhiteSpace(CompanyLogo))
                 {
-                    <a href="~/School/">
+                    <a href="@Url.Action("Index","School")">
                         <img src="@CompanyLogo" class="navbar-left" style="height: 45px;" alt="@CompanyName" title="@CompanyName" />
                     </a>
                 }
