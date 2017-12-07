@@ -41,6 +41,20 @@ namespace DataFlow.Web.Controllers
             return View(agents);
         }
 
+        public ActionResult ToggleAgentStatus(int id)
+        {
+            var agent = dataFlowDbContext.Agents.FirstOrDefault(x => x.Id == id);
+            if (agent != null)
+            {
+                agent.Enabled = !agent.Enabled;
+
+                dataFlowDbContext.Agents.Add(agent);
+                dataFlowDbContext.Entry(agent).State = EntityState.Modified;
+                dataFlowDbContext.SaveChanges();
+            }
+            return RedirectToAction("Index");
+        }
+
         public JsonResult TestAgentConnection(string url, string username, string password, string directory, string filePattern)
         {
             try
