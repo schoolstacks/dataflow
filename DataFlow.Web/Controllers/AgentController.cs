@@ -42,6 +42,7 @@ namespace DataFlow.Web.Controllers
             var agent = new Agent();
 
             ViewBag.DataMaps = GetDataMapList;
+            ViewBag.AgentTypes = GetAgentTypes;
 
             return View(agent);
         }
@@ -55,6 +56,7 @@ namespace DataFlow.Web.Controllers
                 .FirstOrDefault(x => x.Id == id);
 
             ViewBag.DataMaps = GetDataMapList;
+            ViewBag.AgentTypes = GetAgentTypes;
 
             return View(agent);
         }
@@ -79,6 +81,7 @@ namespace DataFlow.Web.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.DataMaps = GetDataMapList;
+                ViewBag.AgentTypes = GetAgentTypes;
                 return View(vm);
             }
 
@@ -95,6 +98,7 @@ namespace DataFlow.Web.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.DataMaps = GetDataMapList;
+                ViewBag.AgentTypes = GetAgentTypes;
                 return View(vm);
             }
 
@@ -117,7 +121,7 @@ namespace DataFlow.Web.Controllers
             }
 
             agent.Name = vm.Name;
-            agent.AgentTypeCode = !string.IsNullOrWhiteSpace(vm.AgentTypeCode) ? vm.AgentTypeCode : "SFTP";
+            agent.AgentTypeCode = vm.AgentTypeCode;
             agent.Url = vm.Url;
             agent.Username = vm.Username;
             agent.Password = vm.Password;
@@ -238,6 +242,23 @@ namespace DataFlow.Web.Controllers
                 int i = 0;
                 while (r.ReadLine() != null) { i++; }
                 return i;
+            }
+        }
+
+        private List<SelectListItem> GetAgentTypes
+        {
+            get
+            {
+                var agentTypes = new List<SelectListItem>();
+                agentTypes.Add(new SelectListItem { Text = "Select Type", Value = string.Empty });
+                agentTypes.AddRange(new[] {"SFTP", "FTPS"}.Select(x =>
+                    new SelectListItem
+                    {
+                        Text = x,
+                        Value = x
+                    }));
+
+                return agentTypes;
             }
         }
 
