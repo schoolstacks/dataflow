@@ -254,6 +254,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AgentController.cs" />
     <Compile Include="Controllers\AssessmentController.cs" />
+    <Compile Include="Controllers\BootstrapDataController.cs" />
     <Compile Include="Controllers\ConfigurationController.cs" />
     <Compile Include="Controllers\DataMapperController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -285,6 +286,8 @@
     <Compile Include="Services\EdFiMetadataProcessor.cs" />
     <Compile Include="Services\EdFiService.cs" />
     <Compile Include="Services\IBaseServices.cs" />
+    <Compile Include="Services\IWebConfigAppSettingsService.cs" />
+    <Compile Include="Services\WebConfigAppSettingsService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -392,6 +395,10 @@
     <Content Include="Views\DataMapper\Index.cshtml" />
     <Content Include="Views\DataMapper\_PartialDataMapperFields.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\BootstrapData\Index.cshtml" />
+    <Content Include="Views\BootstrapData\Add.cshtml" />
+    <Content Include="Views\BootstrapData\Edit.cshtml" />
+    <Content Include="Views\BootstrapData\_PartialBootstrapDataForm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -7,7 +7,10 @@
 
 <h2>@ViewBag.Title</h2>
 
-@using (Html.BeginForm("Add", "Assessment", FormMethod.Post, new {@class = "form-horizontal"}))
+@using (Html.BeginForm("Add", "Assessment", FormMethod.Post, new { @class = "form-horizontal" }))
 {
     @Html.Partial("_PartialAssessmentForm", Model)
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
 }
