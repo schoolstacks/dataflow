@@ -14,7 +14,8 @@ namespace DataFlow.Common.ExtensionMethods
                 var field = type.GetField(name);
                 if (field != null)
                 {
-                    if (Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) is DescriptionAttribute attr)
+                    var attr = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) as DescriptionAttribute;
+                    if (attr != null)
                     {
                         return attr.Description;
                     }
