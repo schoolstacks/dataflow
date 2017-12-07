@@ -11,9 +11,11 @@
 {
     @Html.Partial("_PartialAgentForm", Model)
 }
-@section scripts{
+@section scripts {
     <script type="text/javascript">
-        $("#btnTest").click(function() {
+        $("#btnTest").click(function () {
+            $("#btnTest").attr("disabled", true);
+
             var url = $("#Url").val();
             var userName = $("#Username").val();
             var password = $("#Password").val();
@@ -34,18 +36,24 @@
                 success: function(data) {
                     if (data.success === true) {
                         $("#divAgentTest").modal();
-                        $("#divAgentTestResults")
-                            .text("Connection to Agent successful! Found " + data.data.length + " file(s)!");
+                        $("#divAgentTestResults").html("");
+                        $("#divAgentTestResults").append($("<h4>").text("Connection to Agent successful! Found " + data.files.length + " file(s)."));
+                        $.each(data.files, function(i, item) {
+                            $("#divAgentTestResults").append($("<div>").text(item.Name));
+                        });
+                        $("#btnTest").attr("disabled", false);
                     } else {
                         $("#divAgentTest").modal();
                         $("#divAgentTestResults")
-                            .text("Unable to connect to the agent. Error: " + data.data);
+                            .text("Unable to connect to the agent. Error: " + data.error);
+                        $("#btnTest").attr("disabled", false);
                     }
                 },
                 fail: function(data) {
                     $("#divAgentTest").modal();
                     $("#divAgentTestResults")
                         .text("Unable to connect to the agent.");
+                    $("#btnTest").attr("disabled", false);
                 }
             });
         });

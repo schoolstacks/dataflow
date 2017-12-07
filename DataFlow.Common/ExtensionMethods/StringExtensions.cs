@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace DataFlow.Common.ExtensionMethods
 {
@@ -44,6 +46,19 @@ namespace DataFlow.Common.ExtensionMethods
             char[] a = s.ToCharArray();
             a[0] = char.ToUpper(a[0]);
             return new string(a);
+        }
+
+        /// <summary>
+        /// Replace the * with an .* and the ? with a dot. Put ^ at the beginning and a $ at the end
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="textWithWildCard"></param>
+        /// <returns></returns>
+        public static bool IsLike(this string value, string textWithWildCard)
+        {
+            var pattern = "^" + Regex.Escape(textWithWildCard).Replace(@"\*", ".*").Replace(@"\?", ".") + "$";
+
+            return new Regex(pattern, RegexOptions.IgnoreCase).IsMatch(value);
         }
     }
 }
