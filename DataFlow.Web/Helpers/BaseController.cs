@@ -21,7 +21,10 @@ namespace DataFlow.Web.Helpers
             this.CacheService = baseServices.CacheService;
             this.ConfigurationService = baseServices.ConfigurationService;
 
+            ViewBag.CompanyName = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME).Value;
             ViewBag.CompanyLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO).Value;
+            ViewBag.CompanyUrl = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL).Value;
+            ViewBag.EducationText = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT).Value;
         }
     }
 }

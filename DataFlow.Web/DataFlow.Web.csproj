@@ -257,6 +257,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\BaseController.cs" />
+    <Compile Include="Helpers\BaseViewPage.cs" />
     <Compile Include="Helpers\Constants.cs" />
     <Compile Include="Helpers\Common.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
