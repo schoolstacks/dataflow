@@ -1,4 +1,4 @@
-﻿@model DataFlow.Web.Models.AgentViewModel.Index
+﻿@model List<DataFlow.Models.Agent>
 
 @{
     ViewBag.Title = "Agents";
@@ -22,7 +22,7 @@
         </tr>
     </thead>
     <tbody>
-    @foreach (var m in Model.Agents)
+    @foreach (var m in Model)
     {
         <tr>
             <td>@m.Name</td>

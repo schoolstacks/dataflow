@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
+using DataFlow.Common.ExtensionMethods;
 using DataFlow.Models;
 using DataFlow.Web.Helpers;
-using DataFlow.Web.Models;
 using DataFlow.Web.Services;
 using Microsoft.WindowsAzure.Storage;
 using Renci.SshNet;
@@ -38,13 +38,7 @@ namespace DataFlow.Web.Controllers
 
             ViewBag.Agents = GetAgentList;
 
-            var vm = new AgentViewModel.Index
-            {
-                Agents = agents,
-                SftpFiles = new List<SftpFile>()
-            };
-
-            return View(vm);
+            return View(agents);
         }
 
         public JsonResult TestAgentConnection(string url, string username, string password, string directory, string filePattern)
@@ -52,12 +46,12 @@ namespace DataFlow.Web.Controllers
             try
             {
                 var files = GetAgentFiles(url, username, password, directory, filePattern);
-                return Json(new { success = true, data = files }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = true,  files }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 Logger.Error("Error retrieving agent files.", ex);
-                return Json(new { success = false, data = ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = false, error = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -252,8 +246,8 @@ namespace DataFlow.Web.Controllers
 
                 if (ftpClient.IsConnected)
                 {
-                    var path = filePattern.Replace('*', ' ').Trim();
-                    return ftpClient.ListDirectory(directory).Where(x => x.Name.Contains(path)).ToList();
+                    filePattern = filePattern.Trim();
+                    return ftpClient.ListDirectory(directory).Where(x => x.Name.IsLike(filePattern)).ToList();
                 }
                 throw new Exception("Ftp Client Cannot Connect");
             }

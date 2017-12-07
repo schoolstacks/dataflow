@@ -272,7 +272,6 @@
     <Compile Include="Helpers\ExtensionMethods.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
-    <Compile Include="Models\AgentViewModel.cs" />
     <Compile Include="Models\AssessmentViewModel.cs" />
     <Compile Include="Models\DataMapper.cs" />
     <Compile Include="Models\DataMapperViewModel.cs" />
