@@ -29,7 +29,8 @@ namespace DataFlow.Web.Controllers
         public ActionResult Index()
         {
             var agents = dataFlowDbContext.Agents
-                .Include(x=>x.Files)
+                .Include(x => x.Files)
+                .OrderBy(x => x.Name)
                 .ToList();
 
             ViewBag.Agents = GetAgentList;
