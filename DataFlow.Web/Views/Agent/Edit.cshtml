@@ -12,6 +12,8 @@
     @Html.Partial("_PartialAgentForm", Model)
 }
 @section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
     <script type="text/javascript">
         $("#btnTest").click(function () {
             $("#btnTest").attr("disabled", true);
