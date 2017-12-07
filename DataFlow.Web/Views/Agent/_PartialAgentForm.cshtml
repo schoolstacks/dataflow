@@ -71,6 +71,11 @@
         @Html.CheckBoxFor(m => m.Enabled) @Html.LabelFor(m => m.Enabled)
     </div>
 </div>
+<div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+        <button id="btnTest" type="button" class="btn btn-primary">Test Connection</button>
+    </div>
+</div>
 
 <h4>Data Maps</h4>
 <table id="tblAgentDataMaps" class="table table-striped table-hover table-bordered table-responsive">
@@ -175,5 +180,22 @@
         @Html.HiddenFor(m => m.Custom)
         @Html.HiddenFor(m => m.Queue)
         <button id="btnSubmit" type="submit" class="btn btn-primary">Save Agent</button>
+    </div>
+</div>
+<div id="divAgentTest" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Agent Test Results</h4>
+            </div>
+            <div id="divAgentTestResults" class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
     </div>
 </div>

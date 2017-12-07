@@ -11,8 +11,11 @@ using System.Web.Mvc;
 using DataFlow.Common.DAL;
 using DataFlow.Models;
 using DataFlow.Web.Helpers;
+using DataFlow.Web.Models;
 using DataFlow.Web.Services;
 using Microsoft.WindowsAzure.Storage;
+using Renci.SshNet;
+using Renci.SshNet.Sftp;
 using File = DataFlow.Models.File;
 
 namespace DataFlow.Web.Controllers
@@ -35,7 +38,27 @@ namespace DataFlow.Web.Controllers
 
             ViewBag.Agents = GetAgentList;
 
-            return View(agents);
+            var vm = new AgentViewModel.Index
+            {
+                Agents = agents,
+                SftpFiles = new List<SftpFile>()
+            };
+
+            return View(vm);
+        }
+
+        public JsonResult TestAgentConnection(string url, string username, string password, string directory, string filePattern)
+        {
+            try
+            {
+                var files = GetAgentFiles(url, username, password, directory, filePattern);
+                return Json(new { success = true, data = files }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error retrieving agent files.", ex);
+                return Json(new { success = false, data = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         public ActionResult Add()
@@ -221,6 +244,21 @@ namespace DataFlow.Web.Controllers
             return RedirectToAction("Index");
         }
 
+        private List<SftpFile> GetAgentFiles(string url, string username, string password, string directory, string filePattern)
+        {
+            using (var ftpClient = new SftpClient(new ConnectionInfo(url, username, new PasswordAuthenticationMethod(username, password))))
+            {
+                ftpClient.Connect();
+
+                if (ftpClient.IsConnected)
+                {
+                    var path = filePattern.Replace('*', ' ').Trim();
+                    return ftpClient.ListDirectory(directory).Where(x => x.Name.Contains(path)).ToList();
+                }
+                throw new Exception("Ftp Client Cannot Connect");
+            }
+        }
+
         private void LogFile(int agentId, string fileName, string url, string status, int rows)
         {
             var fileLog = new File
@@ -252,12 +290,12 @@ namespace DataFlow.Web.Controllers
             {
                 var agentTypes = new List<SelectListItem>();
                 agentTypes.Add(new SelectListItem { Text = "Select Type", Value = string.Empty });
-                agentTypes.AddRange(new[] {"SFTP", "FTPS"}.Select(x =>
-                    new SelectListItem
-                    {
-                        Text = x,
-                        Value = x
-                    }));
+                agentTypes.AddRange(new[] { "SFTP", "FTPS" }.Select(x =>
+                      new SelectListItem
+                      {
+                          Text = x,
+                          Value = x
+                      }));
 
                 return agentTypes;
             }
