@@ -17,8 +17,13 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <img src="@ViewBag.CompanyLogo" style="height: 45px; float: left;"/>
-                @Html.ActionLink("Data Flow Admin", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @if (!string.IsNullOrWhiteSpace(CompanyLogo))
+                {
+                    <a href="~/School/">
+                        <img src="@CompanyLogo" class="navbar-left" style="height: 45px;" alt="@CompanyName" title="@CompanyName" />
+                    </a>
+                }
+                @Html.ActionLink("Data Flow Admin", "Index", "School", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 @if (Request.IsAuthenticated)
@@ -42,6 +47,9 @@
         <hr />
         <footer>
             <img src="~/Content/Images/edfi-logo.png" alt="ed-fi alliance" title="ed-fi alliance" style="width: 100px; margin-right: 15px;" />Powered by Ed-Fi Technology
+            <div style="max-width: 600px; float: right;">
+                @EducationText
+            </div>
         </footer>
     </div>
 
