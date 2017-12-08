@@ -36,8 +36,10 @@
                         <li>@Html.ActionLink("Lookups", "Index", "Lookup")</li>
                         <li>@Html.ActionLink("Assessments", "Index", "Assessment")</li>
                         <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Admin
-                                <span class="caret"></span></a>
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Admin
+                                <span class="caret"></span>
+                            </a>
                             <ul class="dropdown-menu">
                                 <li>@Html.ActionLink("Configuration", "Index", "Configuration")</li>
                                 <li>@Html.ActionLink("Bootstrap Data", "Index", "BootstrapData")</li>
@@ -60,6 +62,7 @@
             </div>
         </footer>
     </div>
+    <div class="help-block">@ViewBag.DevText</div>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")

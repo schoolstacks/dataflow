@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Services;
 
@@ -14,7 +10,6 @@ namespace DataFlow.Web.Controllers
         {
         }
 
-        // GET: Cache
         public ActionResult Index()
         {
             ViewBag.CacheStats = CacheService.GetStats();
