@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
-using DataFlow.Common.Services;
 using DataFlow.EdFi.Api.Resources;
 using DataFlow.EdFi.Sdk;
 using DataFlow.Web.Helpers;
@@ -12,16 +11,14 @@ namespace DataFlow.Web.Controllers
 {
     public class ConfigurationController : BaseController
     {
-        private readonly EdFiService edFiService;
-
-        public ConfigurationController(EdFiService edFiService, ICentralLogger logger) : base(logger)
+        public ConfigurationController(IBaseServices baseService) : base(baseService)
         {
-            this.edFiService = edFiService;
+            
         }
 
         public ActionResult Index()
         {
-            var vm = edFiService.GetConfiguration();
+            var vm = ConfigurationService.GetConfiguration();
 
             ViewBag.Months = new SelectList(Helpers.Common.MonthSelectList(), "Value", "Text");
             ViewBag.Years = new SelectList(Helpers.Common.YearSelectList(), "Value", "Text");
@@ -57,6 +54,11 @@ namespace DataFlow.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Index(DataFlow.Models.ApiConfigurationValues vm)
         {
+            if (!string.IsNullOrWhiteSpace(vm.INSTANCE_COMPANY_LOGO) && !vm.INSTANCE_COMPANY_LOGO.HasImageExtension())
+            {
+                ModelState.AddModelError("INSTANCE_COMPANY_LOGO", "Company logo must end with the following file extensions: jpg, gif, png, or svg.");
+            }
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Months = new SelectList(Helpers.Common.MonthSelectList(), "Value", "Text");
@@ -64,15 +66,15 @@ namespace DataFlow.Web.Controllers
                 return View(vm);
             }
 
-            var apiServerUrl = edFiService.GetConfigurationByKey(Constants.API_SERVER_URL);
-            var apiServerKey = edFiService.GetConfigurationByKey(Constants.API_SERVER_KEY);
-            var apiServerSecret = edFiService.GetConfigurationByKey(Constants.API_SERVER_SECRET);
-            var defaultsTermMonth = edFiService.GetConfigurationByKey(Constants.DEFAULTS_TERM_MONTH);
-            var defaultsTermYear = edFiService.GetConfigurationByKey(Constants.DEFAULTS_TERM_YEAR);
-            var instanceCompanyName = edFiService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME);
-            var instanceCompanyLogo = edFiService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO);
-            var instanceCompanyUrl = edFiService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL);
-            var instanceEduUseText = edFiService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT);
+            var apiServerUrl = ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_URL);
+            var apiServerKey = ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_KEY);
+            var apiServerSecret = ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_SECRET);
+            var defaultsTermMonth = ConfigurationService.GetConfigurationByKey(Constants.DEFAULTS_TERM_MONTH);
+            var defaultsTermYear = ConfigurationService.GetConfigurationByKey(Constants.DEFAULTS_TERM_YEAR);
+            var instanceCompanyName = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME);
+            var instanceCompanyLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO);
+            var instanceCompanyUrl = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL);
+            var instanceEduUseText = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT);
 
             apiServerUrl.Value = vm.API_SERVER_URL;
             apiServerKey.Value = vm.API_SERVER_KEY;
@@ -97,7 +99,7 @@ namespace DataFlow.Web.Controllers
                 instanceEduUseText
             };
 
-            edFiService.SaveConfiguration(confs);
+            ConfigurationService.SaveConfiguration(confs);
 
             return RedirectToAction("Index");
         }

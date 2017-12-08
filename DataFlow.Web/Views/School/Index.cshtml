@@ -8,28 +8,26 @@
 <h2>@ViewBag.Title</h2>
 
 <div style="padding-bottom: 10px;">
-    @Html.ActionLink("Add School", "Add")
+    @Html.ActionLink("Add School", "Add", null, new { @class = "btn btn-primary" })
 </div>
 <table id="tblSchools" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true">
     <thead>
         <tr>
-            <th data-sortable="false" data-filterable="false"></th>
             <th>School</th>
             <th>Abbreviation</th>
-            <th data-sortable="false" data-filterable="false"></th>
+            <th>District</th>
             <th data-sortable="false" data-filterable="false"></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var s in Model)
         {
-            <tr>
-                <td>@Html.ActionLink("Details", "Details", new { s.Id })</td>
-                <td>@s.Name</td>
-                <td>@s.Abbreviation</td>
-                <td>@Html.ActionLink("Edit", "Edit", new { s.Id })</td>
-                <td>@Html.ActionLink("Delete", "Delete", new { s.Id })</td>
-            </tr>
+        <tr>
+            <td>@Html.ActionLink(s.Name, "Details", new { s.Id })</td>
+            <td>@s.Abbreviation</td>
+            <td>@s.District</td>
+            <td style="text-align: center;">@Html.ActionLink("Edit", "Edit", new { s.Id })</td>
+        </tr>
         }
     </tbody>
 </table>

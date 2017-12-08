@@ -48,20 +48,51 @@ namespace DataFlow.Web.Models
         public List<SelectListItem> SourceTables { get; set; }
         public List<SelectListItem> DataSources { get; set; }
 
+        public List<string> GetAllFieldNames()
+        {
+            var fields = new List<string>();
+            
+            Fields.ForEach(f =>
+            {
+                fields.Add(f.FormFieldName);
+                fields.AddRange(f.SubFields.Select(x => x.FormFieldName));
+                //fields.AddRange(f.SubFields.SelectMany(x => x.SubFields.Select(y => x.FormFieldName)));
+                //if (f.SubFields.Any())
+                //{
+                //    fields.AddRange(f.SubFields.Select(x => x.Name));
+
+                //    if (f.SubFields.Any(x => x.SubFields.Any()))
+                //    {
+                //        fields.AddRange(f.SubFields.SelectMany(x => x.SubFields.Select(y => y.Name)));
+                //    }
+                //}
+            });
+
+            return fields;
+        }
+
         public bool IsSuccess { get; set; }
         public bool ShowInfoMessage { get; set; }
         public string InfoMessage { get; set; }
 
         public class Field
         {
-            public Field(string name, string dataType)
+            public Field(string name, string dataType, string childType, string parentType, string formFieldName)
             {
                 Name = name;
                 DataType = dataType;
+                ChildType = childType;
+                ParentType = parentType;
+                FormFieldName = formFieldName;
+                SubFields = new List<Field>();
             }
 
             public string Name { get; set; }
             public string DataType { get; set; }
+            public string ChildType { get; set; }
+            public string ParentType { get; set; }
+            public string FormFieldName { get; set; }
+            public List<Field> SubFields { get; set; }
         }
     }
 }

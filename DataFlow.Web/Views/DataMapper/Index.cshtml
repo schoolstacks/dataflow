@@ -116,12 +116,12 @@
             @Html.ValidationMessageFor(m => m.JsonMap)
         </div>
     </div>
-            <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                    @Html.Hidden("CsvColumnHeaders", string.Join(",", Model.CsvColumnHeaders))
-                    <button id="btnSubmit" type="submit" class="btn btn-primary">Save Map</button>
-                </div>
-            </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            @Html.Hidden("CsvColumnHeaders", string.Join(",", Model.CsvColumnHeaders))
+            <button id="btnSubmit" type="submit" class="btn btn-primary">Save Map</button>
+        </div>
+    </div>
 }
 @section scripts{
     <script type="text/javascript">

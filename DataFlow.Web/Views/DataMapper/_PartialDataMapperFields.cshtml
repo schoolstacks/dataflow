@@ -5,43 +5,88 @@
 {
     <div class="form-group">
         <div class="col-sm-2">
-            <label id="@($"lbl{t.Name}")" name="@($"lbl{t.Name}")" for="@($"ddl{t.Name}_SourceColumn")">@($"{t.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
+            <label id="@($"lbl{t.FormFieldName}")" name="@($"lbl{t.FormFieldName}")" for="@($"ddl{t.FormFieldName}_SourceColumn")">@($"{t.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
         </div>
-        <div class="col-sm-10 field-block">
-            <select id="@($"ddl{t.Name}_SourceColumn")" name="@($"ddl{t.Name}_SourceColumn")" class="form-control">
-                @foreach (var sourceColumn in Model.SourceColumns)
-                {
-                    <option value="@sourceColumn.Value">@sourceColumn.Text</option>
-                }
-            </select>
-            <select id="@($"ddl{t.Name}_SourceType")" name="@($"ddl{t.Name}_SourceType")" class="form-control">
+        <div class="col-sm-10 field-block" style="display: @(string.IsNullOrWhiteSpace(t.ChildType) ? "block": "none");">
+            <select id="@($"ddl{t.FormFieldName}_SourceType")" name="@($"ddl{t.FormFieldName}_SourceType")" class="form-control source-type">
                 @foreach (var sourceType in Model.DataSources)
                 {
                     <option value="@sourceType.Value">@sourceType.Text</option>
                 }
             </select>
-            <input id="@($"txt{t.Name}_DefaultValue")" name="@($"txt{t.Name}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" />
-            <select id="@($"ddl{t.Name}_SourceTable")" name="@($"ddl{t.Name}_SourceTable")" class="form-control">
+            <select id="@($"ddl{t.FormFieldName}_SourceColumn")" name="@($"ddl{t.FormFieldName}_SourceColumn")" class="form-control" style="display: none;">
+                @foreach (var sourceColumn in Model.SourceColumns)
+                {
+                    <option value="@sourceColumn.Value">@sourceColumn.Text</option>
+                }
+            </select>
+            <select id="@($"ddl{t.FormFieldName}_SourceTable")" name="@($"ddl{t.FormFieldName}_SourceTable")" class="form-control" style="display: none;">
                 @foreach (var sourceTable in Model.SourceTables)
                 {
                     <option value="@sourceTable.Value">@sourceTable.Text</option>
                 }
             </select>
-            <input id="@($"txt{t.Name}_StaticValue")" name="@($"txt{t.Name}_StaticValue")" type="text" class="form-control" placeholder="Static Value" />
-            <input id="@($"hf{t.Name}_DataType")" name="@($"hf{t.Name}_DataType")" type="hidden" value="@t.DataType" />
+            <input id="@($"txt{t.FormFieldName}_StaticValue")" name="@($"txt{t.FormFieldName}_StaticValue")" type="text" class="form-control" placeholder="Static Value" style="display: none;" />
+            <input id="@($"txt{t.FormFieldName}_DefaultValue")" name="@($"txt{t.FormFieldName}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" style="display: none;" />
+            <input id="@($"hf{t.FormFieldName}_DataType")" name="@($"hf{t.FormFieldName}_DataType")" type="hidden" value="@t.DataType" />
+            <input id="@($"hf{t.FormFieldName}_ChildType")" name="@($"hf{t.FormFieldName}_ChildType")" type="hidden" value="@t.ChildType" />
+            <input id="@($"hf{t.FormFieldName}_ParentType")" name="@($"hf{t.FormFieldName}_ParentType")" type="hidden" value="@t.ParentType" />
         </div>
     </div>
+    <div id="@($"div{t.FormFieldName}")">
+    @foreach (var s in t.SubFields)
+    {
+        <div class="form-group">
+            <div>
+                <div class="col-sm-2" style="padding-left: 30px;">
+                    <label id="@($"lbl{s.FormFieldName}")" name="@($"lbl{s.FormFieldName}")" for="@($"ddl{s.FormFieldName}_SourceColumn")">@($"{s.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
+                </div>
+                <div class="col-sm-10 field-block" style="display: @(string.IsNullOrWhiteSpace(s.ChildType) ? "block": "none");">
+                    <select id="@($"ddl{s.FormFieldName}_SourceType")" name="@($"ddl{s.FormFieldName}_SourceType")" class="form-control source-type">
+                        @foreach (var sourceType in Model.DataSources)
+                        {
+                            <option value="@sourceType.Value">@sourceType.Text</option>
+                        }
+                    </select>
+                    <select id="@($"ddl{s.FormFieldName}_SourceColumn")" name="@($"ddl{s.FormFieldName}_SourceColumn")" class="form-control" style="display: none;">
+                        @foreach (var sourceColumn in Model.SourceColumns)
+                        {
+                            <option value="@sourceColumn.Value">@sourceColumn.Text</option>
+                        }
+                    </select>
+                    <select id="@($"ddl{s.FormFieldName}_SourceTable")" name="@($"ddl{s.FormFieldName}_SourceTable")" class="form-control" style="display: none;">
+                        @foreach (var sourceTable in Model.SourceTables)
+                        {
+                            <option value="@sourceTable.Value">@sourceTable.Text</option>
+                        }
+                    </select>
+                    <input id="@($"txt{s.FormFieldName}_StaticValue")" name="@($"txt{s.FormFieldName}_StaticValue")" type="text" class="form-control" placeholder="Static Value" style="display: none;" />
+                    <input id="@($"txt{s.FormFieldName}_DefaultValue")" name="@($"txt{s.FormFieldName}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" style="display: none;" />
+                    <input id="@($"hf{s.FormFieldName}_DataType")" name="@($"hf{s.FormFieldName}_DataType")" type="hidden" value="@s.DataType" />
+                    <input id="@($"hf{s.FormFieldName}_ChildType")" name="@($"hf{s.FormFieldName}_ChildType")" type="hidden" value="@s.ChildType" />
+                    <input id="@($"hf{s.FormFieldName}_ParentType")" name="@($"hf{s.FormFieldName}_ParentType")" type="hidden" value="@s.ParentType" />
+                </div>
+            </div>
+        </div>
+    }
+    </div>
+    @*if (!new[] { "string", "date-time", "boolean", "integer" }.Contains(t.DataType))
+    {
+        <div class="form-group" id="@($"div{t.FormFieldName}_Add")">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button id="@($"btn{t.FormFieldName}")" type="button" class="btn btn-default add-row">Add Row</button>
+            </div>
+        </div>
+    }*@
 }
-@Html.Hidden("FieldNames", string.Join(";", Model.Fields.Select(x => x.Name)))
+@Html.Hidden("FieldNames", string.Join(";", Model.GetAllFieldNames()))
 <script type="text/javascript">
-    $(".field-block").change(function () {
+    $(".field-block").change(function (e) {
         var frmData = $("#frmDataMapper").serialize();
-
-        console.log(frmData);
 
         $.ajax({
             type: "POST",
-            url: '@Url.Action("UpdateJsonMap", "DataMapper")',
+            url: "/DataMapper/UpdateJsonMap?triggeredBy=" + e.target.id,
             data: frmData,
             dataType: "json",
             success: function (data) {
@@ -52,5 +97,63 @@
             }
         });
     });
-</script>
+
+    $(".source-type").change(function () {
+        var sourceTypeFormId = this.id;
+        var sourceTypeValue = this.value;
+
+        var sourceColumnDropDownId = "#" + sourceTypeFormId.replace("_SourceType", "_SourceColumn");
+        var sourceTableDropDownId = "#" + sourceTypeFormId.replace("_SourceType", "_SourceTable");
+        var staticValueTextBoxId = "#" + sourceTypeFormId.replace("_SourceType", "_StaticValue").replace("ddl", "txt");
+        var defaultValueTextBoxId = "#" + sourceTypeFormId.replace("_SourceType", "_DefaultValue").replace("ddl", "txt");;
+
+        if (sourceTypeValue === "lookup_table") {
+            $(sourceColumnDropDownId).show();
+            $(sourceTableDropDownId).show();
+            $(staticValueTextBoxId).hide();
+            $(defaultValueTextBoxId).show();
+        }
+        else if (sourceTypeValue === "static") {
+            $(sourceColumnDropDownId).hide();
+            $(sourceTableDropDownId).hide();
+            $(staticValueTextBoxId).show();
+            $(defaultValueTextBoxId).hide();
+        }
+        else if (sourceTypeValue === "column") {
+            $(sourceColumnDropDownId).show();
+            $(sourceTableDropDownId).hide();
+            $(staticValueTextBoxId).hide();
+            $(defaultValueTextBoxId).show();
+        }
+        else {
+            $(sourceColumnDropDownId).hide();
+            $(sourceTableDropDownId).hide();
+            $(staticValueTextBoxId).hide();
+            $(defaultValueTextBoxId).hide();
+        }
+    });
+
+    $(".add-row").click(function(e) {
+        var btnAddId = this.id;
+        var divToCopy = btnAddId.replace("btn", "div");
+
+        $("#" + divToCopy).clone(true)
+            .attr("id", divToCopy + "_1")
+            .appendTo("#" + divToCopy)
+            .find("*")
+            .each(function() {
+                var newId = this.id;
+                if (newId) {
+                    $(this).attr("id", newId + "_1");
+
+                    if ($(this).is("input:text,select")) {
+                        $(this).val("");
+
+                        if (newId.indexOf("SourceType") === -1) {
+                            $(this).hide();
+                        }
+                    }
+                }
+            });
+    });
 </script>

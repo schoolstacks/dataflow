@@ -1,6 +1,8 @@
 ﻿@model DataFlow.Models.Agent
 
 @{
+    /**/
+
     ViewBag.Title = "Add Agent";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -10,4 +12,54 @@
 @using (Html.BeginForm("Add", "Agent", FormMethod.Post, new { @class = "form-horizontal" }))
 {
     @Html.Partial("_PartialAgentForm", Model)
+}
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+        $("#btnTest").click(function () {
+            $("#btnTest").attr("disabled", true);
+
+            var url = $("#Url").val();
+            var userName = $("#Username").val();
+            var password = $("#Password").val();
+            var directory = $("#Directory").val();
+            var filePattern = $("#FilePattern").val();
+
+            $.ajax({
+                type: 'POST',
+                data: {
+                    url: url,
+                    username: userName,
+                    password: password,
+                    directory: directory,
+                    filePattern: filePattern
+                },
+                dataType: "json",
+                url: '@Url.Action("TestAgentConnection", "Agent")',
+                success: function(data) {
+                    if (data.success === true) {
+                        $("#divAgentTest").modal();
+                        $("#divAgentTestResults").html("");
+                        $("#divAgentTestResults").append($("<h4>").text("Connection to Agent successful! Found " + data.files.length + " file(s)."));
+                        $.each(data.files, function(i, item) {
+                            $("#divAgentTestResults").append($("<div>").text(item.Name));
+                        });
+                        $("#btnTest").attr("disabled", false);
+                    } else {
+                        $("#divAgentTest").modal();
+                        $("#divAgentTestResults")
+                            .text("Unable to connect to the agent. Error: " + data.error);
+                        $("#btnTest").attr("disabled", false);
+                    }
+                },
+                fail: function(data) {
+                    $("#divAgentTest").modal();
+                    $("#divAgentTestResults")
+                        .text("Unable to connect to the agent.");
+                    $("#btnTest").attr("disabled", false);
+                }
+            });
+        });
+    </script>
 }

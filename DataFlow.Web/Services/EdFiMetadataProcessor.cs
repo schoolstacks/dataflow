@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Entity.Infrastructure.Pluralization;
 using System.Net;
 using DataFlow.Common.Services;
 using DataFlow.Models;
+using Humanizer;
 using Newtonsoft.Json.Linq;
+using NLog;
 
 namespace DataFlow.Web.Services
 {
@@ -79,16 +82,9 @@ namespace DataFlow.Web.Services
 
         public List<EdFiMetadataProcessorField> GetFieldListFromJson(JObject jsonObj, string entity)
         {
-            var entityJsonName = entity;
+            Humanizer.Inflections.Vocabularies.Default.AddSingular("Address", "Address");
 
-            if (entity.Substring(entity.Length - 3) == "ies")
-            {
-                entityJsonName = entity.Substring(0, entity.Length - 3) + "y";
-            }
-            else if (entity.Substring(entity.Length - 1) == "s")
-            {
-                entityJsonName = entity.Substring(0, entity.Length - 1);
-            }
+            var entityJsonName = entity.Singularize(inputIsKnownToBePlural: false);
 
             var fieldList = new List<EdFiMetadataProcessorField>();
 
@@ -113,10 +109,19 @@ namespace DataFlow.Web.Services
                             }
                             returnField.Type = variable["type"].ToString();
 
-                            if (returnField.Type == "array")
+                            if (returnField.Type != "string" && returnField.Type != "date-time" && returnField.Type != "boolean" && returnField.Type != "integer")
                             {
-                                returnField.SubType = variable["items"]["$ref"].Value<string>();
+                                if (returnField.Type == "array")
+                                {
+                                    returnField.SubType = variable["items"]["$ref"].Value<string>();
+                                    returnField.SubFields = GetFieldListFromJson(jsonObj, returnField.SubType);
 
+                                }
+                                else
+                                {
+                                    returnField.SubType = returnField.Name;
+                                    returnField.SubFields = GetFieldListFromJson(jsonObj, returnField.SubType);
+                                }
                             }
                         }
                     }

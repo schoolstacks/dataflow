@@ -1,13 +1,24 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using Newtonsoft.Json;
 
 namespace DataFlow.Web.Models
 {
     public class DataMapper
     {
+        public DataMapper()
+        {
+            SubDataMappers = new List<DataMapper>();
+        }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DataMapperProperty DataMapperProperty { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<DataMapper> SubDataMappers { get; set; }
     }
 
     public class DataMapperProperty
@@ -29,6 +40,12 @@ namespace DataFlow.Web.Models
 
         [JsonProperty(PropertyName = "value", NullValueHandling = NullValueHandling.Ignore)]
         public string Value { get; set; }
+
+        [JsonIgnore]
+        public string ChildType { get; set; }
+
+        [JsonIgnore]
+        public string ParentType { get; set; }
     }
 
     public class DataMapperEnums
