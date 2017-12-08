@@ -51,7 +51,7 @@ namespace DataFlow.Server.TransformLoad
                 var config = log4net.Config.XmlConfigurator.Configure();
                 System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
                 watch.Start();
-                await  StartProcessing();
+                await StartProcessing();
                 watch.Stop();
 
                 Log(log4net.Core.Level.Info, "Time Elapsed: {0}", watch.Elapsed.ToString());
@@ -217,14 +217,14 @@ namespace DataFlow.Server.TransformLoad
             {
                 foreach (var singleApiData in singleApiDataEntity)
                 {
-                    Action taskPostSingleApiData = 
+                    Action taskPostSingleApiData =
                         CreatePostSingleApiDataAction(accessToken, singleApiData);
                     lock (lstRowsToPostActionsLock)
                     {
                         lstRowsToPostActions.Add(taskPostSingleApiData);
                         if (lstRowsToPostActions.Count == numberOfSimultaneousTasks)
                         {
-                            Parallel.Invoke(parallelOptions,lstRowsToPostActions.ToArray());
+                            Parallel.Invoke(parallelOptions, lstRowsToPostActions.ToArray());
                             lstRowsToPostActions.Clear();
                         }
                     }
@@ -233,7 +233,7 @@ namespace DataFlow.Server.TransformLoad
                 {
                     if (lstRowsToPostActions.Count > 0)
                     {
-                        Parallel.Invoke(parallelOptions,lstRowsToPostActions.ToArray());
+                        Parallel.Invoke(parallelOptions, lstRowsToPostActions.ToArray());
                         lstRowsToPostActions.Clear();
                     }
                 }
@@ -282,8 +282,8 @@ namespace DataFlow.Server.TransformLoad
                             return; // we will not process if we cannot read metadata
                         }
                         string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata, ctx);
-                        //if (!IsNewOrModified(singleApiData, endpointUrl, ctx))
-                        //    return;
+                        if (!IsNewOrModified(singleApiData, endpointUrl))
+                            return;
                         HttpMethod method = HttpMethod.Post;
                         using (HttpClient httpClient = new HttpClient())
                         {
@@ -415,7 +415,8 @@ namespace DataFlow.Server.TransformLoad
             }
         }
 
-        private static bool IsNewOrModified(ResultingMapInfo singleApiData, string endPoint, DataFlowContext ctx)
+        private static Dictionary<string, ResultingMapInfo> ProcessedData = new Dictionary<string, ResultingMapInfo>();
+        private static bool IsNewOrModified(ResultingMapInfo singleApiData, string endPoint)
         {
             bool isNewOrModified = false;
             StringBuilder strBuilder = new StringBuilder();
@@ -427,23 +428,11 @@ namespace DataFlow.Server.TransformLoad
                 byte[] utf32Bytes = Encoding.UTF32.GetBytes(strBuilder.ToString());
                 var computedHash = md5Algorithm.ComputeHash(utf32Bytes);
                 var base64ResultingHash = Convert.ToBase64String(computedHash);
-                var dbMatchingEntity = ctx.processed_data.Where(p => p.base64HashedString == base64ResultingHash).FirstOrDefault();
-                if (dbMatchingEntity == null)
+                var dbMatchingEntityQuery = ProcessedData.Where(p => p.Key == base64ResultingHash);
+                if (dbMatchingEntityQuery.Count() == 0)
                 {
+                    ProcessedData.Add(base64ResultingHash, singleApiData);
                     isNewOrModified = true;
-                    dbMatchingEntity = new processed_data()
-                    {
-                        base64HashedString = base64ResultingHash
-                    };
-                    ctx.processed_data.Add(dbMatchingEntity);
-                    try
-                    {
-                        ctx.SaveChanges();
-                    }
-                    catch (Exception)
-                    {
-                        //we will ignore the error so that process continues
-                    }
                 }
                 else
                     isNewOrModified = false;
@@ -682,19 +671,19 @@ namespace DataFlow.Server.TransformLoad
                     lstRowsTransformingActions.Add(tskGeneratedRow);
                     if (lstRowsTransformingActions.Count == numberOfSimultaneousTasks)
                     {
-                        Parallel.Invoke(parallelOptions,lstRowsTransformingActions.ToArray());
+                        Parallel.Invoke(parallelOptions, lstRowsTransformingActions.ToArray());
                         lstRowsTransformingActions.Clear();
                     }
                 }
                 if (lstRowsTransformingActions.Count == numberOfSimultaneousTasks)
                 {
-                    Parallel.Invoke(parallelOptions,lstRowsTransformingActions.ToArray());
+                    Parallel.Invoke(parallelOptions, lstRowsTransformingActions.ToArray());
                     lstRowsTransformingActions.Clear();
                 }
             }
             if (lstRowsTransformingActions.Count > 0)
             {
-                Parallel.Invoke(parallelOptions,lstRowsTransformingActions.ToArray());
+                Parallel.Invoke(parallelOptions, lstRowsTransformingActions.ToArray());
                 lstRowsTransformingActions.Clear();
             }
         }
@@ -789,7 +778,7 @@ namespace DataFlow.Server.TransformLoad
         }
 
 
-        private static JToken ProcessCSVRow(entity entity, datamap dataMap, Dictionary<string,string> reader)
+        private static JToken ProcessCSVRow(entity entity, datamap dataMap, Dictionary<string, string> reader)
         {
             JToken originalMap = JToken.Parse(dataMap.Map);
             JToken result = originalMap.DeepClone();
@@ -802,7 +791,7 @@ namespace DataFlow.Server.TransformLoad
             Log(log4net.Core.Level.Info, "An unhandled exception has occurred: " + ((Exception)e.ExceptionObject).ToString());
         }
 
-        private static void TransformCSVRow(JToken originalMap, ref JToken outputData, Dictionary<string,string> reader,
+        private static void TransformCSVRow(JToken originalMap, ref JToken outputData, Dictionary<string, string> reader,
             JArray originalArray = null, bool? hasArrayElementBeingProcessed = null, string arrayItemName = null, int? arrayPos = null)
         {
             if (originalMap.Type == JTokenType.Array)
@@ -915,7 +904,7 @@ namespace DataFlow.Server.TransformLoad
             }
         }
 
-        private static void SetFieldValue(JToken originalMap, JToken outputData, Dictionary<string,string> reader,
+        private static void SetFieldValue(JToken originalMap, JToken outputData, Dictionary<string, string> reader,
             JArray originalArray, ref bool? hasArrayElementBeingProcessed, ref bool wasValueSet,
             JProperty dataTypeField, JProperty sourceField, JProperty sourceTable, JProperty sourceColumnField,
             JProperty valueField, JProperty defaultValueField, JToken initialOutputData, string[] splittedPath)
@@ -1120,8 +1109,8 @@ namespace DataFlow.Server.TransformLoad
             return initialOutputData;
         }
 
-        private static string GetValueFromLookupTable(string lookupTable, string lookupColumn, 
-            Dictionary<string,string> csvRow)
+        private static string GetValueFromLookupTable(string lookupTable, string lookupColumn,
+            Dictionary<string, string> csvRow)
         {
             string result = string.Empty;
             string valueInCSV = csvRow[lookupColumn];
