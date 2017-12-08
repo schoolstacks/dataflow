@@ -1,4 +1,4 @@
-﻿// T4 code generation is enabled for model 'C:\Projects\SchoolStacks\Dataflow\dataflow-server-components\components\server-components-data-access\Dataflow\DataFlowContext.edmx'. 
+﻿// T4 code generation is enabled for model 'C:\Projects\SchoolStacks\Dataflow\DataFlow\DataFlow.Server\components\server-components-data-access\Dataflow\DataFlowContext.edmx'. 
 // To enable legacy code generation, change the value of the 'Code Generation Strategy' designer
 // property to 'Legacy ObjectContext'. This property is available in the Properties Window when the model
 // is open in the designer.
