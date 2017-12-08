@@ -7,6 +7,7 @@ using Autofac;
 using Autofac.Extras.AggregateService;
 using Autofac.Integration.Mvc;
 using CacheManager.Core;
+using CacheManager.SystemRuntimeCaching;
 using DataFlow.Common.DAL;
 using DataFlow.Common.Services;
 using DataFlow.Web.Helpers;
@@ -25,6 +26,8 @@ namespace DataFlow.Web
             {
                 settings.WithUpdateMode(CacheUpdateMode.None)
                     .WithSystemRuntimeCacheHandle(appName)
+                    .EnableStatistics()
+                    .EnablePerformanceCounters()
                     .WithExpiration(ExpirationMode.Sliding, TimeSpan.FromHours(2));
             });
             var cacheFactory = CacheFactory.FromConfiguration<string>(appName, cacheConfig);
@@ -35,8 +38,8 @@ namespace DataFlow.Web
             builder.RegisterModule<AutofacWebTypesModule>();
             builder.RegisterType<DataFlowDbContext>().InstancePerRequest();
             builder.RegisterType<EdFiService>().InstancePerRequest();
-            builder.RegisterType<ConfigurationService>().InstancePerRequest();
             builder.RegisterType<EdFiMetadataProcessor>().InstancePerRequest();
+            builder.RegisterType<ConfigurationService>().AsImplementedInterfaces().InstancePerRequest();
             builder.Register(c => LogManager.GetLogger(appName)).As<ILogger>().InstancePerRequest();
             builder.RegisterType<NLogService>().AsImplementedInterfaces().InstancePerRequest();
             builder.RegisterType<WebConfigAppSettingsService>().AsImplementedInterfaces().InstancePerRequest();

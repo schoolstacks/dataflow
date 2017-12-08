@@ -255,6 +255,7 @@
     <Compile Include="Controllers\AgentController.cs" />
     <Compile Include="Controllers\AssessmentController.cs" />
     <Compile Include="Controllers\BootstrapDataController.cs" />
+    <Compile Include="Controllers\CacheController.cs" />
     <Compile Include="Controllers\ConfigurationController.cs" />
     <Compile Include="Controllers\DataMapperController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -282,10 +283,12 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\SchoolViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\BaseServices.cs" />
     <Compile Include="Services\ConfigurationService.cs" />
     <Compile Include="Services\EdFiMetadataProcessor.cs" />
     <Compile Include="Services\EdFiService.cs" />
     <Compile Include="Services\IBaseServices.cs" />
+    <Compile Include="Services\IConfigurationService.cs" />
     <Compile Include="Services\IWebConfigAppSettingsService.cs" />
     <Compile Include="Services\WebConfigAppSettingsService.cs" />
     <Compile Include="Startup.cs" />
@@ -399,6 +402,7 @@
     <Content Include="Views\BootstrapData\Add.cshtml" />
     <Content Include="Views\BootstrapData\Edit.cshtml" />
     <Content Include="Views\BootstrapData\_PartialBootstrapDataForm.cshtml" />
+    <Content Include="Views\Cache\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

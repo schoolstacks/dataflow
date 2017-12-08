@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using CacheManager.Core;
+using CacheManager.Core.Internal;
 
 namespace DataFlow.Common.Services
 {
@@ -51,6 +54,27 @@ namespace DataFlow.Common.Services
         public void Expire(string keyName, TimeSpan expireTimeSpan)
         {
             _cacheManager.Expire(keyName, expireTimeSpan);
+        }
+
+        public void Clear()
+        {
+            _cacheManager.Clear();
+        }
+
+        public List<string> GetStats()
+        {
+            return _cacheManager.CacheHandles.Select(handle => handle.Stats)
+                .Select(stats => string.Format("Items: {0}, Hits: {1}, Miss: {2}, Remove: {3}, ClearRegion: {4}, Clear: {5}, Adds: {6}, Puts: {7}, Gets: {8}",
+                    stats.GetStatistic(CacheStatsCounterType.Items),
+                    stats.GetStatistic(CacheStatsCounterType.Hits),
+                    stats.GetStatistic(CacheStatsCounterType.Misses),
+                    stats.GetStatistic(CacheStatsCounterType.RemoveCalls),
+                    stats.GetStatistic(CacheStatsCounterType.ClearRegionCalls),
+                    stats.GetStatistic(CacheStatsCounterType.ClearCalls),
+                    stats.GetStatistic(CacheStatsCounterType.AddCalls),
+                    stats.GetStatistic(CacheStatsCounterType.PutCalls),
+                    stats.GetStatistic(CacheStatsCounterType.GetCalls)))
+                .ToList();
         }
 
         public void Dispose()

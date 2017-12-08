@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DataFlow.Common.Services
 {
@@ -13,5 +14,7 @@ namespace DataFlow.Common.Services
         bool Remove(string keyName);
         void Dispose();
         void Expire(string keyName, TimeSpan expireTimeSpan);
+        void Clear();
+        List<string> GetStats();
     }
 }

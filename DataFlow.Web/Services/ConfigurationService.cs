@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace DataFlow.Web.Services
 {
-    public class ConfigurationService
+    public class ConfigurationService : IConfigurationService
     {
         private readonly DataFlowDbContext dataFlowDbContext;
         private readonly ICacheService cacheService;
