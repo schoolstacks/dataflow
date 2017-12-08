@@ -21,18 +21,21 @@ namespace DataFlow.Server.TransformLoad
     internal class Program
     {
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        private static Object ApiDataLock = new Object();
-        internal static List<ResultingMapInfo> ApiData = new List<ResultingMapInfo>();
         private static List<server_components_data_access.Dataflow.datamap> DataMapsList { get; set; } = null;
         private static List<server_components_data_access.Dataflow.lookup> MappingLookups { get; set; }
-        private static List<KeyValuePair<string, string>> InsertedIds { get; set; } = new List<KeyValuePair<string, string>>();
 
         private static string _accessToken = null;
-        private static List<Action> lstRowsTransformingActions = new List<Action>();
-        private static Object lstRowsToPostActionsLock = new Object();
-        private static List<Action> lstRowsToPostActions = new List<Action>();
         private static int numberOfSimultaneousTasks = GetNumberOfSimultaneousTasks();
         private static ParallelOptions parallelOptions = null;
+
+        #region Parallel/Multi-Threading variables
+        private static Object ApiDataLock = new Object();
+        private static List<KeyValuePair<string, string>> InsertedIds { get; set; } = new List<KeyValuePair<string, string>>();
+        private static List<Action> lstRowsTransformingActions = new List<Action>();
+        private static List<Action> lstRowsToPostActions = new List<Action>();
+        private static Object lstRowsToPostActionsLock = new Object();
+        private static List<ResultingMapInfo> ApiData = new List<ResultingMapInfo>();
+        #endregion Parallel/Multi-Threading variables
         public static void Main(string[] args)
         {
             RunAsync().Wait();
@@ -146,7 +149,6 @@ namespace DataFlow.Server.TransformLoad
                 singleTransformedFile.Status = FileStatus.TRANSFORMED;
             }
             ctx.SaveChanges();
-            ApiData.Clear();
         }
 
         internal static async Task InsertBootrapData(DataFlowContext ctx)
@@ -597,6 +599,12 @@ namespace DataFlow.Server.TransformLoad
             try
             {
                 await PostTransformedData(ctx);
+                Log(log4net.Core.Level.Info, "Reduced Api Calls by Hashing. Total:{0}. File:{1}", ProcessedData.Count, file.Uri);
+                ApiData.Clear();
+                ProcessedData.Clear();
+                InsertedIds.Clear();
+                lstRowsToPostActions.Clear();
+                lstRowsTransformingActions.Clear();
             }
             catch (Exception ex)
             {
