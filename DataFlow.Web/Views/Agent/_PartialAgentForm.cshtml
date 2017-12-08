@@ -83,6 +83,7 @@
         <tr>
             <td>Name</td>
             <td>Processing Order</td>
+            <td></td>
         </tr>
     </thead>
     <tbody>
@@ -91,6 +92,7 @@
             <tr>
                 <td>@m.DataMap.Name</td>
                 <td>@m.ProcessingOrder</td>
+                <td style="text-align: center;">@Html.ActionLink("Delete", "DeleteDataMap", new { agentId = Model.Id, id = m.Id })</td>
             </tr>
         }
     </tbody>
@@ -125,6 +127,7 @@
             <td>Day</td>
             <td>Hour</td>
             <td>Minute</td>
+            <td></td>
         </tr>
     </thead>
     <tbody>
@@ -134,6 +137,7 @@
                 <td>@Enum.GetName(typeof(DayOfWeek), m.Day)</td>
                 <td>@(Convert.ToString(m.Hour).PadLeft(2, '0'))</td>
                 <td>@(Convert.ToString(m.Minute).PadLeft(2, '0'))</td>
+                <td style="text-align: center;">@Html.ActionLink("Delete", "DeleteSchedule", new { agentId = Model.Id, id = m.Id })</td>
             </tr>
         }
     </tbody>
