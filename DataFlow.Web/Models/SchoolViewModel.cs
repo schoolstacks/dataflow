@@ -12,6 +12,7 @@ namespace DataFlow.Web.Models
             public string LocalEducationAgencyId { get; set; }
             public string Name { get; set; }
             public string Abbreviation { get; set; }
+            public string District { get; set; }
             public int StaffCount { get; set; }
             public int StudentCount { get; set; }
             public string LastIngestionDate { get; set; }

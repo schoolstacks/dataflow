@@ -23,3 +23,10 @@
 .form-control.auto-height {
     height: auto;
 }
+
+/* Make drop down menus show on hover */
+@media (min-width: 979px) {
+    ul.nav li.dropdown:hover > ul.dropdown-menu {
+        display: block;
+    }
+}

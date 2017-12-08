@@ -3,8 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
-using DataFlow.Common.Services;
 using DataFlow.Web.Helpers;
+using DataFlow.Web.Services;
 
 namespace DataFlow.Web.Controllers
 {
@@ -12,7 +12,7 @@ namespace DataFlow.Web.Controllers
     {
         private readonly DataFlowDbContext dataFlowDbContext;
 
-        public LookupController(DataFlowDbContext dataFlowDbContext, ICentralLogger logger) : base(logger)
+        public LookupController(DataFlowDbContext dataFlowDbContext, IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
         }

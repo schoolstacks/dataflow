@@ -1,5 +1,6 @@
 ﻿using System.Web.Mvc;
 using DataFlow.Common.Services;
+using DataFlow.Web.Services;
 
 namespace DataFlow.Web.Helpers
 {
@@ -7,10 +8,23 @@ namespace DataFlow.Web.Helpers
     public class BaseController : Controller
     {
         public readonly ICentralLogger Logger;
+        public readonly ICacheService CacheService;
+        public readonly ConfigurationService ConfigurationService;
 
-        public BaseController(ICentralLogger logger)
+        private readonly IBaseServices BaseServices;
+
+        public BaseController(IBaseServices baseServices)
         {
-            this.Logger = logger;
+            this.BaseServices = baseServices;
+
+            this.Logger = baseServices.Logger;
+            this.CacheService = baseServices.CacheService;
+            this.ConfigurationService = baseServices.ConfigurationService;
+
+            ViewBag.CompanyName = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME).Value;
+            ViewBag.CompanyLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO).Value;
+            ViewBag.CompanyUrl = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL).Value;
+            ViewBag.EducationText = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT).Value;
         }
     }
 }

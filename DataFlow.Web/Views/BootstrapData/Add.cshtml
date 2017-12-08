@@ -1,0 +1,16 @@
+﻿@model DataFlow.Models.BootstrapData
+
+@{
+    ViewBag.Title = "Add Bootstrap Data";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Add Bootstrap Data</h2>
+
+@using (Html.BeginForm("Add", "BootstrapData", FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.Partial("_PartialBootstrapDataForm", Model)
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

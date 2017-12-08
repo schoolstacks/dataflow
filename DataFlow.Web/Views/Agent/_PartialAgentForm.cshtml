@@ -14,6 +14,15 @@
 </div>
 <div class="form-group">
     <div class="col-sm-2">
+        @Html.LabelFor(m => m.AgentTypeCode, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.DropDownListFor(m => m.AgentTypeCode, (IEnumerable<SelectListItem>)ViewBag.AgentTypes, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.AgentTypeCode)
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-2">
         @Html.LabelFor(m => m.Url, new { @class = "control-label" })
     </div>
     <div class="col-sm-10">
@@ -35,7 +44,7 @@
         @Html.LabelFor(m => m.Password, new { @class = "control-label" })
     </div>
     <div class="col-sm-10">
-        @Html.TextBoxFor(m => m.Password, new { @class = "form-control", type = "text", placeholder = "Password", autocomplete = "off" })
+        @Html.TextBoxFor(m => m.Password, new { @class = "form-control", type = "password", placeholder = "Password", autocomplete = "off" })
         @Html.ValidationMessageFor(m => m.Password)
     </div>
 </div>
@@ -60,7 +69,11 @@
 <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
         @Html.CheckBoxFor(m => m.Enabled) @Html.LabelFor(m => m.Enabled)
-
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+        <button id="btnTest" type="button" class="btn btn-primary">Test Connection</button>
     </div>
 </div>
 
@@ -117,11 +130,11 @@
     <tbody>
         @foreach (var m in Model.AgentSchedules)
         {
-        <tr>
-            <td>@m.Day</td>
-            <td>@(Convert.ToString(m.Hour).PadLeft(2, '0'))</td>
-            <td>@(Convert.ToString(m.Minute).PadLeft(2, '0'))</td>
-        </tr>
+            <tr>
+                <td>@m.Day</td>
+                <td>@(Convert.ToString(m.Hour).PadLeft(2, '0'))</td>
+                <td>@(Convert.ToString(m.Minute).PadLeft(2, '0'))</td>
+            </tr>
         }
     </tbody>
 </table>
@@ -167,5 +180,22 @@
         @Html.HiddenFor(m => m.Custom)
         @Html.HiddenFor(m => m.Queue)
         <button id="btnSubmit" type="submit" class="btn btn-primary">Save Agent</button>
+    </div>
+</div>
+<div id="divAgentTest" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Agent Test Results</h4>
+            </div>
+            <div id="divAgentTestResults" class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
     </div>
 </div>

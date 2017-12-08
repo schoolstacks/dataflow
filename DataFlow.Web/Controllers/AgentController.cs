@@ -9,10 +9,13 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
-using DataFlow.Common.Services;
+using DataFlow.Common.ExtensionMethods;
 using DataFlow.Models;
 using DataFlow.Web.Helpers;
+using DataFlow.Web.Services;
 using Microsoft.WindowsAzure.Storage;
+using Renci.SshNet;
+using Renci.SshNet.Sftp;
 using File = DataFlow.Models.File;
 
 namespace DataFlow.Web.Controllers
@@ -21,7 +24,7 @@ namespace DataFlow.Web.Controllers
     {
         private readonly DataFlowDbContext dataFlowDbContext;
 
-        public AgentController(DataFlowDbContext dataFlowDbContext, ICentralLogger logger) : base(logger)
+        public AgentController(DataFlowDbContext dataFlowDbContext, IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
         }
@@ -29,7 +32,8 @@ namespace DataFlow.Web.Controllers
         public ActionResult Index()
         {
             var agents = dataFlowDbContext.Agents
-                .Include(x=>x.Files)
+                .Include(x => x.Files)
+                .OrderBy(x => x.Name)
                 .ToList();
 
             ViewBag.Agents = GetAgentList;
@@ -37,11 +41,40 @@ namespace DataFlow.Web.Controllers
             return View(agents);
         }
 
+        public ActionResult ToggleAgentStatus(int id)
+        {
+            var agent = dataFlowDbContext.Agents.FirstOrDefault(x => x.Id == id);
+            if (agent != null)
+            {
+                agent.Enabled = !agent.Enabled;
+
+                dataFlowDbContext.Agents.Add(agent);
+                dataFlowDbContext.Entry(agent).State = EntityState.Modified;
+                dataFlowDbContext.SaveChanges();
+            }
+            return RedirectToAction("Index");
+        }
+
+        public JsonResult TestAgentConnection(string url, string username, string password, string directory, string filePattern)
+        {
+            try
+            {
+                var files = GetAgentFiles(url, username, password, directory, filePattern);
+                return Json(new { success = true,  files }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error retrieving agent files.", ex);
+                return Json(new { success = false, error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         public ActionResult Add()
         {
             var agent = new Agent();
 
             ViewBag.DataMaps = GetDataMapList;
+            ViewBag.AgentTypes = GetAgentTypes;
 
             return View(agent);
         }
@@ -55,6 +88,7 @@ namespace DataFlow.Web.Controllers
                 .FirstOrDefault(x => x.Id == id);
 
             ViewBag.DataMaps = GetDataMapList;
+            ViewBag.AgentTypes = GetAgentTypes;
 
             return View(agent);
         }
@@ -79,6 +113,7 @@ namespace DataFlow.Web.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.DataMaps = GetDataMapList;
+                ViewBag.AgentTypes = GetAgentTypes;
                 return View(vm);
             }
 
@@ -95,6 +130,7 @@ namespace DataFlow.Web.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.DataMaps = GetDataMapList;
+                ViewBag.AgentTypes = GetAgentTypes;
                 return View(vm);
             }
 
@@ -117,7 +153,7 @@ namespace DataFlow.Web.Controllers
             }
 
             agent.Name = vm.Name;
-            agent.AgentTypeCode = !string.IsNullOrWhiteSpace(vm.AgentTypeCode) ? vm.AgentTypeCode : "SFTP";
+            agent.AgentTypeCode = vm.AgentTypeCode;
             agent.Url = vm.Url;
             agent.Username = vm.Username;
             agent.Password = vm.Password;
@@ -216,6 +252,21 @@ namespace DataFlow.Web.Controllers
             return RedirectToAction("Index");
         }
 
+        private List<SftpFile> GetAgentFiles(string url, string username, string password, string directory, string filePattern)
+        {
+            using (var ftpClient = new SftpClient(new ConnectionInfo(url, username, new PasswordAuthenticationMethod(username, password))))
+            {
+                ftpClient.Connect();
+
+                if (ftpClient.IsConnected)
+                {
+                    filePattern = filePattern.Trim();
+                    return ftpClient.ListDirectory(directory).Where(x => x.Name.IsLike(filePattern)).ToList();
+                }
+                throw new Exception("Ftp Client Cannot Connect");
+            }
+        }
+
         private void LogFile(int agentId, string fileName, string url, string status, int rows)
         {
             var fileLog = new File
@@ -238,6 +289,23 @@ namespace DataFlow.Web.Controllers
                 int i = 0;
                 while (r.ReadLine() != null) { i++; }
                 return i;
+            }
+        }
+
+        private List<SelectListItem> GetAgentTypes
+        {
+            get
+            {
+                var agentTypes = new List<SelectListItem>();
+                agentTypes.Add(new SelectListItem { Text = "Select Type", Value = string.Empty });
+                agentTypes.AddRange(new[] { "SFTP", "FTPS" }.Select(x =>
+                      new SelectListItem
+                      {
+                          Text = x,
+                          Value = x
+                      }));
+
+                return agentTypes;
             }
         }
 
