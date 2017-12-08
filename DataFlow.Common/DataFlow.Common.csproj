@@ -60,6 +60,7 @@
     <Compile Include="ExtensionMethods\EnumExtensions.cs" />
     <Compile Include="ExtensionMethods\LinqExtensions.cs" />
     <Compile Include="ExtensionMethods\StringExtensions.cs" />
+    <Compile Include="Helpers\Encryption.cs" />
     <Compile Include="Mapping\AgentMap.cs" />
     <Compile Include="Mapping\AgentScheduleMap.cs" />
     <Compile Include="Mapping\AspNetRoleMap.cs" />
@@ -89,6 +90,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="appSettings.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
