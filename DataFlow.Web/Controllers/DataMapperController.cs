@@ -104,7 +104,7 @@ namespace DataFlow.Web.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Error("Error Saving Advanced Data Map", ex);
+                LogService.Error("Error Saving Advanced Data Map", ex);
                 vm.Entities = GetEntityList;
                 vm.DataSources = GetDataSourceList;
                 vm.SourceTables = GetSourceTableList;
@@ -432,7 +432,7 @@ namespace DataFlow.Web.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Error("Data Mapper Error Uploading File", ex);
+                LogService.Error("Data Mapper Error Uploading File", ex);
                 TempData["IsSuccess"] = false;
                 TempData["ShowInfoMessage"] = true;
                 TempData["InfoMessage"] = "There was an error uploading your file.";

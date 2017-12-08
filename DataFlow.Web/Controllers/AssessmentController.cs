@@ -188,7 +188,7 @@ namespace DataFlow.Web.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Error("Error Saving Assessment", ex);
+                LogService.Error("Error Saving Assessment", ex);
                 responseMsg = ex.Message;
             }
         }
