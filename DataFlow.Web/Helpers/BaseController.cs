@@ -10,6 +10,7 @@ namespace DataFlow.Web.Helpers
         public readonly ICentralLogger Logger;
         public readonly ICacheService CacheService;
         public readonly IConfigurationService ConfigurationService;
+        public readonly IWebConfigAppSettingsService WebConfigAppSettingsService;
 
         private readonly IBaseServices BaseServices;
 
@@ -20,6 +21,7 @@ namespace DataFlow.Web.Helpers
             this.Logger = baseServices.Logger;
             this.CacheService = baseServices.CacheService;
             this.ConfigurationService = baseServices.ConfigurationService;
+            this.WebConfigAppSettingsService = baseServices.WebConfigAppSettingsService;
 
             ViewBag.CompanyName = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME).Value;
             ViewBag.CompanyLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO).Value;
