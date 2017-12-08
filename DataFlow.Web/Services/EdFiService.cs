@@ -25,9 +25,9 @@ namespace DataFlow.Web.Services
     public class EdFiService
     {
         private readonly DataFlowDbContext dataFlowDbContext;
-        private readonly ConfigurationService configurationService;
+        private readonly IConfigurationService configurationService;
 
-        public EdFiService(DataFlowDbContext dataFlowDbContext, ConfigurationService configurationService)
+        public EdFiService(DataFlowDbContext dataFlowDbContext, IConfigurationService configurationService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
             this.configurationService = configurationService;
