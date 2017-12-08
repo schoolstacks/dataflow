@@ -11,6 +11,8 @@ using System.Data;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using DataFlow.Common;
+using DataFlow.Common.ExtensionMethods;
 using server_components_data_access.Dataflow;
 using server_components_data_access.Enums;
 
@@ -19,6 +21,7 @@ namespace DataFlow.Server.FileTransport
     class Program
     {
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly string EncryptionKey = ConfigurationManager.AppSettings["EncryptionKey"];
 
         static void Main(string[] args)
         {
@@ -69,15 +72,17 @@ namespace DataFlow.Server.FileTransport
             try
             {
                 _log.Info("Connecting to host: " + sftpagent.URL);
-                SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, DecryptString(sftpagent.Password));
+                SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, Encryption.Decrypt(sftpagent.Password, EncryptionKey));
                 client.Connect();
                 _log.Info("Connected, server version: " + client.ConnectionInfo.ServerVersion);
 
                 IEnumerable<SftpFile> fileList = client.ListDirectory(sftpagent.Directory);
                 foreach (SftpFile file in fileList)
                 {
-                    Boolean containsFilePattern = Regex.IsMatch(file.Name, WildCardToRegular(sftpagent.FilePattern));
-                    if (containsFilePattern) { list.Add(file.FullName); }
+                    if (file.Name.IsLike(sftpagent.FilePattern))
+                    {
+                        list.Add(file.FullName);
+                    }
                 }
 
                 client.Disconnect();
@@ -112,7 +117,7 @@ namespace DataFlow.Server.FileTransport
         private static void TransferFileFromSFTPToAzure(agent sftpagent, string azureFileConnectionString, string file)
         {
             string shortFileName = file.Substring(file.LastIndexOf('/') + 1);
-            SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, DecryptString(sftpagent.Password));
+            SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, Encryption.Decrypt(sftpagent.Password, EncryptionKey));
             client.Connect();
             MemoryStream stream = new MemoryStream();
             client.DownloadFile(file, stream);
@@ -172,45 +177,6 @@ namespace DataFlow.Server.FileTransport
                 int i = 0;
                 while (r.ReadLine() != null) { i++; }
                 return i;
-            }
-        }
-
-        private static String WildCardToRegular(String value)
-        {
-            return "^" + Regex.Escape(value).Replace("\\*", ".*") + "$";
-        }
-
-        public static string DecryptString(string cipherText)
-        {
-            var keyString = ConfigurationManager.AppSettings["EncryptionKey"];
-
-            var fullCipher = Convert.FromBase64String(cipherText);
-
-            var iv = new byte[16];
-            var cipher = new byte[16];
-
-            Buffer.BlockCopy(fullCipher, 0, iv, 0, iv.Length);
-            Buffer.BlockCopy(fullCipher, iv.Length, cipher, 0, iv.Length);
-            var key = Encoding.UTF8.GetBytes(keyString);
-
-            using (var aesAlg = Aes.Create())
-            {
-                using (var decryptor = aesAlg.CreateDecryptor(key, iv))
-                {
-                    string result;
-                    using (var msDecrypt = new MemoryStream(cipher))
-                    {
-                        using (var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                        {
-                            using (var srDecrypt = new StreamReader(csDecrypt))
-                            {
-                                result = srDecrypt.ReadToEnd();
-                            }
-                        }
-                    }
-
-                    return result;
-                }
             }
         }
     }
