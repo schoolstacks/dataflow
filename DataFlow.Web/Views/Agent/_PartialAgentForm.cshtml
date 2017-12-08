@@ -131,7 +131,7 @@
         @foreach (var m in Model.AgentSchedules)
         {
             <tr>
-                <td>@m.Day</td>
+                <td>@Enum.GetName(typeof(DayOfWeek), m.Day)</td>
                 <td>@(Convert.ToString(m.Hour).PadLeft(2, '0'))</td>
                 <td>@(Convert.ToString(m.Minute).PadLeft(2, '0'))</td>
             </tr>
@@ -146,9 +146,9 @@
     <div class="col-xs-2">
         <select id="ddlDay" name="ddlDay" class="form-control">
             <option value="">Select Day</option>
-            @foreach (var i in Enumerable.Range(1, 7))
+            @foreach (var i in Enumerable.Range(0, 7))
             {
-                <option value="@i">@i</option>
+                <option value="@i">@Enum.GetName(typeof(DayOfWeek), i)</option>
             }
         </select>
     </div>
@@ -190,7 +190,7 @@
                 <h4 class="modal-title">Agent Test Results</h4>
             </div>
             <div id="divAgentTestResults" class="modal-body">
-                
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
