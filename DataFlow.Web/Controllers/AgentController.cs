@@ -36,6 +36,13 @@ namespace DataFlow.Web.Controllers
                 .OrderBy(x => x.Name)
                 .ToList();
 
+            //agents.ForEach(x =>
+            //{
+            //    x.Password = Common.Helpers.Encryption.EncryptString(x.Password, WebConfigAppSettingsService.GetSetting<string>(Constants.AppSettingEncryptionKey));
+            //    dataFlowDbContext.Agents.AddOrUpdate(x);
+            //});
+            //dataFlowDbContext.SaveChanges();
+
             ViewBag.Agents = GetAgentList;
 
             return View(agents);
@@ -86,6 +93,11 @@ namespace DataFlow.Web.Controllers
                 .Include(x => x.DataMapAgents)
                 .Include(x => x.DataMapAgents.Select(y => y.DataMap))
                 .FirstOrDefault(x => x.Id == id);
+
+            if (agent == null)
+                return RedirectToAction("Index");
+
+            agent.Password = Common.Helpers.Encryption.DecryptString(agent.Password, WebConfigAppSettingsService.GetSetting<string>(Constants.AppSettingEncryptionKey));
 
             ViewBag.DataMaps = GetDataMapList;
             ViewBag.AgentTypes = GetAgentTypes;
@@ -156,7 +168,7 @@ namespace DataFlow.Web.Controllers
             agent.AgentTypeCode = vm.AgentTypeCode;
             agent.Url = vm.Url;
             agent.Username = vm.Username;
-            agent.Password = vm.Password;
+            agent.Password = Common.Helpers.Encryption.EncryptString(vm.Password, WebConfigAppSettingsService.GetSetting<string>(Constants.AppSettingEncryptionKey));
             agent.Directory = vm.Directory;
             agent.FilePattern = vm.FilePattern;
             agent.Enabled = vm.Enabled;

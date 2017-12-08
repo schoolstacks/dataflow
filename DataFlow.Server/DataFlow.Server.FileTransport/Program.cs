@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
@@ -7,6 +8,8 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.File;
 using System.Linq;
 using System.Data;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using server_components_data_access.Dataflow;
 using server_components_data_access.Enums;
@@ -66,7 +69,7 @@ namespace DataFlow.Server.FileTransport
             try
             {
                 _log.Info("Connecting to host: " + sftpagent.URL);
-                SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, sftpagent.Password);
+                SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, DecryptString(sftpagent.Password));
                 client.Connect();
                 _log.Info("Connected, server version: " + client.ConnectionInfo.ServerVersion);
 
@@ -109,7 +112,7 @@ namespace DataFlow.Server.FileTransport
         private static void TransferFileFromSFTPToAzure(agent sftpagent, string azureFileConnectionString, string file)
         {
             string shortFileName = file.Substring(file.LastIndexOf('/') + 1);
-            SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, sftpagent.Password);
+            SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, DecryptString(sftpagent.Password));
             client.Connect();
             MemoryStream stream = new MemoryStream();
             client.DownloadFile(file, stream);
@@ -177,5 +180,38 @@ namespace DataFlow.Server.FileTransport
             return "^" + Regex.Escape(value).Replace("\\*", ".*") + "$";
         }
 
+        public static string DecryptString(string cipherText)
+        {
+            var keyString = ConfigurationManager.AppSettings["EncryptionKey"];
+
+            var fullCipher = Convert.FromBase64String(cipherText);
+
+            var iv = new byte[16];
+            var cipher = new byte[16];
+
+            Buffer.BlockCopy(fullCipher, 0, iv, 0, iv.Length);
+            Buffer.BlockCopy(fullCipher, iv.Length, cipher, 0, iv.Length);
+            var key = Encoding.UTF8.GetBytes(keyString);
+
+            using (var aesAlg = Aes.Create())
+            {
+                using (var decryptor = aesAlg.CreateDecryptor(key, iv))
+                {
+                    string result;
+                    using (var msDecrypt = new MemoryStream(cipher))
+                    {
+                        using (var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                        {
+                            using (var srDecrypt = new StreamReader(csDecrypt))
+                            {
+                                result = srDecrypt.ReadToEnd();
+                            }
+                        }
+                    }
+
+                    return result;
+                }
+            }
+        }
     }
 }

@@ -12,5 +12,6 @@ namespace DataFlow.Web.Services
         ICentralLogger Logger { get; }
         ICacheService CacheService { get; }
         IConfigurationService ConfigurationService { get; }
+        IWebConfigAppSettingsService WebConfigAppSettingsService { get; }
     }
 }
