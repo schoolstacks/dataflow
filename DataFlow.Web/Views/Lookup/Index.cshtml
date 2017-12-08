@@ -10,34 +10,36 @@
 <div style="padding-bottom: 10px;">
     @Html.ActionLink("Add Lookup", "Add", null, new { @class = "btn btn-primary" })
 </div>
-<table id="tblLookups" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true" data-paging="true" data-paging-size="20">
+<table id="tblLookups" class="table table-striped table-hover table-bordered table-responsive">
     <thead>
-    <tr>
-        <th>Group Set</th>
-        <th>Key</th>
-        <th>Value</th>
-        <th data-sortable="false" data-filterable="false"></th>
-        <th data-sortable="false" data-filterable="false"></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var m in Model)
-    {
         <tr>
-            <td>@m.GroupSet</td>
-            <td>@m.Key</td>
-            <td>@m.Value</td>
-            <td>@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
-            <td>@Html.ActionLink("Delete", "Delete", new { m.Id })</td>
+            <th>Group Set</th>
+            <th>Key</th>
+            <th>Value</th>
+            <th></th>
+            <th></th>
         </tr>
+    </thead>
+
+    @foreach (var groupSet in Model.Select(x => x.GroupSet).Distinct())
+    {
+        <thead>
+            <tr style="background: #D4D4D4;">
+                <th colspan="5">@groupSet</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in Model.Where(x => x.GroupSet == groupSet))
+            {
+            <tr>
+                <td style="background: #fff; border-top: none; border-bottom: none;"></td>
+                <td>@m.Key</td>
+                <td>@m.Value</td>
+                <td>@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
+                <td>@Html.ActionLink("Delete", "Delete", new { m.Id })</td>
+            </tr>
+            }
+        </tbody>
     }
-    </tbody>
+
 </table>
-@section scripts
-{
-<script type="text/javascript">
-    $(function($){
-        $('#tblLookups').footable();
-    });
-</script>
-}
