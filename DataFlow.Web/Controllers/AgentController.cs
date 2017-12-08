@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using DataFlow.Common;
 using DataFlow.Common.DAL;
 using DataFlow.Common.ExtensionMethods;
 using DataFlow.Models;
@@ -23,10 +24,12 @@ namespace DataFlow.Web.Controllers
     public class AgentController : BaseController
     {
         private readonly DataFlowDbContext dataFlowDbContext;
+        private readonly string EncryptionKey;
 
         public AgentController(DataFlowDbContext dataFlowDbContext, IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
+            this.EncryptionKey = WebConfigAppSettingsService.GetSetting<string>(Constants.AppSettingEncryptionKey);
         }
 
         public ActionResult Index()
@@ -35,13 +38,6 @@ namespace DataFlow.Web.Controllers
                 .Include(x => x.Files)
                 .OrderBy(x => x.Name)
                 .ToList();
-
-            //agents.ForEach(x =>
-            //{
-            //    x.Password = Common.Helpers.Encryption.EncryptString(x.Password, WebConfigAppSettingsService.GetSetting<string>(Constants.AppSettingEncryptionKey));
-            //    dataFlowDbContext.Agents.AddOrUpdate(x);
-            //});
-            //dataFlowDbContext.SaveChanges();
 
             ViewBag.Agents = GetAgentList;
 
@@ -97,7 +93,7 @@ namespace DataFlow.Web.Controllers
             if (agent == null)
                 return RedirectToAction("Index");
 
-            agent.Password = Common.Helpers.Encryption.DecryptString(agent.Password, WebConfigAppSettingsService.GetSetting<string>(Constants.AppSettingEncryptionKey));
+            agent.Password = Encryption.Decrypt(agent.Password, EncryptionKey);
 
             ViewBag.DataMaps = GetDataMapList;
             ViewBag.AgentTypes = GetAgentTypes;
@@ -168,7 +164,7 @@ namespace DataFlow.Web.Controllers
             agent.AgentTypeCode = vm.AgentTypeCode;
             agent.Url = vm.Url;
             agent.Username = vm.Username;
-            agent.Password = Common.Helpers.Encryption.EncryptString(vm.Password, WebConfigAppSettingsService.GetSetting<string>(Constants.AppSettingEncryptionKey));
+            agent.Password = Encryption.Encrypt(vm.Password, EncryptionKey);
             agent.Directory = vm.Directory;
             agent.FilePattern = vm.FilePattern;
             agent.Enabled = vm.Enabled;

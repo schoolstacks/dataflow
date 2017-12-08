@@ -82,6 +82,9 @@
     <Reference Include="Renci.SshNet, Version=2016.1.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
       <HintPath>..\..\packages\SSH.NET.2016.1.0\lib\net40\Renci.SshNet.dll</HintPath>
     </Reference>
+    <Reference Include="Rijndael256, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Rijndael256.3.2.0\lib\net452\Rijndael256.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
@@ -111,6 +114,10 @@
     <None Include="Properties\webjob-publish-settings.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\DataFlow.Common\DataFlow.Common.csproj">
+      <Project>{17fc1af4-3efe-4851-82af-7c5d48eef17b}</Project>
+      <Name>DataFlow.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\components\server-components-data-access\server-components-data-access.csproj">
       <Project>{1db45f34-fa44-4c37-a240-e7b139d1bafb}</Project>
       <Name>server-components-data-access</Name>
