@@ -9,7 +9,7 @@ namespace DataFlow.Web.Helpers
     {
         public readonly ICentralLogger Logger;
         public readonly ICacheService CacheService;
-        public readonly ConfigurationService ConfigurationService;
+        public readonly IConfigurationService ConfigurationService;
 
         private readonly IBaseServices BaseServices;
 

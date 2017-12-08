@@ -60,7 +60,7 @@ namespace DataFlow.Web.Controllers
             try
             {
                 var files = GetAgentFiles(url, username, password, directory, filePattern);
-                return Json(new { success = true,  files }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = true, files }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -199,6 +199,30 @@ namespace DataFlow.Web.Controllers
             dataFlowDbContext.SaveChanges();
 
             return agent;
+        }
+
+        public async Task<ActionResult> DeleteDataMap(int agentId, int id)
+        {
+            var agentMap = dataFlowDbContext.DatamapAgents.FirstOrDefault(x => x.Id == id);
+
+            if (agentMap != null)
+            {
+                dataFlowDbContext.DatamapAgents.Remove(agentMap);
+                await dataFlowDbContext.SaveChangesAsync();
+            }
+            return RedirectToAction("Edit", new { id = agentId });
+        }
+
+        public async Task<ActionResult> DeleteSchedule(int agentId, int id)
+        {
+            var agentScedhule = dataFlowDbContext.AgentSchedules.FirstOrDefault(x => x.Id == id);
+
+            if (agentScedhule != null)
+            {
+                dataFlowDbContext.AgentSchedules.Remove(agentScedhule);
+                await dataFlowDbContext.SaveChangesAsync();
+            }
+            return RedirectToAction("Edit", new { id = agentId });
         }
 
         [HttpPost]

@@ -1,0 +1,17 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Cache";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Cache</h2>
+
+<h4>Stats</h4>
+@foreach (var stat in (List<string>)ViewBag.CacheStats)
+{
+    @stat
+}
+<div style="padding-top: 25px;">
+    @Html.ActionLink("Clear Cache Keys", "Clear", null, new { @class = "btn btn-danger" })
+</div>
