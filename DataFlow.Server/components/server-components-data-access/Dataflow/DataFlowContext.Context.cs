@@ -38,6 +38,5 @@ namespace server_components_data_access.Dataflow
         public virtual DbSet<file> files { get; set; }
         public virtual DbSet<file_status> file_status { get; set; }
         public virtual DbSet<bootstrapdata> bootstrapdatas { get; set; }
-        public virtual DbSet<processed_data> processed_data { get; set; }
     }
 }

@@ -101,9 +101,6 @@
       <DependentUpon>DataFlowContext.tt</DependentUpon>
     </Compile>
     <Compile Include="Dataflow\PartialClasses\DataFlowContext.cs" />
-    <Compile Include="Dataflow\processed_data.cs">
-      <DependentUpon>DataFlowContext.tt</DependentUpon>
-    </Compile>
     <Compile Include="Dataflow\statistic.cs">
       <DependentUpon>DataFlowContext.tt</DependentUpon>
     </Compile>
