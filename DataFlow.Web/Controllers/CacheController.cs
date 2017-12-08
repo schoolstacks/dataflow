@@ -14,7 +14,6 @@ namespace DataFlow.Web.Controllers
         {
         }
 
-        // GET: Cache
         public ActionResult Index()
         {
             ViewBag.CacheStats = CacheService.GetStats();
