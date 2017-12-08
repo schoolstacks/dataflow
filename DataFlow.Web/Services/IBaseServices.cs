@@ -9,7 +9,7 @@ namespace DataFlow.Web.Services
 {
     public interface IBaseServices
     {
-        ICentralLogger Logger { get; }
+        ILogService LogService { get; }
         ICacheService CacheService { get; }
         IConfigurationService ConfigurationService { get; }
         IWebConfigAppSettingsService WebConfigAppSettingsService { get; }

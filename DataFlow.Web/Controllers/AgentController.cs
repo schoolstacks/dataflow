@@ -71,7 +71,7 @@ namespace DataFlow.Web.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Error("Error retrieving agent files.", ex);
+                LogService.Error("Error retrieving agent files.", ex);
                 return Json(new { success = false, error = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
@@ -281,7 +281,7 @@ namespace DataFlow.Web.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Error("Error Uploading File", ex);
+                LogService.Error("Error Uploading File", ex);
                 TempData["FileStatus"] = "Error: " + ex.Message;
             }
 

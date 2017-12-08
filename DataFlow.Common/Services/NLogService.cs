@@ -5,7 +5,7 @@ using NLog;
 
 namespace DataFlow.Common.Services
 {
-    public class NLogService : ICentralLogger
+    public class NLogService : ILogService
     {
         public string Name { get; set; }
 
