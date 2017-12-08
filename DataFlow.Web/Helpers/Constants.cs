@@ -12,5 +12,6 @@
         public const string INSTANCE_COMPANY_URL = "INSTANCE_COMPANY_URL";
         public const string INSTANCE_EDU_USE_TEXT = "INSTANCE_EDU_USE_TEXT";
         public const string ConfigurationCacheKey = "ConfigurationCacheKey";
+        public const string AppSettingEncryptionKey = "EncryptionKey";
     }
 }
