@@ -35,6 +35,8 @@ namespace DataFlow.Server.TransformLoad
         private static List<Action> lstRowsToPostActions = new List<Action>();
         private static Object lstRowsToPostActionsLock = new Object();
         private static List<ResultingMapInfo> ApiData = new List<ResultingMapInfo>();
+        private static Object ProcessedDataLock = new Object();
+        private static Dictionary<string, ResultingMapInfo> ProcessedData = new Dictionary<string, ResultingMapInfo>();
         #endregion Parallel/Multi-Threading variables
         public static void Main(string[] args)
         {
@@ -112,6 +114,8 @@ namespace DataFlow.Server.TransformLoad
                         Log(log4net.Core.Level.Info, "Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
                         try
                         {
+                            singleFile.Status = FileStatus.TRANSFORMING;
+                            ctx.SaveChanges();
                             await ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.URL, fileEntity: singleFile, ctx: ctx);
                         }
                         catch (AggregateException aggrEx)
@@ -146,7 +150,7 @@ namespace DataFlow.Server.TransformLoad
             var transformedFiles = ApiData.Where(p => lstErroredFiles.Contains(p.FileEntity) == false).Select(p => p.FileEntity).ToList();
             foreach (var singleTransformedFile in transformedFiles.Distinct())
             {
-                singleTransformedFile.Status = FileStatus.TRANSFORMED;
+                singleTransformedFile.Status = FileStatus.LOADED;
             }
             ctx.SaveChanges();
         }
@@ -417,27 +421,29 @@ namespace DataFlow.Server.TransformLoad
             }
         }
 
-        private static Dictionary<string, ResultingMapInfo> ProcessedData = new Dictionary<string, ResultingMapInfo>();
         private static bool IsNewOrModified(ResultingMapInfo singleApiData, string endPoint)
         {
             bool isNewOrModified = false;
-            StringBuilder strBuilder = new StringBuilder();
-            strBuilder.AppendLine("Endpoint: " + endPoint);
-            strBuilder.AppendLine(singleApiData.Value.ToString());
-
-            using (var md5Algorithm = System.Security.Cryptography.MD5.Create())
+            lock (ProcessedDataLock)
             {
-                byte[] utf32Bytes = Encoding.UTF32.GetBytes(strBuilder.ToString());
-                var computedHash = md5Algorithm.ComputeHash(utf32Bytes);
-                var base64ResultingHash = Convert.ToBase64String(computedHash);
-                var dbMatchingEntityQuery = ProcessedData.Where(p => p.Key == base64ResultingHash);
-                if (dbMatchingEntityQuery.Count() == 0)
+                StringBuilder strBuilder = new StringBuilder();
+                strBuilder.AppendLine("Endpoint: " + endPoint);
+                strBuilder.AppendLine(singleApiData.Value.ToString());
+
+                using (var md5Algorithm = System.Security.Cryptography.MD5.Create())
                 {
-                    ProcessedData.Add(base64ResultingHash, singleApiData);
-                    isNewOrModified = true;
+                    byte[] utf32Bytes = Encoding.UTF32.GetBytes(strBuilder.ToString());
+                    var computedHash = md5Algorithm.ComputeHash(utf32Bytes);
+                    var base64ResultingHash = Convert.ToBase64String(computedHash);
+                    var dbMatchingEntityQuery = ProcessedData.Where(p => p.Key == base64ResultingHash);
+                    if (dbMatchingEntityQuery.Count() == 0)
+                    {
+                        ProcessedData.Add(base64ResultingHash, singleApiData);
+                        isNewOrModified = true;
+                    }
+                    else
+                        isNewOrModified = false;
                 }
-                else
-                    isNewOrModified = false;
             }
             return isNewOrModified;
         }
@@ -598,6 +604,8 @@ namespace DataFlow.Server.TransformLoad
             }
             try
             {
+                fileEntity.Status = FileStatus.LOADING;
+                ctx.SaveChanges();
                 await PostTransformedData(ctx);
                 Log(log4net.Core.Level.Info, "Reduced Api Calls by Hashing. Total:{0}. File:{1}", ProcessedData.Count, file.Uri);
                 ApiData.Clear();
