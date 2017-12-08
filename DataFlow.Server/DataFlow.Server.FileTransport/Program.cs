@@ -140,7 +140,7 @@ namespace DataFlow.Server.FileTransport
                 catch (Exception ex)
                 {
                     _log.Error("Unexpected error in TransferFilesFromSFTPToAzure for file: " + file + " on site: " + sftpagent.URL, ex);
-                    LogFile(sftpagent.ID, file, "", FileStatus.ERROR_UPLOAD, 0);
+                    LogFile(sftpagent.ID, file, "", FileStatus.ERROR_UPLOADED, 0);
                 }          
             }
 
