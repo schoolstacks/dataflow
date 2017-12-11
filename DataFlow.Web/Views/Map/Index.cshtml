@@ -10,7 +10,7 @@
 <div style="padding-bottom: 10px;">
     @Html.ActionLink("Add Map", "Add", null, new { @class = "btn btn-primary" }) | @Html.ActionLink("Go to Advanced Data Mapper", "Index", new{ Controller = "DataMapper"}, new { @class = "btn btn-primary" })
 </div>
-<table id="tblMaps" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true">
+<table id="tblMaps" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true" data-paging="true" data-paging-size="20">
     <thead>
         <tr>
             <th>Name</th>
