@@ -52,9 +52,9 @@ namespace DataFlow.Web.Services
             cacheService.AddOrUpdate(Constants.ConfigurationCacheKey, JsonConvert.SerializeObject(confs));
         }
 
-        public ApiConfigurationValues GetConfiguration()
+        public DataFlow.Web.Models.ApiConfigurationValues GetConfiguration()
         {
-            var conf = new ApiConfigurationValues
+            var conf = new DataFlow.Web.Models.ApiConfigurationValues
             {
                 API_SERVER_URL = GetConfigurationByKey(Constants.API_SERVER_URL).Value,
                 API_SERVER_KEY = GetConfigurationByKey(Constants.API_SERVER_KEY).Value,
