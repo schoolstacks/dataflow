@@ -20,7 +20,7 @@
                 @if (!string.IsNullOrWhiteSpace(CompanyLogo))
                 {
                     <a href="@Url.Action("Index","School")" target="_blank">
-                        <img src="@CompanyLogo" class="navbar-left" style="height: 45px;" alt="@CompanyName" title="@CompanyName" />
+                        <img src="@CompanyLogo" class="navbar-left" style="height: 45px;" />
                     </a>
                 }
                 @Html.ActionLink("Data Flow Admin", "Index", "School", new { area = "" }, new { @class = "navbar-brand" })

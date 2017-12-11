@@ -70,9 +70,6 @@ namespace DataFlow.Web.Controllers
             var apiServerUrl = ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_URL);
             var apiServerKey = ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_KEY);
             var apiServerSecret = ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_SECRET);
-            var defaultsTermMonth = ConfigurationService.GetConfigurationByKey(Constants.DEFAULTS_TERM_MONTH);
-            var defaultsTermYear = ConfigurationService.GetConfigurationByKey(Constants.DEFAULTS_TERM_YEAR);
-            var instanceCompanyName = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME);
             var instanceCompanyLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO);
             var instanceCompanyUrl = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL);
             var instanceEduUseText = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT);
@@ -81,9 +78,6 @@ namespace DataFlow.Web.Controllers
             apiServerUrl.Value = vm.API_SERVER_URL;
             apiServerKey.Value = vm.API_SERVER_KEY;
             apiServerSecret.Value = vm.API_SERVER_SECRET;
-            defaultsTermMonth.Value = vm.DEFAULTS_TERM_MONTH;
-            defaultsTermYear.Value = vm.DEFAULTS_TERM_YEAR;
-            instanceCompanyName.Value = vm.INSTANCE_COMPANY_NAME;
             instanceCompanyLogo.Value = vm.INSTANCE_COMPANY_LOGO;
             instanceCompanyUrl.Value = vm.INSTANCE_COMPANY_URL;
             instanceEduUseText.Value = vm.INSTANCE_EDU_USE_TEXT;
@@ -94,9 +88,6 @@ namespace DataFlow.Web.Controllers
                 apiServerUrl,
                 apiServerKey,
                 apiServerSecret,
-                defaultsTermMonth,
-                defaultsTermYear,
-                instanceCompanyName,
                 instanceCompanyLogo,
                 instanceCompanyUrl,
                 instanceEduUseText,
