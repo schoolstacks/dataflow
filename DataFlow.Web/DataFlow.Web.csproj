@@ -277,6 +277,7 @@
     <Compile Include="Helpers\ExtensionMethods.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\ApiConfigurationValues.cs" />
     <Compile Include="Models\AssessmentViewModel.cs" />
     <Compile Include="Models\DataMapper.cs" />
     <Compile Include="Models\DataMapperViewModel.cs" />
@@ -406,6 +407,7 @@
     <Content Include="Views\BootstrapData\Edit.cshtml" />
     <Content Include="Views\BootstrapData\_PartialBootstrapDataForm.cshtml" />
     <Content Include="Views\Cache\Index.cshtml" />
+    <Content Include="Views\Shared\_FormResultPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

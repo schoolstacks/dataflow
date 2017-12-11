@@ -1,4 +1,4 @@
-﻿@model DataFlow.Models.ApiConfigurationValues
+﻿@model DataFlow.Web.Models.ApiConfigurationValues
 
 @{
     ViewBag.Title = "Configuration";
@@ -6,6 +6,8 @@
 }
 
 <h2>@ViewBag.Title</h2>
+
+@Html.Partial("_FormResultPartial", Model.FormResult)
 
 @using (Html.BeginForm("Index", "Configuration", FormMethod.Post, new { @class = "form-horizontal" }))
 {

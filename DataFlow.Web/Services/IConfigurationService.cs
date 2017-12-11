@@ -8,7 +8,7 @@ namespace DataFlow.Web.Services
         List<Configuration> GetConfigurationFromCache();
         Configuration GetConfigurationByKey(string key);
         void SaveConfiguration(List<Configuration> confs);
-        ApiConfigurationValues GetConfiguration();
+        DataFlow.Web.Models.ApiConfigurationValues GetConfiguration();
         bool AllowUserRegistrations();
     }
 }
