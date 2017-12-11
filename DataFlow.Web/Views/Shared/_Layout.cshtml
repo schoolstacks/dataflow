@@ -19,7 +19,7 @@
                 </button>
                 @if (!string.IsNullOrWhiteSpace(CompanyLogo))
                 {
-                    <a href="@Url.Action("Index","School")">
+                    <a href="@Url.Action("Index","School")" target="_blank">
                         <img src="@CompanyLogo" class="navbar-left" style="height: 45px;" alt="@CompanyName" title="@CompanyName" />
                     </a>
                 }
@@ -34,16 +34,16 @@
                         <li>@Html.ActionLink("Maps", "Index", "Map")</li>
                         <li>@Html.ActionLink("Logs", "Index", "Log")</li>
                         <li>@Html.ActionLink("Lookups", "Index", "Lookup")</li>
-                        <li>@Html.ActionLink("Assessments", "Index", "Assessment")</li>
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                                 Admin
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li>@Html.ActionLink("Configuration", "Index", "Configuration")</li>
+                                <li>@Html.ActionLink("Assessments", "Index", "Assessment")</li>
                                 <li>@Html.ActionLink("Bootstrap Data", "Index", "BootstrapData")</li>
                                 <li>@Html.ActionLink("Cache", "Index", "Cache")</li>
+                                <li>@Html.ActionLink("Configuration", "Index", "Configuration")</li>
                             </ul>
                         </li>
                     </ul>
