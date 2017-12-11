@@ -20,9 +20,6 @@ namespace DataFlow.Web.Controllers
         {
             var vm = ConfigurationService.GetConfiguration();
 
-            ViewBag.Months = new SelectList(Helpers.Common.MonthSelectList(), "Value", "Text");
-            ViewBag.Years = new SelectList(Helpers.Common.YearSelectList(), "Value", "Text");
-
             return View(vm);
         }
 
@@ -54,9 +51,6 @@ namespace DataFlow.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Index(DataFlow.Web.Models.ApiConfigurationValues vm)
         {
-            ViewBag.Months = new SelectList(Helpers.Common.MonthSelectList(), "Value", "Text");
-            ViewBag.Years = new SelectList(Helpers.Common.YearSelectList(), "Value", "Text");
-
             if (!string.IsNullOrWhiteSpace(vm.INSTANCE_COMPANY_LOGO) && !vm.INSTANCE_COMPANY_LOGO.HasImageExtension())
             {
                 ModelState.AddModelError("INSTANCE_COMPANY_LOGO", "Company logo must end with the following file extensions: jpg, gif, png, or svg.");
