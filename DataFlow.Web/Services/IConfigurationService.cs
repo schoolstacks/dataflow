@@ -9,5 +9,6 @@ namespace DataFlow.Web.Services
         Configuration GetConfigurationByKey(string key);
         void SaveConfiguration(List<Configuration> confs);
         ApiConfigurationValues GetConfiguration();
+        bool AllowUserRegistrations();
     }
 }

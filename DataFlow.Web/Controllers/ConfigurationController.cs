@@ -75,6 +75,7 @@ namespace DataFlow.Web.Controllers
             var instanceCompanyLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO);
             var instanceCompanyUrl = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL);
             var instanceEduUseText = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT);
+            var instanceAllowRegistrations = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_ALLOW_USER_REGISTRATION);
 
             apiServerUrl.Value = vm.API_SERVER_URL;
             apiServerKey.Value = vm.API_SERVER_KEY;
@@ -85,6 +86,7 @@ namespace DataFlow.Web.Controllers
             instanceCompanyLogo.Value = vm.INSTANCE_COMPANY_LOGO;
             instanceCompanyUrl.Value = vm.INSTANCE_COMPANY_URL;
             instanceEduUseText.Value = vm.INSTANCE_EDU_USE_TEXT;
+            instanceAllowRegistrations.Value = Convert.ToString(vm.INSTANCE_ALLOW_USER_REGISTRATION);
 
             var confs = new List<DataFlow.Models.Configuration>
             {
@@ -96,7 +98,8 @@ namespace DataFlow.Web.Controllers
                 instanceCompanyName,
                 instanceCompanyLogo,
                 instanceCompanyUrl,
-                instanceEduUseText
+                instanceEduUseText,
+                instanceAllowRegistrations
             };
 
             ConfigurationService.SaveConfiguration(confs);
