@@ -23,7 +23,6 @@ namespace DataFlow.Web.Helpers
             this.ConfigurationService = baseServices.ConfigurationService;
             this.WebConfigAppSettingsService = baseServices.WebConfigAppSettingsService;
 
-            ViewBag.CompanyName = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME).Value;
             ViewBag.CompanyLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO).Value;
             ViewBag.CompanyUrl = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL).Value;
             ViewBag.EducationText = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT).Value;
