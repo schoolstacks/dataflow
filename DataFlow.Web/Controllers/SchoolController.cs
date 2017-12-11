@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.UI.WebControls;
@@ -24,6 +25,11 @@ namespace DataFlow.Web.Controllers
 
         public ActionResult Index()
         {
+            if (System.IO.File.Exists(Server.MapPath("~/Setup.cshtml")))
+            {
+                ViewBag.DevText = "Warning: Setup.cshtml exists!";
+            }
+
             var schools = edFiService.GetSchools(0, 50);
             var uniqueDistrictIds = schools
                 .Where(x => x.localEducationAgencyReference != null)
