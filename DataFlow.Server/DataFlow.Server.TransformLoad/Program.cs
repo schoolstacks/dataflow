@@ -219,12 +219,13 @@ namespace DataFlow.Server.TransformLoad
             watch.Start();
             Log(log4net.Core.Level.Info, "Processing ApiData.");
             var sortedAndGroupApiData = ApiData.OrderBy(x => x.ProcessingOrder).GroupBy(p => p.Key.Name);
+            int fileTotalRecords = ApiData.Count();
             foreach (var singleApiDataEntity in sortedAndGroupApiData)
             {
                 foreach (var singleApiData in singleApiDataEntity)
                 {
                     Action taskPostSingleApiData =
-                        CreatePostSingleApiDataAction(accessToken, singleApiData);
+                        CreatePostSingleApiDataAction(accessToken, singleApiData, fileTotalRecords);
                     lock (lstRowsToPostActionsLock)
                     {
                         lstRowsToPostActions.Add(taskPostSingleApiData);
@@ -255,7 +256,7 @@ namespace DataFlow.Server.TransformLoad
         private static List<log_ingestion> lstIngestionMessages = new List<log_ingestion>();
         private static List<file> lstErroredFiles = new List<file>();
         private static Action CreatePostSingleApiDataAction(
-            string accessToken, ResultingMapInfo singleApiData)
+            string accessToken, ResultingMapInfo singleApiData, int fileTotalRecords)
         {
             Action taskPostSingleApiData = new Action(async () =>
             {
@@ -322,7 +323,7 @@ namespace DataFlow.Server.TransformLoad
                             }
                             //TODO: Research why response was null, which exception happened?
                             if (response != null)
-                                await ProcessResponse(singleApiData, endpointUrl, strId, strIdName, response);
+                                await ProcessResponse(singleApiData, endpointUrl, strId, strIdName, response, fileTotalRecords);
                             else
                                 Log(log4net.Core.Level.Info, "WARNING!!! response = await httpClient.PostAsync(endpointUrl, strContent) returned null or an exception happened");
                         }
@@ -359,7 +360,8 @@ namespace DataFlow.Server.TransformLoad
             return taskPostSingleApiData;
         }
 
-        private static async Task ProcessResponse(ResultingMapInfo singleApiData, string endpointUrl, string strId, string strIdName, HttpResponseMessage response)
+        private static async Task ProcessResponse(ResultingMapInfo singleApiData, string endpointUrl, string strId, 
+            string strIdName, HttpResponseMessage response, int fileTotalRecords)
         {
             switch (response.StatusCode)
             {
@@ -376,7 +378,9 @@ namespace DataFlow.Server.TransformLoad
                             Level = "INFORMATION",
                             Operation = "TransformingData",
                             Process = "transform-api-load-janitor",
-                            Filename = singleApiData.FileEntity.Filename
+                            Filename = singleApiData.FileEntity.Filename,
+                            AgentID  = singleApiData.FileEntity.AgentID,
+                            RecordCount = fileTotalRecords
                         });
                     }
                     break;
@@ -394,7 +398,9 @@ namespace DataFlow.Server.TransformLoad
                             Level = "INFORMATION",
                             Operation = "TransformingData",
                             Process = "transform-api-load-janitor",
-                            Filename = singleApiData.FileEntity.Filename
+                            Filename = singleApiData.FileEntity.Filename,
+                            AgentID = singleApiData.FileEntity.AgentID,
+                            RecordCount = fileTotalRecords
                         });
                     }
                     break;
@@ -413,7 +419,9 @@ namespace DataFlow.Server.TransformLoad
                                 Level = "ERROR",
                                 Operation = "TransformingData",
                                 Process = "transform-api-load-janitor",
-                                Filename = singleApiData.FileEntity.Filename
+                                Filename = singleApiData.FileEntity.Filename,
+                                AgentID = singleApiData.FileEntity.AgentID,
+                                RecordCount = fileTotalRecords
                             };
                         lstIngestionMessages.Add(singleIngestionError);
                     }
