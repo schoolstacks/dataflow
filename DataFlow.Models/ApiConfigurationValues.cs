@@ -37,5 +37,8 @@ namespace DataFlow.Models
 
         [Display(Name = "Education Use Text")]
         public string INSTANCE_EDU_USE_TEXT { get; set; }
+
+        [Display(Name = "Allow User Registrations")]
+        public bool INSTANCE_ALLOW_USER_REGISTRATION { get; set; }
     }
 }

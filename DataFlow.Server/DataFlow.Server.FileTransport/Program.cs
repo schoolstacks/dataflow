@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
@@ -7,7 +8,11 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.File;
 using System.Linq;
 using System.Data;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
+using DataFlow.Common;
+using DataFlow.Common.ExtensionMethods;
 using server_components_data_access.Dataflow;
 using server_components_data_access.Enums;
 
@@ -16,6 +21,7 @@ namespace DataFlow.Server.FileTransport
     class Program
     {
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly string EncryptionKey = ConfigurationManager.AppSettings["EncryptionKey"];
 
         static void Main(string[] args)
         {
@@ -66,15 +72,17 @@ namespace DataFlow.Server.FileTransport
             try
             {
                 _log.Info("Connecting to host: " + sftpagent.URL);
-                SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, sftpagent.Password);
+                SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, Encryption.Decrypt(sftpagent.Password, EncryptionKey));
                 client.Connect();
                 _log.Info("Connected, server version: " + client.ConnectionInfo.ServerVersion);
 
                 IEnumerable<SftpFile> fileList = client.ListDirectory(sftpagent.Directory);
                 foreach (SftpFile file in fileList)
                 {
-                    Boolean containsFilePattern = Regex.IsMatch(file.Name, WildCardToRegular(sftpagent.FilePattern));
-                    if (containsFilePattern) { list.Add(file.FullName); }
+                    if (file.Name.IsLike(sftpagent.FilePattern))
+                    {
+                        list.Add(file.FullName);
+                    }
                 }
 
                 client.Disconnect();
@@ -109,7 +117,7 @@ namespace DataFlow.Server.FileTransport
         private static void TransferFileFromSFTPToAzure(agent sftpagent, string azureFileConnectionString, string file)
         {
             string shortFileName = file.Substring(file.LastIndexOf('/') + 1);
-            SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, sftpagent.Password);
+            SftpClient client = new SftpClient(sftpagent.URL, sftpagent.Username, Encryption.Decrypt(sftpagent.Password, EncryptionKey));
             client.Connect();
             MemoryStream stream = new MemoryStream();
             client.DownloadFile(file, stream);
@@ -171,11 +179,5 @@ namespace DataFlow.Server.FileTransport
                 return i;
             }
         }
-
-        private static String WildCardToRegular(String value)
-        {
-            return "^" + Regex.Escape(value).Replace("\\*", ".*") + "$";
-        }
-
     }
 }

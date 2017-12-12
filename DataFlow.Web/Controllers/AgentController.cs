@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using DataFlow.Common;
 using DataFlow.Common.DAL;
 using DataFlow.Common.ExtensionMethods;
 using DataFlow.Models;
@@ -23,10 +24,12 @@ namespace DataFlow.Web.Controllers
     public class AgentController : BaseController
     {
         private readonly DataFlowDbContext dataFlowDbContext;
+        private readonly string EncryptionKey;
 
         public AgentController(DataFlowDbContext dataFlowDbContext, IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
+            this.EncryptionKey = WebConfigAppSettingsService.GetSetting<string>(Constants.AppSettingEncryptionKey);
         }
 
         public ActionResult Index()
@@ -64,7 +67,7 @@ namespace DataFlow.Web.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Error("Error retrieving agent files.", ex);
+                LogService.Error("Error retrieving agent files.", ex);
                 return Json(new { success = false, error = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
@@ -86,6 +89,11 @@ namespace DataFlow.Web.Controllers
                 .Include(x => x.DataMapAgents)
                 .Include(x => x.DataMapAgents.Select(y => y.DataMap))
                 .FirstOrDefault(x => x.Id == id);
+
+            if (agent == null)
+                return RedirectToAction("Index");
+
+            agent.Password = Encryption.Decrypt(agent.Password, EncryptionKey);
 
             ViewBag.DataMaps = GetDataMapList;
             ViewBag.AgentTypes = GetAgentTypes;
@@ -156,7 +164,7 @@ namespace DataFlow.Web.Controllers
             agent.AgentTypeCode = vm.AgentTypeCode;
             agent.Url = vm.Url;
             agent.Username = vm.Username;
-            agent.Password = vm.Password;
+            agent.Password = Encryption.Encrypt(vm.Password, EncryptionKey);
             agent.Directory = vm.Directory;
             agent.FilePattern = vm.FilePattern;
             agent.Enabled = vm.Enabled;
@@ -269,7 +277,7 @@ namespace DataFlow.Web.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Error("Error Uploading File", ex);
+                LogService.Error("Error Uploading File", ex);
                 TempData["FileStatus"] = "Error: " + ex.Message;
             }
 

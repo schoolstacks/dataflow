@@ -1,6 +1,6 @@
 ﻿namespace DataFlow.Web.Services
 {
-    interface IWebConfigAppSettingsService
+    public interface IWebConfigAppSettingsService
     {
         T GetSetting<T>(string name);
         string GetConnectionString(string name);

@@ -7,9 +7,10 @@ namespace DataFlow.Web.Helpers
     [Authorize]
     public class BaseController : Controller
     {
-        public readonly ICentralLogger Logger;
+        public readonly ILogService LogService;
         public readonly ICacheService CacheService;
         public readonly IConfigurationService ConfigurationService;
+        public readonly IWebConfigAppSettingsService WebConfigAppSettingsService;
 
         private readonly IBaseServices BaseServices;
 
@@ -17,9 +18,10 @@ namespace DataFlow.Web.Helpers
         {
             this.BaseServices = baseServices;
 
-            this.Logger = baseServices.Logger;
+            this.LogService = baseServices.LogService;
             this.CacheService = baseServices.CacheService;
             this.ConfigurationService = baseServices.ConfigurationService;
+            this.WebConfigAppSettingsService = baseServices.WebConfigAppSettingsService;
 
             ViewBag.CompanyName = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME).Value;
             ViewBag.CompanyLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO).Value;

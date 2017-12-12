@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity.Migrations;
 using System.Linq;
 using DataFlow.Common.DAL;
@@ -33,7 +34,14 @@ namespace DataFlow.Web.Services
 
         public Configuration GetConfigurationByKey(string key)
         {
-            return GetConfigurationFromCache().FirstOrDefault(a => a.Key == key) ?? new Configuration();
+            return GetConfigurationFromCache().FirstOrDefault(a => a.Key == key) ?? new Configuration() {Key = key};
+        }
+
+        public bool AllowUserRegistrations()
+        {
+            var configValue = GetConfigurationByKey(Constants.INSTANCE_ALLOW_USER_REGISTRATION).Value;
+
+            return string.IsNullOrWhiteSpace(configValue) || Convert.ToBoolean(configValue);
         }
 
         public void SaveConfiguration(List<Configuration> confs)
@@ -56,7 +64,8 @@ namespace DataFlow.Web.Services
                 INSTANCE_COMPANY_NAME = GetConfigurationByKey(Constants.INSTANCE_COMPANY_NAME).Value,
                 INSTANCE_COMPANY_LOGO = GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO).Value,
                 INSTANCE_COMPANY_URL = GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL).Value,
-                INSTANCE_EDU_USE_TEXT = GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT).Value
+                INSTANCE_EDU_USE_TEXT = GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT).Value,
+                INSTANCE_ALLOW_USER_REGISTRATION = Convert.ToBoolean(GetConfigurationByKey(Constants.INSTANCE_ALLOW_USER_REGISTRATION).Value)
             };
             
             return conf;

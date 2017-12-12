@@ -1,6 +1,6 @@
 ﻿namespace DataFlow.Common.Services
 {
-    public interface ICentralLogger
+    public interface ILogService
     {
         string Name { get; set; }
 

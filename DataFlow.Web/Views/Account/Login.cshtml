@@ -33,8 +33,8 @@
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                            @Html.CheckBoxFor(m => m.RememberMe)
-                            @Html.LabelFor(m => m.RememberMe)
+                        @Html.CheckBoxFor(m => m.RememberMe)
+                        @Html.LabelFor(m => m.RememberMe)
                     </div>
                 </div>
                 <div class="form-group">
@@ -44,6 +44,12 @@
                 </div>
             }
         </section>
+        @if (ViewBag.AllowUserRegistrations != null && Convert.ToBoolean(ViewBag.AllowUserRegistrations))
+        {
+        <div>
+            Don't have an account? @Html.ActionLink("Register.","Register")
+        </div>   
+        }
     </div>
 </div>
 

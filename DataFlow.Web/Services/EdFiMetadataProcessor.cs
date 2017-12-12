@@ -13,9 +13,9 @@ namespace DataFlow.Web.Services
 {
     public class EdFiMetadataProcessor
     {
-        private readonly ICentralLogger logger;
+        private readonly ILogService logger;
 
-        public EdFiMetadataProcessor(ICentralLogger logger)
+        public EdFiMetadataProcessor(ILogService logger)
         {
             this.logger = logger;
         }

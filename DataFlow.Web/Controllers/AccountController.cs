@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using DataFlow.Common.DAL;
 using DataFlow.Web.Helpers;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -14,15 +15,18 @@ namespace DataFlow.Web.Controllers
     [Authorize]
     public class AccountController : BaseController
     {
+        private readonly DataFlowDbContext dataFlowDbContext;
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
-        public AccountController(IBaseServices baseService) : base(baseService)
+        public AccountController(DataFlowDbContext dataFlowDbContext, IBaseServices baseService) : base(baseService)
         {
+            this.dataFlowDbContext = dataFlowDbContext;
         }
 
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager, IBaseServices baseService) : base(baseService)
+        public AccountController(DataFlowDbContext dataFlowDbContext, ApplicationUserManager userManager, ApplicationSignInManager signInManager, IBaseServices baseService) : base(baseService)
         {
+            this.dataFlowDbContext = dataFlowDbContext;
             UserManager = userManager;
             SignInManager = signInManager;
         }
@@ -62,6 +66,7 @@ namespace DataFlow.Web.Controllers
             }
 
             ViewBag.ReturnUrl = returnUrl;
+            ViewBag.AllowUserRegistrations = ConfigurationService.AllowUserRegistrations();
             return View();
         }
 
@@ -74,6 +79,7 @@ namespace DataFlow.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
+                ViewBag.AllowUserRegistrations = ConfigurationService.AllowUserRegistrations();
                 return View(model);
             }
 
@@ -90,6 +96,7 @@ namespace DataFlow.Web.Controllers
                     return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
                 case SignInStatus.Failure:
                 default:
+                    ViewBag.AllowUserRegistrations = ConfigurationService.AllowUserRegistrations();
                     ModelState.AddModelError("", "Invalid login attempt.");
                     return View(model);
             }
@@ -143,8 +150,11 @@ namespace DataFlow.Web.Controllers
         [AllowAnonymous]
         public ActionResult Register()
         {
-            return RedirectToAction("Login", "Account");
-            //return View();
+            if (!ConfigurationService.AllowUserRegistrations())
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            return View();
         }
 
         //
@@ -154,28 +164,37 @@ namespace DataFlow.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
-            return RedirectToAction("Login", "Account");
-            //if (ModelState.IsValid)
-            //{
-            //    var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-            //    var result = await UserManager.CreateAsync(user, model.Password);
-            //    if (result.Succeeded)
-            //    {
-            //        await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
+            if (!ConfigurationService.AllowUserRegistrations())
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-            //        // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
-            //        // Send an email with this link
-            //        // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-            //        // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-            //        // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var result = await UserManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
+                {
+                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
 
-            //        return RedirectToAction("Index", "Home");
-            //    }
-            //    AddErrors(result);
-            //}
+                    // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
+                    // Send an email with this link
+                    // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                    // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
 
-            //// If we got this far, something failed, redisplay form
-            //return View(model);
+                    LogService.Info(string.Format("New User Registration: {0}", model.Email));
+
+                    if (!dataFlowDbContext.AspNetUsers.Any()) //send them to the configuration page
+                        return RedirectToAction("Index", "Configuration");
+
+                    return RedirectToAction("Index", "School");
+                }
+                AddErrors(result);
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
         }
 
         //
