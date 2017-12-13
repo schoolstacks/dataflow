@@ -70,14 +70,14 @@
         </div>
     }
     </div>
-    @*if (!new[] { "string", "date-time", "boolean", "integer" }.Contains(t.DataType))
+    if (!new[] { "string", "date-time", "boolean", "integer" }.Contains(t.DataType))
     {
         <div class="form-group" id="@($"div{t.FormFieldName}_Add")">
             <div class="col-sm-offset-2 col-sm-10">
                 <button id="@($"btn{t.FormFieldName}")" type="button" class="btn btn-default add-row">Add Row</button>
             </div>
         </div>
-    }*@
+    }
 }
 @Html.Hidden("FieldNames", string.Join(";", Model.GetAllFieldNames()))
 <script type="text/javascript">

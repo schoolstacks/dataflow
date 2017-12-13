@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using DataFlow.Web.Helpers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DataFlow.Web.Models
 {
+    [JsonConverter(typeof(DataMapperJsonSerializer))]
     public class DataMapper
     {
         public DataMapper()
@@ -23,13 +27,13 @@ namespace DataFlow.Web.Models
 
     public class DataMapperProperty
     {
-        [JsonProperty(PropertyName = "data-type")]
+        [JsonProperty(PropertyName = "data-type", NullValueHandling = NullValueHandling.Ignore)]
         public string DataType { get; set; }
 
-        [JsonProperty(PropertyName = "source")]
+        [JsonProperty(PropertyName = "source", NullValueHandling = NullValueHandling.Ignore)]
         public string Source { get; set; }
 
-        [JsonProperty(PropertyName = "source-column")]
+        [JsonProperty(PropertyName = "source-column", NullValueHandling = NullValueHandling.Ignore)]
         public string SourceColumn { get; set; }
 
         [JsonProperty(PropertyName = "source-table", NullValueHandling = NullValueHandling.Ignore)]
@@ -46,6 +50,19 @@ namespace DataFlow.Web.Models
 
         [JsonIgnore]
         public string ParentType { get; set; }
+
+        public static explicit operator DataMapperProperty(JToken v)
+        {
+            return new DataMapperProperty()
+            {
+                DataType = v.Value<string>("data-type"),
+                Source = v.Value<string>("source"),
+                SourceColumn = v.Value<string>("source-column"),
+                SourceTable = v.Value<string>("source-table"),
+                Default = v.Value<string>("default"),
+                Value = v.Value<string>("value")
+            };
+        }
     }
 
     public class DataMapperEnums
