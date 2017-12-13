@@ -13,7 +13,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
         {
             return new HttpResponseMessage()
             {
-                Content = new StringContent(@"{ token: ""42287996-c177-4e58-815c-a9e390d2461f"" }", System.Text.Encoding.UTF8, "application/json"),
+                Content = new StringContent(@"{ ""token"": ""42287996-c177-4e58-815c-a9e390d2461f"" }", System.Text.Encoding.UTF8, "application/json"),
                 StatusCode = HttpStatusCode.OK
             };
         }
