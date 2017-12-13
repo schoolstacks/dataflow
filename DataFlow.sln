@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Web.Tests", "DataF
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataFlow.Server", "DataFlow.Server", "{C3268160-8F52-46C9-9281-2EE24101BE63}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "chrome-extension-receiver", "DataFlow.Server\components\chrome-extension-receiver\chrome-extension-receiver.csproj", "{4C74C29C-1505-4B17-8739-E80BF13FF5CA}"
-EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "db-dataflow", "DataFlow.Server\components\db-dataflow\db-dataflow.sqlproj", "{46B021D3-6706-403E-AA0A-123500F60A1F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "edfi-api-client", "DataFlow.Server\components\edfi-api-client\edfi-api-client.csproj", "{F92104FF-F171-4516-9877-2C2B9815E913}"
@@ -49,10 +47,6 @@ Global
 		{D3741C62-78AC-4B4C-A11C-BF56C9564667}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3741C62-78AC-4B4C-A11C-BF56C9564667}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3741C62-78AC-4B4C-A11C-BF56C9564667}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4C74C29C-1505-4B17-8739-E80BF13FF5CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4C74C29C-1505-4B17-8739-E80BF13FF5CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4C74C29C-1505-4B17-8739-E80BF13FF5CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4C74C29C-1505-4B17-8739-E80BF13FF5CA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{46B021D3-6706-403E-AA0A-123500F60A1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{46B021D3-6706-403E-AA0A-123500F60A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46B021D3-6706-403E-AA0A-123500F60A1F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
@@ -104,7 +98,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{4C74C29C-1505-4B17-8739-E80BF13FF5CA} = {C3268160-8F52-46C9-9281-2EE24101BE63}
 		{46B021D3-6706-403E-AA0A-123500F60A1F} = {C3268160-8F52-46C9-9281-2EE24101BE63}
 		{F92104FF-F171-4516-9877-2C2B9815E913} = {C3268160-8F52-46C9-9281-2EE24101BE63}
 		{16ABF055-FFA8-462D-A676-431D64D2D05B} = {C3268160-8F52-46C9-9281-2EE24101BE63}
