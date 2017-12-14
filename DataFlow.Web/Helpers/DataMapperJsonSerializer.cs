@@ -27,16 +27,17 @@ namespace DataFlow.Web.Helpers
                         {
                             writer.WriteStartObject();
                             writer.WritePropertyName(sub.Name);
-                            writer.WriteStartObject();
-                            sub.SubDataMappers.ForEach(tri =>
-                            {
-                                writer.WriteStartObject();
-                                writer.WritePropertyName(tri.Name);
-                                writer.WriteStartObject();
-                                serializer.Serialize(writer, tri.DataMapperProperty);
-                                writer.WriteEndObject();
-                            });
-                            //serializer.Serialize(writer, sub.DataMapperProperty);
+                            serializer.Serialize(writer, sub.SubDataMappers);
+                            //if (sub.SubDataMappers.Any())
+                            //{
+                            //    sub.SubDataMappers.ForEach(tri =>
+                            //    {
+                            //        writer.WriteStartObject();
+                            //        writer.WritePropertyName(tri.Name);
+                            //        serializer.Serialize(writer, tri.DataMapperProperty);
+                            //        writer.WriteEndObject();
+                            //    });
+                            //}
                             writer.WriteEndObject();
                         });
                         //

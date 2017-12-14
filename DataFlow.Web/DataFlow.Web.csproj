@@ -280,9 +280,11 @@
     <Compile Include="Helpers\BaseViewPage.cs" />
     <Compile Include="Helpers\Constants.cs" />
     <Compile Include="Helpers\Common.cs" />
+    <Compile Include="Helpers\DataMapperContract.cs" />
     <Compile Include="Helpers\DataMapperJsonSerializer.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
+    <Compile Include="Helpers\SubDataMapperSerializer.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApiConfigurationValues.cs" />
     <Compile Include="Models\AssessmentViewModel.cs" />
