@@ -21,6 +21,7 @@ namespace DataFlow.Web.Models
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DataMapperProperty DataMapperProperty { get; set; }
 
+        [JsonConverter(typeof(SubDataMapperSerializer))]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<DataMapper> SubDataMappers { get; set; }
     }
