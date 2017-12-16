@@ -17,7 +17,7 @@ using DataFlow.Common.Helpers;
 
 namespace DataFlow.Server.FileTransport
 {
-    class Program
+    public class Program
     {
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -29,7 +29,7 @@ namespace DataFlow.Server.FileTransport
         private static readonly string _encryptionKey = ConfigurationManager.AppSettings["EncryptionKey"];
         private static readonly string _allowTestCertificates = ConfigurationManager.AppSettings["AllowTestCertificates"];
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             _log.Info("File Transport Janitor starting");
 
@@ -42,8 +42,6 @@ namespace DataFlow.Server.FileTransport
                     foreach (var agent in agents)
                     {
                         _log.Info("Processing agent name: " + agent.Name);
-
-                        Console.WriteLine(Encryption.Decrypt(agent.Password, _encryptionKey));
 
                         List<string> fileList = GetFileList(agent);
 
@@ -337,5 +335,45 @@ namespace DataFlow.Server.FileTransport
 
             return path;
         }
+
+        public static bool ShouldExecuteOnSchedule(Agent agent, DateTime? nowDate = null)
+        {
+            if (!nowDate.HasValue)
+                nowDate = DateTime.Now;
+
+            bool shouldRun = false;
+
+
+            if (agent.AgentSchedules.Count > 0)
+            {
+                int nowDay = (int)nowDate.Value.DayOfWeek;
+                int nowHour = nowDate.Value.Hour;
+                int nowMinute = nowDate.Value.Minute;
+
+                IEnumerable<AgentSchedule> sortedSchedule = from schedules in agent.AgentSchedules
+                                                            orderby schedules.Day ascending, schedules.Hour ascending, schedules.Hour ascending
+                                                            select schedules;
+
+                foreach (AgentSchedule schedule in sortedSchedule)
+                {
+                    DateTime scheduleDateTime = DateTime.Parse(nowDate.Value.ToShortDateString() + " " + schedule.Hour + ":" + schedule.Minute);
+                    scheduleDateTime = scheduleDateTime.AddDays(-((int)nowDate.Value.DayOfWeek - schedule.Day));
+
+                    if (!agent.LastExecuted.HasValue || scheduleDateTime > agent.LastExecuted)
+                    {
+                        if (schedule.Day <= nowDay)
+                        {
+                            if (schedule.Hour < nowHour)
+                                shouldRun = true;
+                            else if (schedule.Hour == nowHour && schedule.Minute <= nowMinute)
+                                shouldRun = true;
+                        }
+                    }
+                }
+            }
+
+            return shouldRun;
+        }
+
     }
 }

@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataFlow.Server.UnitTests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Server.TransformLoad.Tests", "DataFlow.Server.TransformLoad.Tests\DataFlow.Server.TransformLoad.Tests.csproj", "{863850E2-B8B6-4605-9E36-987CBC3F8FD7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Server.FileTransport.Tests", "DataFlow.Server.FileTransport.Tests\DataFlow.Server.FileTransport.Tests.csproj", "{4AF848E3-A7F5-4F7A-8C82-370F9A2E2D2D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,10 @@ Global
 		{863850E2-B8B6-4605-9E36-987CBC3F8FD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{863850E2-B8B6-4605-9E36-987CBC3F8FD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{863850E2-B8B6-4605-9E36-987CBC3F8FD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AF848E3-A7F5-4F7A-8C82-370F9A2E2D2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AF848E3-A7F5-4F7A-8C82-370F9A2E2D2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AF848E3-A7F5-4F7A-8C82-370F9A2E2D2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AF848E3-A7F5-4F7A-8C82-370F9A2E2D2D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
