@@ -61,11 +61,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DataFlow.Server\components\server-components-data-access\server-components-data-access.csproj">
-      <Project>{1db45f34-fa44-4c37-a240-e7b139d1bafb}</Project>
-      <Name>server-components-data-access</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DataFlow.Server\DataFlow.Server.TransformLoad\DataFlow.Server.TransformLoad.csproj">
+    <ProjectReference Include="..\DataFlow.Server.TransformLoad\DataFlow.Server.TransformLoad.csproj">
       <Project>{d0365edb-aec3-49da-89ad-6fcffe586dcc}</Project>
       <Name>DataFlow.Server.TransformLoad</Name>
     </ProjectReference>
