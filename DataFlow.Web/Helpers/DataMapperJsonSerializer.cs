@@ -22,25 +22,23 @@ namespace DataFlow.Web.Helpers
                         writer.WriteStartObject();
                         writer.WritePropertyName(dataMapper.Name);
                         writer.WriteStartArray();
-                        //
                         dataMapper.SubDataMappers.ForEach(sub =>
                         {
                             writer.WriteStartObject();
                             writer.WritePropertyName(sub.Name);
-                            serializer.Serialize(writer, sub.SubDataMappers);
-                            //if (sub.SubDataMappers.Any())
-                            //{
-                            //    sub.SubDataMappers.ForEach(tri =>
-                            //    {
-                            //        writer.WriteStartObject();
-                            //        writer.WritePropertyName(tri.Name);
-                            //        serializer.Serialize(writer, tri.DataMapperProperty);
-                            //        writer.WriteEndObject();
-                            //    });
-                            //}
+                            if (sub.SubDataMappers.Any())
+                            {
+                                writer.WriteStartObject();
+                                for (var i = 0; i < sub.SubDataMappers.Count; i++)
+                                {
+                                    var subObj = sub.SubDataMappers.ElementAt(i);
+                                    writer.WritePropertyName(subObj.Name);
+                                    serializer.Serialize(writer, subObj.DataMapperProperty);
+                                }
+                                writer.WriteEndObject();
+                            }
                             writer.WriteEndObject();
                         });
-                        //
                         writer.WriteEndArray();
                         writer.WriteEndObject();
                     }
@@ -60,7 +58,7 @@ namespace DataFlow.Web.Helpers
                 serializer.Serialize(writer, e);
                 writer.WriteEndObject();
             }
-            
+
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
