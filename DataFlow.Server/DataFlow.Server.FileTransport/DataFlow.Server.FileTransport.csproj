@@ -54,6 +54,10 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="FluentFTP, Version=19.1.2.0, Culture=neutral, PublicKeyToken=f4af092b1d8df44f, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentFTP.19.1.2\lib\net45\FluentFTP.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
@@ -89,9 +93,14 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Spatial, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Spatial.5.8.2\lib\net40\System.Spatial.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -105,7 +114,9 @@
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\dataflow-development - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\dataflow-development - Web Deploy.pubxml" />
@@ -118,9 +129,9 @@
       <Project>{17fc1af4-3efe-4851-82af-7c5d48eef17b}</Project>
       <Name>DataFlow.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\components\server-components-data-access\server-components-data-access.csproj">
-      <Project>{1db45f34-fa44-4c37-a240-e7b139d1bafb}</Project>
-      <Name>server-components-data-access</Name>
+    <ProjectReference Include="..\..\DataFlow.Models\DataFlow.Models.csproj">
+      <Project>{54c8616a-eccd-4ad5-a88b-a2266350bf0d}</Project>
+      <Name>DataFlow.Models</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

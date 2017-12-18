@@ -64,6 +64,9 @@
     <Compile Include="ExtensionMethods\LinqExtensions.cs" />
     <Compile Include="ExtensionMethods\StringExtensions.cs" />
     <Compile Include="Encryption.cs" />
+    <Compile Include="Helpers\AgentTypeCodeEnum.cs" />
+    <Compile Include="Helpers\FileModeEnum.cs" />
+    <Compile Include="Helpers\FileStatusEnum.cs" />
     <Compile Include="Mapping\AgentMap.cs" />
     <Compile Include="Mapping\AgentScheduleMap.cs" />
     <Compile Include="Mapping\AspNetRoleMap.cs" />
@@ -101,8 +104,6 @@
       <Name>DataFlow.Models</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Helpers\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
