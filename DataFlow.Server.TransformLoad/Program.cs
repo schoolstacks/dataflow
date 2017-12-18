@@ -89,6 +89,7 @@ namespace DataFlow.Server.TransformLoad
             {
                 await InsertBootrapData(ctx);
                 //TODO: Update datamap_agent.datamap to get loading of the required maps
+                //Exception: {"A specified Include path is not valid. The EntityType 'DataFlow.Common.DAL.Agent' does not declare a navigation property with the name 'datamap_agent'."}
                 List<Agent> agents = ctx.Agents.Include(agent => agent.DataMapAgents).Include("datamap_agent.datamap").ToList();
                 
                 MappingLookups = ctx.Lookups.ToList();
