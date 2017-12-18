@@ -7,22 +7,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using server_components_data_access.Dataflow;
 using CsvHelper;
 using System.Net.Http;
 using System.Data.Entity.Core.EntityClient;
-using server_components_data_access.Enums;
 using log4net.Core;
 using System.Configuration;
 using System.Diagnostics;
+using DataFlow.Common;
+using DataFlow.Common.DAL;
+using DataFlow.Common.ExtensionMethods;
+using System.Data.Entity;
+using DataFlow.Models;
+using DataFlow.Common.Helpers;
 
 namespace DataFlow.Server.TransformLoad
 {
     internal class Program
     {
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        private static List<server_components_data_access.Dataflow.datamap> DataMapsList { get; set; } = null;
-        private static List<server_components_data_access.Dataflow.lookup> MappingLookups { get; set; }
+        private static List<DataMap> DataMapsList { get; set; } = null;
+        private static List<Lookup> MappingLookups { get; set; }
 
         private static string _accessToken = null;
         private static int numberOfSimultaneousTasks = GetNumberOfSimultaneousTasks();
@@ -72,51 +76,33 @@ namespace DataFlow.Server.TransformLoad
                     Log(log4net.Core.Level.Info, singleInnerException.ToString());
                 }
             }
-            finally
-            {
-                if (String.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME")))
-                {
-                    //if environment variable exists application is running under App Service. Otherwise is probably IIS or Visual Studio
-                    Console.WriteLine("Press any key to exit");
-                    Console.ReadKey();
-                }
-            }
         }
 
         private static string GetDataFlowConnectionString()
         {
             return System.Configuration.ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString;
         }
-        internal static EntityConnection BuildEntityConnection()
-        {
-            System.Data.SqlClient.SqlConnectionStringBuilder sqlConnStringBuilder =
-    new System.Data.SqlClient.SqlConnectionStringBuilder(GetDataFlowConnectionString());
-            EntityConnectionStringBuilder entityConnStringBuilder = new EntityConnectionStringBuilder();
-            entityConnStringBuilder.Metadata = "res://*/Dataflow.DataFlowContext.csdl|res://*/Dataflow.DataFlowContext.ssdl|res://*/Dataflow.DataFlowContext.msl";
-            entityConnStringBuilder.ProviderConnectionString = sqlConnStringBuilder.ToString();
-            entityConnStringBuilder.Provider = "System.Data.SqlClient";
-            EntityConnection entityConn = new EntityConnection(entityConnStringBuilder.ToString());
-            return entityConn;
-        }
+
         private static async Task StartProcessing()
         {
-            using (DataFlowContext ctx = new DataFlowContext(BuildEntityConnection()))
+            using (DataFlowDbContext ctx = new DataFlowDbContext())
             {
                 await InsertBootrapData(ctx);
-                var agents = ctx.agents.Include("datamap_agent").Include("datamap_agent.datamap").ToList();
-                MappingLookups = ctx.lookups.ToList();
+                var agents = ctx.Agents.Include("datamap_agent").Include("datamap_agent.datamap").ToList();
+
+                MappingLookups = ctx.Lookups.ToList();
                 foreach (var singleAgent in agents)
                 {
-                    var dataMapAgents = singleAgent.datamap_agent.OrderBy(p => p.ProcessingOrder);
-                    foreach (var singleFile in singleAgent.files.Where(p => p.Status.ToUpper() ==
-                    FileStatus.UPLOADED))
+                    var dataMapAgents = singleAgent.DataMapAgents.OrderBy(p => p.ProcessingOrder);
+                    foreach (var singleFile in singleAgent.Files.Where(p => p.Status.ToUpper() ==
+                    FileStatusEnum.UPLOADED))
                     {
-                        Log(log4net.Core.Level.Info, "Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
+                        Log(log4net.Core.Level.Info, "Processing file: {0}. URL: {1}", singleFile.FileName, singleFile.Url);
                         try
                         {
-                            singleFile.Status = FileStatus.TRANSFORMING;
+                            singleFile.Status = FileStatusEnum.TRANSFORMING;
                             ctx.SaveChanges();
-                            await ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.URL, fileEntity: singleFile, ctx: ctx);
+                            await ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.Url, fileEntity: singleFile, ctx: ctx);
                         }
                         catch (AggregateException aggrEx)
                         {
@@ -124,16 +110,16 @@ namespace DataFlow.Server.TransformLoad
                         }
                         catch (Exception ex)
                         {
-                            Log(log4net.Core.Level.Info, "Error processing file: {0}. Message: {1}", singleFile.URL, ex.ToString());
+                            Log(log4net.Core.Level.Info, "Error processing file: {0}. Message: {1}", singleFile.Url, ex.ToString());
                         }
 
-                        Log(log4net.Core.Level.Info, "Finished Processing file: {0}. URL: {1}", singleFile.Filename, singleFile.URL);
+                        Log(log4net.Core.Level.Info, "Finished Processing file: {0}. URL: {1}", singleFile.FileName, singleFile.Url);
                     }
                 }
             }
         }
 
-        private static async Task PostTransformedData(DataFlowContext ctx)
+        private static async Task PostTransformedData(DataFlowDbContext ctx)
         {
             string authorizeUrl = GetAuthorizeUrl(ctx);
             string accessTokenUrl = GetAccessTokenUrl(ctx);
@@ -145,24 +131,24 @@ namespace DataFlow.Server.TransformLoad
             await ProcessApiData(ctx, accessToken);
             foreach (var singleErrorFile in lstErroredFiles)
             {
-                singleErrorFile.Status = FileStatus.ERROR_TRANSFORM;
+                singleErrorFile.Status = FileStatusEnum.ERROR_TRANSFORM;
             }
             var transformedFiles = ApiData.Where(p => lstErroredFiles.Contains(p.FileEntity) == false).Select(p => p.FileEntity).ToList();
             foreach (var singleTransformedFile in transformedFiles.Distinct())
             {
-                singleTransformedFile.Status = FileStatus.LOADED;
+                singleTransformedFile.Status = FileStatusEnum.LOADED;
             }
             ctx.SaveChanges();
         }
 
-        internal static async Task InsertBootrapData(DataFlowContext ctx)
+        internal static async Task InsertBootrapData(DataFlowDbContext ctx)
         {
             var bootStrapPayloads =
-                ctx.bootstrapdatas.Where(p => p.ProcessedDate.HasValue == false).OrderBy(p => p.ProcessingOrder).ToList();
+                ctx.BootstrapData.Where(p => p.ProcessedDate.HasValue == false).OrderBy(p => p.ProcessingOrder).ToList();
             foreach (var singlePayload in bootStrapPayloads)
             {
-                Log(Level.Info, "Inserting bootstrap data for ID: {0}", singlePayload.ID);
-                var entity = singlePayload.entity;
+                Log(Level.Info, "Inserting bootstrap data for ID: {0}", singlePayload.Id);
+                var entity = singlePayload.Entity;
                 var metadata = entity.Metadata;
                 string endpointUrl = RetrieveEndpointUrlFromMetadata(metadata, ctx);
                 string authorizeUrl = GetAuthorizeUrl(ctx);
@@ -213,7 +199,7 @@ namespace DataFlow.Server.TransformLoad
             }
         }
 
-        private static async Task ProcessApiData(DataFlowContext ctx, string accessToken)
+        private static async Task ProcessApiData(DataFlowDbContext ctx, string accessToken)
         {
             Stopwatch watch = new Stopwatch();
             watch.Start();
@@ -253,8 +239,8 @@ namespace DataFlow.Server.TransformLoad
 
         private static Object lstIngestionMessagesLock = new Object();
         private static Object lstErroredFilesLock = new Object();
-        private static List<log_ingestion> lstIngestionMessages = new List<log_ingestion>();
-        private static List<file> lstErroredFiles = new List<file>();
+        private static List<LogIngestion> lstIngestionMessages = new List<LogIngestion>();
+        private static List<Models.File> lstErroredFiles = new List<Models.File>();
         private static Action CreatePostSingleApiDataAction(
             string accessToken, ResultingMapInfo singleApiData, int fileTotalRecords)
         {
@@ -262,23 +248,23 @@ namespace DataFlow.Server.TransformLoad
             {
                 try
                 {
-                    using (DataFlowContext ctx = new DataFlowContext(BuildEntityConnection()))
+                    using (DataFlowDbContext ctx = new DataFlowDbContext())
                     {
-                        Log(log4net.Core.Level.Info, "Inserting Data For File {0}", singleApiData.FileEntity.URL);
+                        Log(log4net.Core.Level.Info, "Inserting Data For File {0}", singleApiData.FileEntity.Url);
                         if (String.IsNullOrWhiteSpace(singleApiData.Key.Metadata))
                         {
                             lock (lstIngestionMessagesLock)
                             {
-                                lstIngestionMessages.Add(new log_ingestion()
+                                lstIngestionMessages.Add(new LogIngestion()
                                 {
                                     Date = DateTime.UtcNow,
                                     //Filename = singleApiData.Key
                                     Result = "ERROR",
-                                    Message = string.Format("Entity has no Metadata. Entity ID: {0}", singleApiData.Key.ID),
+                                    Message = string.Format("Entity has no Metadata. Entity ID: {0}", singleApiData.Key.Id),
                                     Level = "ERROR",
                                     Operation = "TransformingData",
                                     Process = "transform-api-load-janitor",
-                                    Filename = singleApiData.FileEntity.Filename
+                                    FileName = singleApiData.FileEntity.FileName
                                 });
                             }
                             lock (lstErroredFilesLock)
@@ -335,7 +321,7 @@ namespace DataFlow.Server.TransformLoad
                                 {
                                     lstIngestionMessages.ForEach((singleIngestionError) =>
                                     {
-                                        ctx.log_ingestion.Add(singleIngestionError);
+                                        ctx.LogIngestions.Add(singleIngestionError);
                                     });
                                     ctx.SaveChanges();
                                     lstIngestionMessages.Clear();
@@ -369,7 +355,7 @@ namespace DataFlow.Server.TransformLoad
                     Log(log4net.Core.Level.Info, "Data Exists on endpoint: {0}", endpointUrl);
                     lock (lstIngestionMessagesLock)
                     {
-                        lstIngestionMessages.Add(new log_ingestion()
+                        lstIngestionMessages.Add(new LogIngestion()
                         {
                             Date = DateTime.UtcNow,
                             //Filename = singleApiData.Key
@@ -378,8 +364,8 @@ namespace DataFlow.Server.TransformLoad
                             Level = "INFORMATION",
                             Operation = "TransformingData",
                             Process = "transform-api-load-janitor",
-                            Filename = singleApiData.FileEntity.Filename,
-                            AgentID  = singleApiData.FileEntity.AgentID,
+                            FileName = singleApiData.FileEntity.FileName,
+                            AgentId  = singleApiData.FileEntity.AgentId,
                             RecordCount = fileTotalRecords
                         });
                     }
@@ -389,17 +375,17 @@ namespace DataFlow.Server.TransformLoad
                     lock (lstIngestionMessagesLock)
                     {
                         InsertedIds.Add(new KeyValuePair<string, string>(strIdName, strId));
-                        lstIngestionMessages.Add(new log_ingestion()
+                        lstIngestionMessages.Add(new LogIngestion()
                         {
                             Date = DateTime.UtcNow,
                             //Filename = singleApiData.Key
                             Result = "SUCCESS",
-                            Message = string.Format("Record Created:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nAgent ID:{2}\r\nFile Name:{3}\r\nData:\r\n{4}", singleApiData.RowNumber, endpointUrl, singleApiData.FileEntity.AgentID, singleApiData.FileEntity.Filename, singleApiData.Value.ToString()),
+                            Message = string.Format("Record Created:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nAgent ID:{2}\r\nFile Name:{3}\r\nData:\r\n{4}", singleApiData.RowNumber, endpointUrl, singleApiData.FileEntity.AgentId, singleApiData.FileEntity.FileName, singleApiData.Value.ToString()),
                             Level = "INFORMATION",
                             Operation = "TransformingData",
                             Process = "transform-api-load-janitor",
-                            Filename = singleApiData.FileEntity.Filename,
-                            AgentID = singleApiData.FileEntity.AgentID,
+                            FileName = singleApiData.FileEntity.FileName,
+                            AgentId = singleApiData.FileEntity.AgentId,
                             RecordCount = fileTotalRecords
                         });
                     }
@@ -410,17 +396,17 @@ namespace DataFlow.Server.TransformLoad
                     lock (lstIngestionMessagesLock)
                     {
                         var singleIngestionError =
-                            new log_ingestion()
+                            new LogIngestion()
                             {
                                 Date = DateTime.UtcNow,
                                 //Filename = singleApiData.Key
                                 Result = "ERROR",
-                                Message = string.Format("Message: {0}. Row Number: {1} EndPoint Url: {2}\r\nAgent ID:{3}\r\nFile Name:{4}\r\nData:\r\n{5}", strError, singleApiData.RowNumber, endpointUrl, singleApiData.FileEntity.AgentID, singleApiData.FileEntity.Filename, singleApiData.Value.ToString()),
+                                Message = string.Format("Message: {0}. Row Number: {1} EndPoint Url: {2}\r\nAgent ID:{3}\r\nFile Name:{4}\r\nData:\r\n{5}", strError, singleApiData.RowNumber, endpointUrl, singleApiData.FileEntity.AgentId, singleApiData.FileEntity.FileName, singleApiData.Value.ToString()),
                                 Level = "ERROR",
                                 Operation = "TransformingData",
                                 Process = "transform-api-load-janitor",
-                                Filename = singleApiData.FileEntity.Filename,
-                                AgentID = singleApiData.FileEntity.AgentID,
+                                FileName = singleApiData.FileEntity.FileName,
+                                AgentId = singleApiData.FileEntity.AgentId,
                                 RecordCount = fileTotalRecords
                             };
                         lstIngestionMessages.Add(singleIngestionError);
@@ -484,33 +470,33 @@ namespace DataFlow.Server.TransformLoad
             return new KeyValuePair<bool, string>(result, recordId);
         }
 
-        private static string GetApiBaseUrl(DataFlowContext ctx)
+        private static string GetApiBaseUrl(DataFlowDbContext ctx)
         {
-            return ctx.configurations.Where(p => p.Key == "API_SERVER_BASEURL").First().Value;
+            return ctx.Configurations.Where(p => p.Key == "API_SERVER_BASEURL").First().Value;
         }
-        internal static string GetAccessTokenUrl(DataFlowContext ctx)
+        internal static string GetAccessTokenUrl(DataFlowDbContext ctx)
         {
             string baseUrl = GetApiBaseUrl(ctx);
             return baseUrl + "/oauth/token";
         }
 
-        internal static string GetAuthorizeUrl(DataFlowContext ctx)
+        internal static string GetAuthorizeUrl(DataFlowDbContext ctx)
         {
             string baseUrl = GetApiBaseUrl(ctx);
             return baseUrl + "/oauth/authorize";
         }
 
-        internal static string GetApiClientSecret(DataFlowContext ctx)
+        internal static string GetApiClientSecret(DataFlowDbContext ctx)
         {
-            return ctx.configurations.Where(p => p.Key == "API_SERVER_SECRET").First().Value;
+            return ctx.Configurations.Where(p => p.Key == "API_SERVER_SECRET").First().Value;
         }
 
-        internal static string GetApiClientId(DataFlowContext ctx)
+        internal static string GetApiClientId(DataFlowDbContext ctx)
         {
-            return ctx.configurations.Where(p => p.Key == "API_SERVER_KEY").First().Value;
+            return ctx.Configurations.Where(p => p.Key == "API_SERVER_KEY").First().Value;
         }
 
-        private static string RetrieveEndpointUrlFromMetadata(string metadata, DataFlowContext ctx)
+        private static string RetrieveEndpointUrlFromMetadata(string metadata, DataFlowDbContext ctx)
         {
             string strUrl = string.Empty;
             try
@@ -589,8 +575,8 @@ namespace DataFlow.Server.TransformLoad
             return code;
         }
 
-        private static async Task ProcessDataMapAgent(IOrderedEnumerable<datamap_agent> dataMapAgents,
-            string cloudFileUrl, file fileEntity, DataFlowContext ctx)
+        private static async Task ProcessDataMapAgent(IOrderedEnumerable<DataMapAgent> dataMapAgents,
+            string cloudFileUrl, Models.File fileEntity, DataFlowDbContext ctx)
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString);
             CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
@@ -612,7 +598,7 @@ namespace DataFlow.Server.TransformLoad
             }
             try
             {
-                fileEntity.Status = FileStatus.LOADING;
+                fileEntity.Status = FileStatusEnum.LOADING;
                 ctx.SaveChanges();
                 await PostTransformedData(ctx);
                 Log(log4net.Core.Level.Info, "Reduced Api Calls by Hashing. Total:{0}. File:{1}", ProcessedData.Count, file.Uri);
@@ -633,7 +619,7 @@ namespace DataFlow.Server.TransformLoad
             }
         }
 
-        private static void TransformExcelFile(IOrderedEnumerable<datamap_agent> dataMapAgents, file fileEntity, string tempFileFullPath)
+        private static void TransformExcelFile(IOrderedEnumerable<DataMapAgent> dataMapAgents, Models.File fileEntity, string tempFileFullPath)
         {
             using (CsvHelper.CsvReader reader = new CsvHelper.CsvReader(new CsvHelper.Excel.ExcelParser(tempFileFullPath)))
             {
@@ -641,7 +627,7 @@ namespace DataFlow.Server.TransformLoad
             }
         }
 
-        private static void TransformFile(IOrderedEnumerable<datamap_agent> dataMapAgents, file fileEntity, string strFileText)
+        private static void TransformFile(IOrderedEnumerable<DataMapAgent> dataMapAgents, Models.File fileEntity, string strFileText)
         {
             Stopwatch watch = new Stopwatch();
             watch.Start();
@@ -656,7 +642,7 @@ namespace DataFlow.Server.TransformLoad
             var elapsed = watch.Elapsed;
         }
 
-        private static void ReadAndTransformFile(IOrderedEnumerable<datamap_agent> dataMapAgents, file fileEntity, CsvReader reader)
+        private static void ReadAndTransformFile(IOrderedEnumerable<DataMapAgent> dataMapAgents, Models.File fileEntity, CsvReader reader)
         {
             int rowNum = 1;
             while (reader.Read())
@@ -672,10 +658,10 @@ namespace DataFlow.Server.TransformLoad
                 foreach (var singleDataMapAgent in dataMapAgents)
                 {
                     Log(log4net.Core.Level.Info, "Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Family: {4}. Row #: {5}",
-                        singleDataMapAgent.datamap.ID, singleDataMapAgent.AgentID, singleDataMapAgent.DataMapID, singleDataMapAgent.datamap.entity.Name,
-                        singleDataMapAgent.datamap.entity.Family, rowNum);
-                    var entity = singleDataMapAgent.datamap.entity;
-                    var dataMap = singleDataMapAgent.datamap;
+                        singleDataMapAgent.DataMap.Id, singleDataMapAgent.AgentId, singleDataMapAgent.DataMapId, singleDataMapAgent.DataMap.Entity.Name,
+                        singleDataMapAgent.DataMap.Entity.Family, rowNum);
+                    var entity = singleDataMapAgent.DataMap.Entity;
+                    var dataMap = singleDataMapAgent.DataMap;
                     Action tskGeneratedRow = new Action(() =>
                     {
                         JToken generatedRow = ProcessCSVRow(entity, dataMap, currentRowDictionary);
@@ -802,7 +788,7 @@ namespace DataFlow.Server.TransformLoad
         }
 
 
-        private static JToken ProcessCSVRow(entity entity, datamap dataMap, Dictionary<string, string> reader)
+        private static JToken ProcessCSVRow(Entity entity, DataMap dataMap, Dictionary<string, string> reader)
         {
             JToken originalMap = JToken.Parse(dataMap.Map);
             JToken result = originalMap.DeepClone();
@@ -1170,8 +1156,8 @@ namespace DataFlow.Server.TransformLoad
 
     public class ResultingMapInfo
     {
-        public file FileEntity { get; set; }
-        public entity Key { get; set; }
+        public DataFlow.Models.File FileEntity { get; set; }
+        public Entity Key { get; set; }
         public int ProcessingOrder { get; set; }
         public int RowNumber { get; set; }
         public JToken Value { get; set; }

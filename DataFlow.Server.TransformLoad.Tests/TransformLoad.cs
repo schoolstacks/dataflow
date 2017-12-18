@@ -1,6 +1,11 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
+using DataFlow.Common;
+using DataFlow.Common.DAL;
+using DataFlow.Common.ExtensionMethods;
+using DataFlow.Models;
+using DataFlow.Common.Helpers;
 
 namespace DataFlow.Server.TransformLoad.Tests
 {
@@ -32,9 +37,7 @@ namespace DataFlow.Server.TransformLoad.Tests
         [TestMethod]
         public async Task EdFiApiAuthentication()
         {
-            var entityConnection = DataFlow.Server.TransformLoad.Program.BuildEntityConnection();
-            using (server_components_data_access.Dataflow.DataFlowContext ctx = 
-                new server_components_data_access.Dataflow.DataFlowContext(entityConnection))
+            using (DataFlowDbContext ctx = new DataFlowDbContext())
             {
                 string authorizeUrl = DataFlow.Server.TransformLoad.Program.GetAuthorizeUrl(ctx);
                 Assert.IsFalse(string.IsNullOrWhiteSpace(authorizeUrl), string.Format("{0} is Empty", nameof(authorizeUrl)));
@@ -56,9 +59,7 @@ namespace DataFlow.Server.TransformLoad.Tests
         {
             Assert.Inconclusive();
             await Task.Yield();
-            var entityConnection = DataFlow.Server.TransformLoad.Program.BuildEntityConnection();
-            using (server_components_data_access.Dataflow.DataFlowContext ctx =
-                new server_components_data_access.Dataflow.DataFlowContext(entityConnection))
+            using (DataFlowDbContext ctx = new DataFlowDbContext())
             {
                 await DataFlow.Server.TransformLoad.Program.InsertBootrapData(ctx);
             }

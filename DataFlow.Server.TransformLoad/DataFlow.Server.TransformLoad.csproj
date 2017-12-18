@@ -112,22 +112,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataMaps\AssessmentItem\AssessmentItemDataMap.cs" />
-    <Compile Include="DataMaps\Interfaces\IDataMap.cs" />
-    <Compile Include="DataMaps\StudentEnrollment\StudentEnrollmentDataMap.cs" />
-    <Compile Include="DataMaps\Student\StudentDataMap.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
-    </None>
-    <None Include="ConfigurationFiles\Dev\DevAppSettings.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="ConfigurationFiles\Dev\DevConnectionStrings.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\dataflow-development - FTP.pubxml" />
@@ -148,6 +138,16 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DataFlow.Common\DataFlow.Common.csproj">
+      <Project>{17fc1af4-3efe-4851-82af-7c5d48eef17b}</Project>
+      <Name>DataFlow.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataFlow.Models\DataFlow.Models.csproj">
+      <Project>{54c8616a-eccd-4ad5-a88b-a2266350bf0d}</Project>
+      <Name>DataFlow.Models</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\packages\Microsoft.Web.WebJobs.Publish.1.0.12\tools\webjobs.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebJobs.Publish.1.0.12\tools\webjobs.targets')" />
