@@ -88,8 +88,9 @@ namespace DataFlow.Server.TransformLoad
             using (DataFlowDbContext ctx = new DataFlowDbContext())
             {
                 await InsertBootrapData(ctx);
-                var agents = ctx.Agents.Include("datamap_agent").Include("datamap_agent.datamap").ToList();
-
+                //TODO: Update datamap_agent.datamap to get loading of the required maps
+                List<Agent> agents = ctx.Agents.Include(agent => agent.DataMapAgents).Include("datamap_agent.datamap").ToList();
+                
                 MappingLookups = ctx.Lookups.ToList();
                 foreach (var singleAgent in agents)
                 {
@@ -144,7 +145,7 @@ namespace DataFlow.Server.TransformLoad
         internal static async Task InsertBootrapData(DataFlowDbContext ctx)
         {
             var bootStrapPayloads =
-                ctx.BootstrapData.Where(p => p.ProcessedDate.HasValue == false).OrderBy(p => p.ProcessingOrder).ToList();
+                ctx.BootstrapData.Include(e => e.Entity).Where(p => p.ProcessedDate.HasValue == false).OrderBy(p => p.ProcessingOrder).ToList();
             foreach (var singlePayload in bootStrapPayloads)
             {
                 Log(Level.Info, "Inserting bootstrap data for ID: {0}", singlePayload.Id);

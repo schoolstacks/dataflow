@@ -12,7 +12,7 @@ namespace DataFlow.Common.DAL
             Database.SetInitializer<DataFlowDbContext>(null);
         }
 
-        public DataFlowDbContext() : base("Name=DataFlowDb")
+        public DataFlowDbContext() : base("Name=defaultConnection")
         {
             Configuration.LazyLoadingEnabled = false;
         }
