@@ -9,13 +9,10 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using CsvHelper;
 using System.Net.Http;
-using System.Data.Entity.Core.EntityClient;
 using log4net.Core;
 using System.Configuration;
 using System.Diagnostics;
-using DataFlow.Common;
 using DataFlow.Common.DAL;
-using DataFlow.Common.ExtensionMethods;
 using System.Data.Entity;
 using DataFlow.Models;
 using DataFlow.Common.Helpers;
@@ -26,7 +23,7 @@ namespace DataFlow.Server.TransformLoad
     {
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private static List<DataMap> DataMapsList { get; set; } = null;
-        private static List<Lookup> MappingLookups { get; set; }
+        private static List<Lookup> MappingLookups { get; set; } = null;
 
         private static string _accessToken = null;
         private static int numberOfSimultaneousTasks = GetNumberOfSimultaneousTasks();
@@ -76,6 +73,14 @@ namespace DataFlow.Server.TransformLoad
                     Log(log4net.Core.Level.Info, singleInnerException.ToString());
                 }
             }
+            finally
+            {
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    Console.WriteLine("Press any key to exit...");
+                    Console.ReadLine();
+                }
+            }
         }
 
         private static string GetDataFlowConnectionString()
@@ -88,34 +93,29 @@ namespace DataFlow.Server.TransformLoad
             using (DataFlowDbContext ctx = new DataFlowDbContext())
             {
                 await InsertBootrapData(ctx);
-                //TODO: Update datamap_agent.datamap to get loading of the required maps
-                //Exception: {"A specified Include path is not valid. The EntityType 'DataFlow.Common.DAL.Agent' does not declare a navigation property with the name 'datamap_agent'."}
-                List<Agent> agents = ctx.Agents.Include(agent => agent.DataMapAgents).Include(agent => agent.DataMapAgents.Select(datamap => datamap.DataMap)).ToList();
-                
                 MappingLookups = ctx.Lookups.ToList();
-                foreach (var singleAgent in agents)
-                {
-                    var dataMapAgents = singleAgent.DataMapAgents.OrderBy(p => p.ProcessingOrder);
-                    foreach (var singleFile in singleAgent.Files.Where(p => p.Status.ToUpper() == FileStatusEnum.UPLOADED))
-                    {
-                        Log(log4net.Core.Level.Info, "Processing file: {0}. URL: {1}", singleFile.FileName, singleFile.Url);
-                        try
-                        {
-                            singleFile.Status = FileStatusEnum.TRANSFORMING;
-                            ctx.SaveChanges();
-                            await ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.Url, fileEntity: singleFile, ctx: ctx);
-                        }
-                        catch (AggregateException aggrEx)
-                        {
-                            Log(log4net.Core.Level.Info, "Error awaiting ProcessDataMapAgent: {0}", aggrEx.ToString());
-                        }
-                        catch (Exception ex)
-                        {
-                            Log(log4net.Core.Level.Info, "Error processing file: {0}. Message: {1}", singleFile.Url, ex.ToString());
-                        }
 
-                        Log(log4net.Core.Level.Info, "Finished Processing file: {0}. URL: {1}", singleFile.FileName, singleFile.Url);
+                List<Models.File> files = ctx.Files.Where(file => file.Status.ToUpper() == FileStatusEnum.UPLOADED).Include(file => file.Agent).Include(file => file.Agent.DataMapAgents).Include(file => file.Agent.DataMapAgents.Select(da => da.DataMap)).ToList();
+
+                foreach (Models.File singleFile in files)
+                {
+                    Log(log4net.Core.Level.Info, "Processing file: {0}. URL: {1}", singleFile.FileName, singleFile.Url);
+                    try
+                    {
+                        singleFile.Status = FileStatusEnum.TRANSFORMING;
+                        ctx.SaveChanges();
+                        await ProcessDataMapAgent(singleFile.Agent.DataMapAgents, cloudFileUrl: singleFile.Url, fileEntity: singleFile, ctx: ctx);
                     }
+                    catch (AggregateException aggrEx)
+                    {
+                        Log(log4net.Core.Level.Info, "Error awaiting ProcessDataMapAgent: {0}", aggrEx.ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(log4net.Core.Level.Info, "Error processing file: {0}. Message: {1}", singleFile.Url, ex.ToString());
+                    }
+
+                    Log(log4net.Core.Level.Info, "Finished Processing file: {0}. URL: {1}", singleFile.FileName, singleFile.Url);
                 }
             }
         }
@@ -145,7 +145,7 @@ namespace DataFlow.Server.TransformLoad
         internal static async Task InsertBootrapData(DataFlowDbContext ctx)
         {
             var bootStrapPayloads =
-                ctx.BootstrapData.Include(e => e.Entity).Where(p => p.ProcessedDate.HasValue == false).OrderBy(p => p.ProcessingOrder).ToList();
+                ctx.BootstrapData.Include(e => e.Entity).Where(p => p.ProcessedDate.HasValue == false || (p.UpdateDate.HasValue && p.UpdateDate > p.ProcessedDate)).OrderBy(p => p.ProcessingOrder).ToList();
             foreach (var singlePayload in bootStrapPayloads)
             {
                 Log(Level.Info, "Inserting bootstrap data for ID: {0}", singlePayload.Id);
@@ -172,6 +172,9 @@ namespace DataFlow.Server.TransformLoad
                 {
                     await PostBootstrapData(endpointUrl, accessToken, singlePayload.Data);
                 }
+
+                singlePayload.ProcessedDate = DateTime.Now;
+                ctx.SaveChanges();
             }
         }
 
@@ -576,12 +579,11 @@ namespace DataFlow.Server.TransformLoad
             return code;
         }
 
-        private static async Task ProcessDataMapAgent(IOrderedEnumerable<DataMapAgent> dataMapAgents,
-            string cloudFileUrl, Models.File fileEntity, DataFlowDbContext ctx)
+        private static async Task ProcessDataMapAgent(ICollection<DataMapAgent> dataMapAgents, string cloudFileUrl, Models.File fileEntity, DataFlowDbContext ctx)
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString);
             CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-            CloudFileShare fileShare = fileClient.GetShareReference(ConfigurationManager.AppSettings["azureShareName"]);
+            CloudFileShare fileShare = fileClient.GetShareReference(ConfigurationManager.AppSettings["azureShareName"]); //TODO: Update just to ShareName
             CloudFile file = new CloudFile(new Uri(cloudFileUrl), storageAccount.Credentials);
             string[] excelFileTypes = { "XLS", "XLSX" };
             bool isExcelFile = excelFileTypes.Contains(Path.GetExtension(file.Name).ToUpper());
@@ -589,7 +591,7 @@ namespace DataFlow.Server.TransformLoad
             {
                 string tempPath = System.IO.Path.GetTempPath();
                 string tempFileFullPath = Path.Combine(tempPath, file.Name);
-                file.DownloadToFile(tempFileFullPath, FileMode.Create);
+                file.DownloadToFile(tempFileFullPath, FileMode.Create); //TODO:  see if we can do this in a MemoryStream opposed to file
                 TransformExcelFile(dataMapAgents, fileEntity, tempFileFullPath);
             }
             else
@@ -620,7 +622,7 @@ namespace DataFlow.Server.TransformLoad
             }
         }
 
-        private static void TransformExcelFile(IOrderedEnumerable<DataMapAgent> dataMapAgents, Models.File fileEntity, string tempFileFullPath)
+        private static void TransformExcelFile(ICollection<DataMapAgent> dataMapAgents, Models.File fileEntity, string tempFileFullPath)
         {
             using (CsvHelper.CsvReader reader = new CsvHelper.CsvReader(new CsvHelper.Excel.ExcelParser(tempFileFullPath)))
             {
@@ -628,7 +630,7 @@ namespace DataFlow.Server.TransformLoad
             }
         }
 
-        private static void TransformFile(IOrderedEnumerable<DataMapAgent> dataMapAgents, Models.File fileEntity, string strFileText)
+        private static void TransformFile(ICollection<DataMapAgent> dataMapAgents, Models.File fileEntity, string strFileText)
         {
             Stopwatch watch = new Stopwatch();
             watch.Start();
@@ -643,8 +645,10 @@ namespace DataFlow.Server.TransformLoad
             var elapsed = watch.Elapsed;
         }
 
-        private static void ReadAndTransformFile(IOrderedEnumerable<DataMapAgent> dataMapAgents, Models.File fileEntity, CsvReader reader)
+        private static void ReadAndTransformFile(ICollection<DataMapAgent> dataMapAgents, Models.File fileEntity, CsvReader reader)
         {
+            IOrderedEnumerable<DataMapAgent> orderedDataMapAgents = dataMapAgents.OrderBy(datamaps => datamaps.ProcessingOrder);
+
             int rowNum = 1;
             while (reader.Read())
             {
@@ -656,7 +660,7 @@ namespace DataFlow.Server.TransformLoad
                     currentRowDictionary.Add(singleHeader, reader[singleHeader]);
                 }
                 rowNum++;
-                foreach (var singleDataMapAgent in dataMapAgents)
+                foreach (var singleDataMapAgent in orderedDataMapAgents)
                 {
                     Log(log4net.Core.Level.Info, "Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Family: {4}. Row #: {5}",
                         singleDataMapAgent.DataMap.Id, singleDataMapAgent.AgentId, singleDataMapAgent.DataMapId, singleDataMapAgent.DataMap.Entity.Name,
