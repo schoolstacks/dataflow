@@ -63,6 +63,12 @@ namespace DataFlow.Server.FileTransport
             }
 
             _log.Info("File Transport Janitor exiting");
+
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                Console.WriteLine("Press any key to exit...");
+                Console.ReadLine();
+            }
         }
 
         private static List<string> GetFileList(Agent agent)

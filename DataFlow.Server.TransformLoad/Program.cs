@@ -95,7 +95,7 @@ namespace DataFlow.Server.TransformLoad
                 await InsertBootrapData(ctx);
                 MappingLookups = ctx.Lookups.ToList();
 
-                List<Models.File> files = ctx.Files.Where(file => file.Status.ToUpper() == FileStatusEnum.UPLOADED).Include(file => file.Agent).Include(file => file.Agent.DataMapAgents).Include(file => file.Agent.DataMapAgents.Select(da => da.DataMap)).ToList();
+                List<Models.File> files = ctx.Files.Where(file => file.Status.ToUpper() == FileStatusEnum.UPLOADED).Include(file => file.Agent).Include(file => file.Agent.DataMapAgents).Include(file => file.Agent.DataMapAgents.Select(da => da.DataMap)).Include(file => file.Agent.DataMapAgents.Select(da => da.DataMap.Entity)).ToList();
 
                 foreach (Models.File singleFile in files)
                 {
@@ -173,6 +173,7 @@ namespace DataFlow.Server.TransformLoad
                     await PostBootstrapData(endpointUrl, accessToken, singlePayload.Data);
                 }
 
+                // After updating the payload, stamp it so it doesn't run again in next cycle (unless it has been updated)
                 singlePayload.ProcessedDate = DateTime.Now;
                 ctx.SaveChanges();
             }
