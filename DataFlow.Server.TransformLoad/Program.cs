@@ -90,14 +90,13 @@ namespace DataFlow.Server.TransformLoad
                 await InsertBootrapData(ctx);
                 //TODO: Update datamap_agent.datamap to get loading of the required maps
                 //Exception: {"A specified Include path is not valid. The EntityType 'DataFlow.Common.DAL.Agent' does not declare a navigation property with the name 'datamap_agent'."}
-                List<Agent> agents = ctx.Agents.Include(agent => agent.DataMapAgents).Include("datamap_agent.datamap").ToList();
+                List<Agent> agents = ctx.Agents.Include(agent => agent.DataMapAgents).Include(agent => agent.DataMapAgents.Select(datamap => datamap.DataMap)).ToList();
                 
                 MappingLookups = ctx.Lookups.ToList();
                 foreach (var singleAgent in agents)
                 {
                     var dataMapAgents = singleAgent.DataMapAgents.OrderBy(p => p.ProcessingOrder);
-                    foreach (var singleFile in singleAgent.Files.Where(p => p.Status.ToUpper() ==
-                    FileStatusEnum.UPLOADED))
+                    foreach (var singleFile in singleAgent.Files.Where(p => p.Status.ToUpper() == FileStatusEnum.UPLOADED))
                     {
                         Log(log4net.Core.Level.Info, "Processing file: {0}. URL: {1}", singleFile.FileName, singleFile.Url);
                         try
