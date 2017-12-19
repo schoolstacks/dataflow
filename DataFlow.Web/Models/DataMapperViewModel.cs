@@ -24,7 +24,7 @@ namespace DataFlow.Web.Models
         public List<SelectListItem> Entities { get; set; }
         [Display(Name = "Map to Entity")]
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an entity to map to.")]
-        public string MapToEntity { get; set; }
+        public int? MapToEntity { get; set; }
         public List<Field> Fields { get; set; }
         public List<string> CsvColumnHeaders { get; set; }
         public DataTable CsvPreviewDataTable { get; set; }

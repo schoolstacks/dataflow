@@ -106,7 +106,9 @@
             @Html.ValidationMessageFor(m => m.MapToEntity)
         </div>
     </div>
-    <div id="divModelFields"></div>
+    <div id="divModelFields">
+        @Html.Partial("_PartialDataMapperFields", Model)
+    </div>
     <div class="form-group">
         <div class="col-sm-2">
             @Html.LabelFor(m => m.JsonMap, new { @class = "control-label" })
