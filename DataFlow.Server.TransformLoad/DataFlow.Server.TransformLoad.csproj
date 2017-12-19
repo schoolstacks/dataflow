@@ -112,6 +112,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\ProcessingFileMode.cs" />
+    <Compile Include="Implements\AzureCloudFile.cs" />
+    <Compile Include="Implements\LocalFile.cs" />
+    <Compile Include="Interfaces\IFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

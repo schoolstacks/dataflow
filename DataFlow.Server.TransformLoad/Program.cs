@@ -16,6 +16,10 @@ using DataFlow.Common.DAL;
 using System.Data.Entity;
 using DataFlow.Models;
 using DataFlow.Common.Helpers;
+using DataFlow.Server.TransformLoad.Interfaces;
+using DataFlow.Server.TransformLoad.Implements;
+using DataFlow.Server.TransformLoad.Enums;
+
 
 namespace DataFlow.Server.TransformLoad
 {
@@ -104,7 +108,8 @@ namespace DataFlow.Server.TransformLoad
                     {
                         singleFile.Status = FileStatusEnum.TRANSFORMING;
                         ctx.SaveChanges();
-                        await ProcessDataMapAgent(singleFile.Agent.DataMapAgents, cloudFileUrl: singleFile.Url, fileEntity: singleFile, ctx: ctx);
+                        IFile file = GenerateIFile(singleFile);
+                        await ProcessDataMapAgent(singleFile.Agent.DataMapAgents, file: file, fileEntity: singleFile, ctx: ctx);
                     }
                     catch (AggregateException aggrEx)
                     {
@@ -118,6 +123,28 @@ namespace DataFlow.Server.TransformLoad
                     Log(log4net.Core.Level.Info, "Finished Processing file: {0}. URL: {1}", singleFile.FileName, singleFile.Url);
                 }
             }
+        }
+
+        private static IFile GenerateIFile(Models.File singleFile)
+        {
+            string strFileMode = ConfigurationManager.AppSettings["FileMode"];
+            ProcessingFileMode fileMode = (ProcessingFileMode)Enum.Parse(typeof(ProcessingFileMode), strFileMode);
+            IFile iFile = null;
+            switch (fileMode)
+            {
+                case ProcessingFileMode.Azure:
+                    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString);
+                    CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
+                    CloudFileShare fileShare = fileClient.GetShareReference(ConfigurationManager.AppSettings["ShareName"]);
+                    CloudFile file = new CloudFile(new Uri(singleFile.Url), storageAccount.Credentials);
+                    iFile = new AzureCloudFile(file);
+                    break;
+                case ProcessingFileMode.Local:
+                    string localPath = new Uri(singleFile.Url).LocalPath;
+                    iFile = new LocalFile(new FileInfo(localPath), singleFile.Url);
+                    break;
+            }
+            return iFile;
         }
 
         private static async Task PostTransformedData(DataFlowDbContext ctx)
@@ -580,19 +607,16 @@ namespace DataFlow.Server.TransformLoad
             return code;
         }
 
-        private static async Task ProcessDataMapAgent(ICollection<DataMapAgent> dataMapAgents, string cloudFileUrl, Models.File fileEntity, DataFlowDbContext ctx)
+        private static async Task ProcessDataMapAgent(ICollection<DataMapAgent> dataMapAgents, IFile file, Models.File fileEntity, DataFlowDbContext ctx)
         {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString);
-            CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-            CloudFileShare fileShare = fileClient.GetShareReference(ConfigurationManager.AppSettings["azureShareName"]); //TODO: Update just to ShareName
-            CloudFile file = new CloudFile(new Uri(cloudFileUrl), storageAccount.Credentials);
             string[] excelFileTypes = { "XLS", "XLSX" };
             bool isExcelFile = excelFileTypes.Contains(Path.GetExtension(file.Name).ToUpper());
             if (isExcelFile)
             {
                 string tempPath = System.IO.Path.GetTempPath();
                 string tempFileFullPath = Path.Combine(tempPath, file.Name);
-                file.DownloadToFile(tempFileFullPath, FileMode.Create); //TODO:  see if we can do this in a MemoryStream opposed to file
+                if (file is AzureCloudFile)
+                    file.DownloadToFile(tempFileFullPath, FileMode.Create);
                 TransformExcelFile(dataMapAgents, fileEntity, tempFileFullPath);
             }
             else
