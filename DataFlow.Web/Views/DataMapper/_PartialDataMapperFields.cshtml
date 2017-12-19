@@ -1,4 +1,5 @@
 ﻿@using DataFlow.Common.ExtensionMethods
+@using Humanizer
 @model DataFlow.Web.Models.DataMapperViewModel
 
 @foreach (var t in Model.Fields)
@@ -95,7 +96,7 @@
         </div>
         <div class="form-group" id="@($"div{t.FormFieldName}_Add")">
             <div class="col-sm-offset-2 col-sm-10">
-                <button id="@($"btn{t.FormFieldName}")" type="button" class="btn btn-default add-row">Add Row</button>
+                <button id="@($"btn{t.FormFieldName}")" type="button" class="btn btn-default add-row" data-rows="1">Add to @($"{t.Name.UpperCaseFirstLetter().UnPascalCase()}")</button>
             </div>
         </div>
     }
@@ -159,14 +160,17 @@
         var divBefore = btnAddId.replace("btn", "div") + "_Add";
         var divToCopy = btnAddId.replace("btn", "div");
 
+        var rowCount = parseInt($(this).attr("data-rows"));
+        $(this).attr("data-rows", rowCount + 1);
+
         $("#" + divToCopy).clone(true)
-            .attr("id", divToCopy + "_1")
-            .appendTo("#" + divToCopy)
+            .attr("id", divToCopy + rowCount)
+            .insertBefore("#" + divBefore)
             .find("*")
             .each(function () {
                 var newId = this.id;
                 if (newId) {
-                    $(this).attr("id", newId + "_1");
+                    $(this).attr("id", newId + rowCount);
 
                     if ($(this).is("input:text,select")) {
                         $(this).val("");

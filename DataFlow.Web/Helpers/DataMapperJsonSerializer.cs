@@ -33,7 +33,23 @@ namespace DataFlow.Web.Helpers
                                 {
                                     var subObj = sub.SubDataMappers.ElementAt(i);
                                     writer.WritePropertyName(subObj.Name);
-                                    serializer.Serialize(writer, subObj.DataMapperProperty);
+                                    
+
+                                    if (subObj.SubDataMappers.Any())
+                                    {
+                                        writer.WriteStartObject();
+                                        for (var t = 0; t < subObj.SubDataMappers.Count; t++)
+                                        {
+                                            var triObj = subObj.SubDataMappers.ElementAt(t);
+                                            writer.WritePropertyName(triObj.Name);
+                                            serializer.Serialize(writer, triObj.DataMapperProperty);
+                                        }
+                                        writer.WriteEndObject();
+                                    }
+                                    else
+                                    {
+                                        serializer.Serialize(writer, subObj.DataMapperProperty);
+                                    }
                                 }
                                 writer.WriteEndObject();
                             }
