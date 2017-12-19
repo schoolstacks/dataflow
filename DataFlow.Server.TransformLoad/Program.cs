@@ -647,7 +647,7 @@ namespace DataFlow.Server.TransformLoad
 
         private static void TransformExcelFile(ICollection<DataMapAgent> dataMapAgents, Models.File fileEntity, string tempFileFullPath)
         {
-            using (CsvHelper.CsvReader reader = new CsvHelper.CsvReader(new CsvHelper.Excel.ExcelParser(tempFileFullPath)))
+            using (CsvHelper.CsvReader reader = new CsvHelper.CsvReader(new CsvHelper.Excel.ExcelParser(tempFileFullPath, null)))
             {
                 ReadAndTransformFile(dataMapAgents, fileEntity, reader);
             }
