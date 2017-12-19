@@ -131,7 +131,7 @@ namespace DataFlow.Web.Controllers
             if (!int.TryParse(formCollection["MapToEntity"], out var entityId))
                 throw new ArgumentException("Please select an entity to map to");
 
-            var  vm = InitializeViewModel(formCollection["MapName"], entityId, formCollection["CsvColumnHeaders"].Split(',').ToList());
+            var vm = InitializeViewModel(formCollection["MapName"], entityId, formCollection["CsvColumnHeaders"].Split(',').ToList());
             vm = GetEntityFields(vm);
 
             return PartialView("_PartialDataMapperFields", vm);
@@ -228,7 +228,7 @@ namespace DataFlow.Web.Controllers
             var errorAddingToJsonMap = new List<string>();
             var nonObjectsOrArrays = new[] { "string", "date-time", "boolean", "integer" };
 
-            var jObject = new JObject();
+            //var jObject = new JObject();
 
             var dataMapperModels = new List<DataMapper>();
             fields.ForEach(f =>
@@ -244,7 +244,6 @@ namespace DataFlow.Web.Controllers
                     var firstParent = parentTypes.ElementAtOrDefault(0).NullIfWhiteSpace();
                     var secondParent = parentTypes.ElementAtOrDefault(1).NullIfWhiteSpace();
 
-                    //if ((nonObjectsOrArrays.Contains(dataType) || f.EndsWith("Reference")) && (firstParent == null || firstParent.EndsWith("Reference")))
                     if (nonObjectsOrArrays.Contains(dataType) && firstParent == null)
                     {
                         var modelProperty = dataMapperModels.FirstOrDefault(x => x.Name == GetJsonFieldName(f));
@@ -268,36 +267,129 @@ namespace DataFlow.Web.Controllers
                             dataMapperModels.Add(model);
                         }
                     }
+                    else if (nonObjectsOrArrays.Contains(dataType) && secondParent != null)
+                    {
+                        var parentName = $"{firstParent}_Item{i}";
+
+                        var parentModel = dataMapperModels
+                            .Where(x => x.Name == firstParent)
+                            .SelectMany(x => x.SubDataMappers)
+                            .Where(x => x.Name == parentName)
+                            .SelectMany(x => x.SubDataMappers)
+                            .Where(x => x.Name == secondParent)
+                            .SelectMany(x => x.SubDataMappers)
+                            .FirstOrDefault(x => x.Name == GetJsonFieldName(f));
+
+                        if (parentModel == null)
+                        {
+                            parentModel = dataMapperModels
+                                .Where(x => x.Name == firstParent)
+                                .SelectMany(x => x.SubDataMappers)
+                                .Where(x => x.Name == parentName)
+                                .SelectMany(x => x.SubDataMappers)
+                                .FirstOrDefault(x => x.Name == secondParent);
+                        }
+
+                        parentModel?.SubDataMappers.Add(
+                            new DataMapper()
+                            {
+                                Name = $"{GetJsonFieldName(f)}",
+                                DataMapperProperty = new DataMapperProperty()
+                                {
+                                    Source = formCollection[$"ddl{f}_SourceType"].SplitGetElementAt(',', i),
+                                    SourceColumn = formCollection[$"ddl{f}_SourceColumn"].SplitGetElementAt(',', i),
+                                    DataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i),
+                                    Default = formCollection[$"txt{f}_DefaultValue"].SplitGetElementAt(',', i),
+                                    SourceTable = formCollection[$"ddl{f}_SourceTable"].SplitGetElementAt(',', i),
+                                    Value = formCollection[$"txt{f}_StaticValue"].SplitGetElementAt(',', i),
+                                    ChildType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i),
+                                    ParentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i)
+                                }
+                            });
+                    }
                     else
                     {
                         var addModel = false;
 
-                        var model = dataMapperModels.FirstOrDefault(x => x.Name == GetJsonFieldName(f));
+                        DataMapper model;
 
-                        if (model == null)
-                        {
-                            addModel = true;
-                            model = new DataMapper
-                            {
-                                Name = GetJsonFieldName(f)
-                            };
-                        }
+                        //if (secondParent == null)
+                        //{
+                            model = dataMapperModels.FirstOrDefault(x => x.Name == GetJsonFieldName(f));
 
-                        model.SubDataMappers.Add(new DataMapper()
-                        {
-                            Name = $"{GetJsonFieldName(f)}_Item{i}",
-                            DataMapperProperty = new DataMapperProperty()
+                            if (model == null)
                             {
-                                Source = formCollection[$"ddl{f}_SourceType"].SplitGetElementAt(',', i),
-                                SourceColumn = formCollection[$"ddl{f}_SourceColumn"].SplitGetElementAt(',', i),
-                                DataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i),
-                                Default = formCollection[$"txt{f}_DefaultValue"].SplitGetElementAt(',', i),
-                                SourceTable = formCollection[$"ddl{f}_SourceTable"].SplitGetElementAt(',', i),
-                                Value = formCollection[$"txt{f}_StaticValue"].SplitGetElementAt(',', i),
-                                ChildType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i),
-                                ParentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i)
+                                addModel = true;
+                                model = new DataMapper
+                                {
+                                    Name = GetJsonFieldName(f)
+                                };
                             }
-                        });
+                            if (model.SubDataMappers.All(x => x.Name != $"{GetJsonFieldName(f)}_Item{i}"))
+                            {
+                                model.SubDataMappers.Add(new DataMapper()
+                                {
+                                    Name = $"{GetJsonFieldName(f)}_Item{i}",
+                                    DataMapperProperty = new DataMapperProperty()
+                                    {
+                                        Source = formCollection[$"ddl{f}_SourceType"].SplitGetElementAt(',', i),
+                                        SourceColumn = formCollection[$"ddl{f}_SourceColumn"].SplitGetElementAt(',', i),
+                                        DataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i),
+                                        Default = formCollection[$"txt{f}_DefaultValue"].SplitGetElementAt(',', i),
+                                        SourceTable = formCollection[$"ddl{f}_SourceTable"].SplitGetElementAt(',', i),
+                                        Value = formCollection[$"txt{f}_StaticValue"].SplitGetElementAt(',', i),
+                                        ChildType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i),
+                                        ParentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i)
+                                    }
+                                });
+                            }
+                        //}
+                        //else
+                        //{
+                            //var parentName = $"{firstParent}_Item{i}";
+                            //model = dataMapperModels
+                            //    .Where(x => x.Name == firstParent)
+                            //    .SelectMany(x => x.SubDataMappers)
+                            //    .Where(x => x.Name == parentName)
+                            //    .SelectMany(x => x.SubDataMappers)
+                            //    .FirstOrDefault(x => x.Name == GetJsonFieldName(f));
+
+                            //if (model == null)
+                            //{
+                            //    var m = dataMapperModels
+                            //        .Where(x => x.Name == firstParent)
+                            //        .SelectMany(x => x.SubDataMappers)
+                            //        .Where(x => x.Name == parentName)
+                            //        .SelectMany(x => x.SubDataMappers)
+                            //        .ToList();
+
+                            //    model = new DataMapper
+                            //    {
+                            //        Name = GetJsonFieldName(f)
+                            //    };
+
+                            //    if (model.SubDataMappers.All(x => x.Name != $"{GetJsonFieldName(f)}_Item{i}"))
+                            //    {
+                            //        model.SubDataMappers.Add(new DataMapper()
+                            //        {
+                            //            Name = $"{GetJsonFieldName(f)}_Item{i}",
+                            //            DataMapperProperty = new DataMapperProperty()
+                            //            {
+                            //                Source = formCollection[$"ddl{f}_SourceType"].SplitGetElementAt(',', i),
+                            //                SourceColumn = formCollection[$"ddl{f}_SourceColumn"].SplitGetElementAt(',', i),
+                            //                DataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i),
+                            //                Default = formCollection[$"txt{f}_DefaultValue"].SplitGetElementAt(',', i),
+                            //                SourceTable = formCollection[$"ddl{f}_SourceTable"].SplitGetElementAt(',', i),
+                            //                Value = formCollection[$"txt{f}_StaticValue"].SplitGetElementAt(',', i),
+                            //                ChildType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i),
+                            //                ParentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i)
+                            //            }
+                            //        });
+                            //    }
+
+                            //    m.Add(model);
+                            //}
+                        //}
 
                         if (firstParent != null && secondParent == null)
                         {
@@ -321,6 +413,36 @@ namespace DataFlow.Web.Controllers
                                     }
                                 });
                         }
+                        //else if (firstParent != null && secondParent != null)
+                        //{
+                        //    var parentName = $"{firstParent}_Item{i}";
+
+                        //    var secondName = $"{secondParent}_Item{i}";
+
+                        //    var parentModel = dataMapperModels
+                        //        .Where(x => x.Name == firstParent)
+                        //        .SelectMany(x => x.SubDataMappers)
+                        //        .Where(x => x.Name == parentName)
+                        //        .SelectMany(x => x.SubDataMappers)
+                        //        .FirstOrDefault(x => x.Name == secondName);
+
+                        //    parentModel?.SubDataMappers.Add(
+                        //        new DataMapper()
+                        //        {
+                        //            Name = $"{GetJsonFieldName(f)}",
+                        //            DataMapperProperty = new DataMapperProperty()
+                        //            {
+                        //                Source = formCollection[$"ddl{f}_SourceType"].SplitGetElementAt(',', i),
+                        //                SourceColumn = formCollection[$"ddl{f}_SourceColumn"].SplitGetElementAt(',', i),
+                        //                DataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i),
+                        //                Default = formCollection[$"txt{f}_DefaultValue"].SplitGetElementAt(',', i),
+                        //                SourceTable = formCollection[$"ddl{f}_SourceTable"].SplitGetElementAt(',', i),
+                        //                Value = formCollection[$"txt{f}_StaticValue"].SplitGetElementAt(',', i),
+                        //                ChildType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i),
+                        //                ParentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i)
+                        //            }
+                        //        });
+                        //}
                         else
                         {
                             if (addModel)
@@ -328,28 +450,17 @@ namespace DataFlow.Web.Controllers
                         }
                     }
 
-                    
+
                 }
             });
 
-            jObject.Add("_required", JArray.FromObject(fields));
-            jObject.Add("_errors", JArray.FromObject(errorAddingToJsonMap));
+            //jObject.Add("_required", JArray.FromObject(fields));
+            //jObject.Add("_errors", JArray.FromObject(errorAddingToJsonMap));
 
-            var jsonMap = string.Empty;
-
-            var cleanJson = JsonHelper.RemoveEmptyChildren(JsonConvert.SerializeObject(dataMapperModels));
-            try
+            var jsonMap = JsonConvert.SerializeObject(dataMapperModels, new JsonSerializerSettings()
             {
-                jsonMap = JsonConvert.SerializeObject(dataMapperModels, new JsonSerializerSettings()
-                {
-                    Formatting = Formatting.Indented
-                });
-            }
-            catch (Exception e)
-            {
-                jsonMap = $"Error: {e.Message}";
-            }
-            
+                Formatting = Formatting.Indented
+            });
 
             return Json(jsonMap);
         }
