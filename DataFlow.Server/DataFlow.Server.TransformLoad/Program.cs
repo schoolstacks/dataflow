@@ -15,6 +15,9 @@ using server_components_data_access.Enums;
 using log4net.Core;
 using System.Configuration;
 using System.Diagnostics;
+using DataFlow.Server.TransformLoad.Interfaces;
+using DataFlow.Server.TransformLoad.Implements;
+using DataFlow.Server.TransformLoad.Enums;
 
 namespace DataFlow.Server.TransformLoad
 {
@@ -116,7 +119,8 @@ namespace DataFlow.Server.TransformLoad
                         {
                             singleFile.Status = FileStatus.TRANSFORMING;
                             ctx.SaveChanges();
-                            await ProcessDataMapAgent(dataMapAgents, cloudFileUrl: singleFile.URL, fileEntity: singleFile, ctx: ctx);
+                            IFile file = GenerateIFile(singleFile);
+                            await ProcessDataMapAgent(dataMapAgents, file: file, fileEntity: singleFile, ctx: ctx);
                         }
                         catch (AggregateException aggrEx)
                         {
@@ -131,6 +135,28 @@ namespace DataFlow.Server.TransformLoad
                     }
                 }
             }
+        }
+
+        private static IFile GenerateIFile(file singleFile)
+        {
+            string strFileMode = ConfigurationManager.AppSettings["FileMode"];
+            ProcessingFileMode fileMode = (ProcessingFileMode)Enum.Parse(typeof(ProcessingFileMode), strFileMode);
+            IFile iFile = null;
+            switch (fileMode)
+            {
+                case ProcessingFileMode.Azure:
+                    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString);
+                    CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
+                    CloudFileShare fileShare = fileClient.GetShareReference(ConfigurationManager.AppSettings["azureShareName"]);
+                    CloudFile file = new CloudFile(new Uri(singleFile.URL), storageAccount.Credentials);
+                    iFile = new AzureCloudFile(file);
+                    break;
+                case ProcessingFileMode.Local:
+                    string localPath = new Uri(singleFile.URL).LocalPath;
+                    iFile = new LocalFile(new FileInfo(localPath), singleFile.URL);
+                    break;
+            }
+            return iFile;
         }
 
         private static async Task PostTransformedData(DataFlowContext ctx)
@@ -590,19 +616,16 @@ namespace DataFlow.Server.TransformLoad
         }
 
         private static async Task ProcessDataMapAgent(IOrderedEnumerable<datamap_agent> dataMapAgents,
-            string cloudFileUrl, file fileEntity, DataFlowContext ctx)
+            IFile file, file fileEntity, DataFlowContext ctx)
         {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString);
-            CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-            CloudFileShare fileShare = fileClient.GetShareReference(ConfigurationManager.AppSettings["azureShareName"]);
-            CloudFile file = new CloudFile(new Uri(cloudFileUrl), storageAccount.Credentials);
             string[] excelFileTypes = { "XLS", "XLSX" };
             bool isExcelFile = excelFileTypes.Contains(Path.GetExtension(file.Name).ToUpper());
             if (isExcelFile)
             {
                 string tempPath = System.IO.Path.GetTempPath();
                 string tempFileFullPath = Path.Combine(tempPath, file.Name);
-                file.DownloadToFile(tempFileFullPath, FileMode.Create);
+                if (file is AzureCloudFile)
+                    file.DownloadToFile(tempFileFullPath, FileMode.Create);
                 TransformExcelFile(dataMapAgents, fileEntity, tempFileFullPath);
             }
             else

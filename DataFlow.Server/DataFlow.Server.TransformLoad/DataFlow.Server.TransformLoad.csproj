@@ -116,6 +116,10 @@
     <Compile Include="DataMaps\Interfaces\IDataMap.cs" />
     <Compile Include="DataMaps\StudentEnrollment\StudentEnrollmentDataMap.cs" />
     <Compile Include="DataMaps\Student\StudentDataMap.cs" />
+    <Compile Include="Enums\ProcessingFileMode.cs" />
+    <Compile Include="Implements\AzureCloudFile.cs" />
+    <Compile Include="Implements\LocalFile.cs" />
+    <Compile Include="Interfaces\IFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
