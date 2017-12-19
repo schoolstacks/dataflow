@@ -272,20 +272,34 @@ namespace DataFlow.Web.Controllers
                         var parentName = $"{firstParent}_Item{i}";
 
                         var parentModel = dataMapperModels
-                                              .Where(x => x.Name == firstParent)
-                                              .SelectMany(x => x.SubDataMappers)
-                                              .Where(x => x.Name == parentName)
-                                              .SelectMany(x => x.SubDataMappers)
-                                              .Where(x => x.Name == secondParent)
-                                              .SelectMany(x => x.SubDataMappers)
-                                              .FirstOrDefault(x => x.Name == GetJsonFieldName(f))
-                                          ??
-                                          dataMapperModels
-                                              .Where(x => x.Name == firstParent)
-                                              .SelectMany(x => x.SubDataMappers)
-                                              .Where(x => x.Name == parentName)
-                                              .SelectMany(x => x.SubDataMappers)
-                                              .FirstOrDefault(x => x.Name == secondParent);
+                            .Where(x => x.Name == firstParent)
+                            .SelectMany(x => x.SubDataMappers)
+                            .Where(x => x.Name == parentName)
+                            .SelectMany(x => x.SubDataMappers)
+                            .FirstOrDefault(x => x.Name == secondParent);
+
+                        /*
+                         * some scenarios occur where the parent model wasn't created but should have been
+                         * For example: studentAssessments > studentObjectiveAssessments:performanceLevels
+                         */
+                        if (parentModel == null)
+                        {
+                            var model = new DataMapper()
+                            {
+                                Name = secondParent
+                            };
+                            dataMapperModels
+                                .Where(x => x.Name == firstParent)
+                                .SelectMany(x => x.SubDataMappers)
+                                .FirstOrDefault(x => x.Name == parentName)?.SubDataMappers.Add(model);
+
+                            parentModel = dataMapperModels
+                                .Where(x => x.Name == firstParent)
+                                .SelectMany(x => x.SubDataMappers)
+                                .Where(x => x.Name == parentName)
+                                .SelectMany(x => x.SubDataMappers)
+                                .FirstOrDefault(x => x.Name == secondParent);
+                        }
 
                         parentModel?.SubDataMappers.Add(
                             new DataMapper()
