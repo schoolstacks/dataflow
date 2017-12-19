@@ -15,10 +15,9 @@ using System.Diagnostics;
 using DataFlow.Common.DAL;
 using System.Data.Entity;
 using DataFlow.Models;
-using DataFlow.Common.Helpers;
+using DataFlow.Common.Enums;
 using DataFlow.Server.TransformLoad.Interfaces;
 using DataFlow.Server.TransformLoad.Implements;
-using DataFlow.Server.TransformLoad.Enums;
 
 
 namespace DataFlow.Server.TransformLoad
@@ -128,18 +127,17 @@ namespace DataFlow.Server.TransformLoad
         private static IFile GenerateIFile(Models.File singleFile)
         {
             string strFileMode = ConfigurationManager.AppSettings["FileMode"];
-            ProcessingFileMode fileMode = (ProcessingFileMode)Enum.Parse(typeof(ProcessingFileMode), strFileMode);
+            ProcessingFileModeEnum fileMode = (ProcessingFileModeEnum)Enum.Parse(typeof(ProcessingFileModeEnum), strFileMode);
             IFile iFile = null;
             switch (fileMode)
             {
-                case ProcessingFileMode.Azure:
+                case ProcessingFileModeEnum.Azure:
                     CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString);
                     CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-                    CloudFileShare fileShare = fileClient.GetShareReference(ConfigurationManager.AppSettings["ShareName"]);
                     CloudFile file = new CloudFile(new Uri(singleFile.Url), storageAccount.Credentials);
                     iFile = new AzureCloudFile(file);
                     break;
-                case ProcessingFileMode.Local:
+                case ProcessingFileModeEnum.Local:
                     string localPath = new Uri(singleFile.Url).LocalPath;
                     iFile = new LocalFile(new FileInfo(localPath), singleFile.Url);
                     break;

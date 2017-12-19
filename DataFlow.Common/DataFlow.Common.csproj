@@ -64,9 +64,10 @@
     <Compile Include="ExtensionMethods\LinqExtensions.cs" />
     <Compile Include="ExtensionMethods\StringExtensions.cs" />
     <Compile Include="Encryption.cs" />
-    <Compile Include="Helpers\AgentTypeCodeEnum.cs" />
-    <Compile Include="Helpers\FileModeEnum.cs" />
-    <Compile Include="Helpers\FileStatusEnum.cs" />
+    <Compile Include="Enums\AgentTypeCodeEnum.cs" />
+    <Compile Include="Enums\FileModeEnum.cs" />
+    <Compile Include="Enums\FileStatusEnum.cs" />
+    <Compile Include="Enums\ProcessingFileMode.cs" />
     <Compile Include="Mapping\AgentMap.cs" />
     <Compile Include="Mapping\AgentScheduleMap.cs" />
     <Compile Include="Mapping\AspNetRoleMap.cs" />

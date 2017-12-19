@@ -5,7 +5,7 @@ using DataFlow.Common;
 using DataFlow.Common.DAL;
 using DataFlow.Common.ExtensionMethods;
 using DataFlow.Models;
-using DataFlow.Common.Helpers;
+using DataFlow.Common.Enums;
 
 namespace DataFlow.Server.TransformLoad.Tests
 {
