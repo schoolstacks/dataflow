@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using CsvHelper;
@@ -39,6 +40,13 @@ namespace DataFlow.Web.Controllers
                 vm.MapToEntity = entityId;
                 vm = GetEntityFields(vm);
             }
+
+            //var dataMapJson = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == 13);
+            //var jsonMap = $"[{WebUtility.HtmlDecode(dataMapJson.Map)}]";
+
+            //var dataMappers = JsonConvert.DeserializeObject<List<DataMapper>>(jsonMap);
+
+            //vm.JsonMap = JsonConvert.SerializeObject(dataMappers, Formatting.Indented);
 
             if (TempData["CsvColumnHeaders"] is string csvColumnHeaders)
             {
@@ -387,10 +395,18 @@ namespace DataFlow.Web.Controllers
             //jObject.Add("_required", JArray.FromObject(fields));
             //jObject.Add("_errors", JArray.FromObject(errorAddingToJsonMap));
 
-            var jsonMap = JsonConvert.SerializeObject(dataMapperModels, new JsonSerializerSettings()
+            //var jsonMap = JsonConvert.SerializeObject(dataMapperModels, new JsonSerializerSettings()
+            //{
+            //    Formatting = Formatting.Indented,
+            //});
+
+            var settings = new JsonSerializerSettings()
             {
+                Converters = new List<JsonConverter> { new DataMapperJsonSerializer() },
                 Formatting = Formatting.Indented
-            });
+            };
+
+            var jsonMap = JsonConvert.SerializeObject(dataMapperModels, settings);
 
             return Json(jsonMap);
         }

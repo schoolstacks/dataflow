@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace DataFlow.Web.Models
 {
-    [JsonConverter(typeof(DataMapperJsonSerializer))]
+    //[JsonConverter(typeof(DataMapperJsonSerializer))]
     public class DataMapper
     {
         public DataMapper()
