@@ -21,7 +21,7 @@ namespace DataFlow.Web.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("DataFlowDb", throwIfV1Schema: false)
+            : base("defaultConnection", throwIfV1Schema: false)
         {
         }
 
