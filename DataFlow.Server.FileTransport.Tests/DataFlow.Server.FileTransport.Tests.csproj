@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{863850E2-B8B6-4605-9E36-987CBC3F8FD7}</ProjectGuid>
+    <ProjectGuid>{4AF848E3-A7F5-4F7A-8C82-370F9A2E2D2D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DataFlow.Server.TransformLoad.Tests</RootNamespace>
-    <AssemblyName>DataFlow.Server.TransformLoad.Tests</AssemblyName>
+    <RootNamespace>DataFlow.Server.FileTransport.Tests</RootNamespace>
+    <AssemblyName>DataFlow.Server.FileTransport.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -35,16 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -59,26 +50,23 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="TransformLoad.cs" />
+    <Compile Include="ProgramTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DataFlow.Common\DataFlow.Common.csproj">
-      <Project>{17fc1af4-3efe-4851-82af-7c5d48eef17b}</Project>
-      <Name>DataFlow.Common</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DataFlow.Models\DataFlow.Models.csproj">
       <Project>{54c8616a-eccd-4ad5-a88b-a2266350bf0d}</Project>
       <Name>DataFlow.Models</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DataFlow.Server.TransformLoad\DataFlow.Server.TransformLoad.csproj">
-      <Project>{d0365edb-aec3-49da-89ad-6fcffe586dcc}</Project>
-      <Name>DataFlow.Server.TransformLoad</Name>
+    <ProjectReference Include="..\DataFlow.Server.FileTransport\DataFlow.Server.FileTransport.csproj">
+      <Project>{0115fcce-7dbb-46b3-a6df-71fe93101604}</Project>
+      <Name>DataFlow.Server.FileTransport</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
