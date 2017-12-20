@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using CsvHelper;
@@ -13,7 +12,6 @@ using DataFlow.Web.Helpers;
 using DataFlow.Web.Models;
 using DataFlow.Web.Services;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace DataFlow.Web.Controllers
 {
@@ -233,10 +231,7 @@ namespace DataFlow.Web.Controllers
         public JsonResult UpdateJsonMap(FormCollection formCollection, string triggeredBy)
         {
             var fields = formCollection["FieldNames"].Split(';').ToList();
-            var errorAddingToJsonMap = new List<string>();
             var nonObjectsOrArrays = new[] { "string", "date-time", "boolean", "integer" };
-
-            //var jObject = new JObject();
 
             var dataMapperModels = new List<DataMapper>();
             fields.ForEach(f =>
@@ -392,17 +387,38 @@ namespace DataFlow.Web.Controllers
                 }
             });
 
-            //jObject.Add("_required", JArray.FromObject(fields));
-            //jObject.Add("_errors", JArray.FromObject(errorAddingToJsonMap));
+            //clean up, if a DataMapper has SubDataMappers it shouldn't have a DataMapperProperty
+            dataMapperModels.ForEach(dm =>
+            {
+                if (dm.SubDataMappers.Any())
+                {
+                    dm.Name = CleanJsonArrayObjectName(dm.Name);
+                    dm.DataMapperProperty = null;
+                }
 
-            //var jsonMap = JsonConvert.SerializeObject(dataMapperModels, new JsonSerializerSettings()
-            //{
-            //    Formatting = Formatting.Indented,
-            //});
+                dm.SubDataMappers.ForEach(subdm =>
+                {
+                    if (subdm.SubDataMappers.Any())
+                    {
+                        subdm.Name = CleanJsonArrayObjectName(subdm.Name);
+                        subdm.DataMapperProperty = null;
+                    }
+
+                    subdm.SubDataMappers.ForEach(tridm =>
+                    {
+                        if (tridm.SubDataMappers.Any())
+                        {
+                            tridm.Name = CleanJsonArrayObjectName(tridm.Name);
+                            tridm.DataMapperProperty = null;
+                        }
+                    });
+                });
+            });
+
 
             var settings = new JsonSerializerSettings()
             {
-                Converters = new List<JsonConverter> { new DataMapperJsonSerializer() },
+                Converters = new List<JsonConverter> { new DataMapperListConverter() },
                 Formatting = Formatting.Indented
             };
 
@@ -414,6 +430,11 @@ namespace DataFlow.Web.Controllers
         private string GetJsonFieldName(string formField)
         {
             return formField.LastIndexOf('_') > 0 ? formField.Substring(formField.LastIndexOf('_') + 1) : formField;
+        }
+
+        private string CleanJsonArrayObjectName(string objectName)
+        {
+            return objectName.LastIndexOf('_') > 0 ? objectName.Remove(objectName.LastIndexOf('_')) : objectName;
         }
 
         [HttpPost]
