@@ -3,7 +3,7 @@ using DataFlow.Models;
 
 namespace DataFlow.Common.Migrations
 {
-    internal sealed class Configuration : DbMigrationsConfiguration<DAL.DataFlowDbContext>
+    public sealed class Configuration : DbMigrationsConfiguration<DAL.DataFlowDbContext>
     {
         public Configuration()
         {

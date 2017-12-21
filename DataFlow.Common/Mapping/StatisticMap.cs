@@ -7,7 +7,7 @@ namespace DataFlow.Common.Mapping
     {
         public StatisticMap()
         {
-            this.ToTable("statistic", "dataflow");
+            this.ToTable("Statistic");
             this.HasKey(x => x.Id);
 
             this.Property(e => e.Id).HasColumnName("ID");

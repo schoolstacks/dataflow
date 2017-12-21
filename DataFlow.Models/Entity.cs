@@ -13,9 +13,7 @@ namespace DataFlow.Models
 
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Namespace { get; set; }
         public string Url { get; set; }
-        public string Family { get; set; }
         public string Metadata { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }

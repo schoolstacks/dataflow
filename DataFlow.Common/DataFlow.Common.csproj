@@ -91,13 +91,12 @@
     <Compile Include="Mapping\LogApplicationMap.cs" />
     <Compile Include="Mapping\LogIngestionMap.cs" />
     <Compile Include="Mapping\LookupMap.cs" />
-    <Compile Include="Mapping\MigrationHistoryMap.cs" />
     <Compile Include="Mapping\NLogMap.cs" />
     <Compile Include="Mapping\ProcessedDataMap.cs" />
     <Compile Include="Mapping\StatisticMap.cs" />
-    <Compile Include="Migrations\201712210813018_InitialMigration.cs" />
-    <Compile Include="Migrations\201712210813018_InitialMigration.Designer.cs">
-      <DependentUpon>201712210813018_InitialMigration.cs</DependentUpon>
+    <Compile Include="Migrations\201712211549430_InitialMigration.cs" />
+    <Compile Include="Migrations\201712211549430_InitialMigration.Designer.cs">
+      <DependentUpon>201712211549430_InitialMigration.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -117,8 +116,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201712210813018_InitialMigration.resx">
-      <DependentUpon>201712210813018_InitialMigration.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201712211549430_InitialMigration.resx">
+      <DependentUpon>201712211549430_InitialMigration.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

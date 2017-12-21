@@ -7,7 +7,7 @@ namespace DataFlow.Common.Mapping
     {
         public LogApplicationMap()
         {
-            this.ToTable("log_application", "dataflow");
+            this.ToTable("LogApplication");
             this.HasKey(x => x.Id);
 
             this.Property(e => e.Id).HasColumnName("ID");

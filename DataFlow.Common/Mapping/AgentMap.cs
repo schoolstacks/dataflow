@@ -7,11 +7,11 @@ namespace DataFlow.Common.Mapping
     {
         public AgentMap()
         {
-            this.ToTable("Agent", "dbo");
+            this.ToTable("Agent");
             this.HasKey(e => e.Id);
 
-            this.Property(e => e.Id)
-                .HasColumnName("Id");
+            //this.Property(e => e.Id)
+            //    .HasColumnName("Id");
 
             this.Property(e => e.AgentTypeCode)
                 .IsRequired()
@@ -21,8 +21,8 @@ namespace DataFlow.Common.Mapping
                 .IsRequired()
                 .HasMaxLength(255);
 
-            this.Property(e => e.Url)
-                .HasColumnName("Url");
+            //this.Property(e => e.Url)
+            //    .HasColumnName("Url");
         }
     }
 }

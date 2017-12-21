@@ -7,7 +7,7 @@ namespace DataFlow.Common.Mapping
     {
         public ConfigurationMap()
         {
-            this.ToTable("configuration", "dataflow");
+            this.ToTable("Configuration", "dbo");
             this.HasKey(x => x.Key);
 
             this.Property(e => e.Key)

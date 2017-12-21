@@ -7,7 +7,7 @@ namespace DataFlow.Common.Mapping
     {
         public LookupMap()
         {
-            this.ToTable("lookup", "dataflow");
+            this.ToTable("Lookup");
             this.HasKey(x => x.Id);
 
             this.Property(e => e.Id).HasColumnName("ID");

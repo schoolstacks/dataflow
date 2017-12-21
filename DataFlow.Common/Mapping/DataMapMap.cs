@@ -7,17 +7,17 @@ namespace DataFlow.Common.Mapping
     {
         public DataMapMap()
         {
-            this.ToTable("datamap", "dataflow");
+            this.ToTable("DataMap", "dbo");
             this.HasKey(x => x.Id);
 
-            this.Property(e => e.Id)
-                .HasColumnName("ID");
+            /* this.Property(e => e.Id)
+                .HasColumnName("ID"); */
 
             this.Property(e => e.CreateDate)
                 .HasColumnType("datetime");
 
-            this.Property(e => e.EntityId)
-                .HasColumnName("EntityID");
+            /* this.Property(e => e.EntityId)
+                .HasColumnName("EntityID"); */
 
             this.Property(e => e.Map)
                 .IsUnicode(false);

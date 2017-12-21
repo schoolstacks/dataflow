@@ -7,7 +7,7 @@ namespace DataFlow.Common.Mapping
     {
         public ProcessedDataMap()
         {
-            this.ToTable("processed_data", "dataflow");
+            this.ToTable("ProcessedData");
             this.HasKey(x => x.Id);
 
             this.Property(e => e.Id).HasColumnName("ID");

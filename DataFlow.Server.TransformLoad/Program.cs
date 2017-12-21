@@ -687,7 +687,7 @@ namespace DataFlow.Server.TransformLoad
                 {
                     Log(log4net.Core.Level.Info, "Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Family: {4}. Row #: {5}",
                         singleDataMapAgent.DataMap.Id, singleDataMapAgent.AgentId, singleDataMapAgent.DataMapId, singleDataMapAgent.DataMap.Entity.Name,
-                        singleDataMapAgent.DataMap.Entity.Family, rowNum);
+                        rowNum);
                     var entity = singleDataMapAgent.DataMap.Entity;
                     var dataMap = singleDataMapAgent.DataMap;
                     Action tskGeneratedRow = new Action(() =>

@@ -7,7 +7,7 @@ namespace DataFlow.Common.Mapping
     {
         public FileStatusMap()
         {
-            this.ToTable("file_status", "dataflow");
+            this.ToTable("FileStatus");
             this.HasKey(x => x.Value);
 
             this.Property(e => e.Value)

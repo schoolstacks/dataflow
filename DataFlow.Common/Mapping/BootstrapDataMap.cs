@@ -7,11 +7,11 @@ namespace DataFlow.Common.Mapping
     {
         public BootstrapDataMap()
         {
-            this.ToTable("BootstrapData", "dbo");
+            this.ToTable("BootstrapData");
             this.HasKey(e => e.Id);
 
-            this.Property(e => e.Id)
-                .HasColumnName("Id");
+            /* this.Property(e => e.Id)
+                .HasColumnName("Id"); */
 
             this.Property(e => e.CreateDate)
                 .HasColumnType("datetime");
@@ -20,8 +20,8 @@ namespace DataFlow.Common.Mapping
                 .IsRequired()
                 .IsUnicode(false);
 
-            this.Property(e => e.EntityId)
-                .HasColumnName("EntityId");
+            /* this.Property(e => e.EntityId)
+                .HasColumnName("EntityId"); */
 
             this.Property(e => e.ProcessedDate)
                 .HasColumnType("datetime");

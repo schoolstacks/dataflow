@@ -7,7 +7,7 @@ namespace DataFlow.Common.Mapping
     {
         public FileMap()
         {
-            this.ToTable("file", "dataflow");
+            this.ToTable("File");
             this.HasKey(x => x.Id);
 
             this.Property(e => e.Id).HasColumnName("ID");

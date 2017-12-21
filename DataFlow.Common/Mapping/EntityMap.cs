@@ -7,14 +7,12 @@ namespace DataFlow.Common.Mapping
     {
         public EntityMap()
         {
-            this.ToTable("entity", "dataflow");
+            this.ToTable("Entity", "dbo");
             this.HasKey(x => x.Id);
 
             this.Property(e => e.Id).HasColumnName("ID");
 
             this.Property(e => e.CreateDate).HasColumnType("date");
-
-            this.Property(e => e.Family).IsUnicode(false);
 
             this.Property(e => e.Metadata).IsUnicode(false);
 
@@ -22,8 +20,6 @@ namespace DataFlow.Common.Mapping
                 .IsRequired()
                 .HasMaxLength(255)
                 .IsUnicode(false);
-
-            this.Property(e => e.Namespace).IsUnicode(false);
 
             this.Property(e => e.UpdateDate).HasColumnType("date");
 

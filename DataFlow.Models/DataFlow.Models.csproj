@@ -62,7 +62,6 @@
     <Compile Include="LogApplication.cs" />
     <Compile Include="LogIngestion.cs" />
     <Compile Include="Lookup.cs" />
-    <Compile Include="MigrationHistory.cs" />
     <Compile Include="NLog.cs" />
     <Compile Include="ProcessedData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

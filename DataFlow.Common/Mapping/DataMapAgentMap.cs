@@ -7,14 +7,14 @@ namespace DataFlow.Common.Mapping
     {
         public DataMapAgentMap()
         {
-            this.ToTable("datamap_agent", "dataflow");
+            this.ToTable("DataMapAgent", "dbo");
             this.HasKey(x => x.Id);
 
-            this.Property(e => e.Id).HasColumnName("ID");
+            /* this.Property(e => e.Id).HasColumnName("ID");
 
             this.Property(e => e.AgentId).HasColumnName("AgentID");
 
-            this.Property(e => e.DataMapId).HasColumnName("DataMapID");
+            this.Property(e => e.DataMapId).HasColumnName("DataMapID"); */
 
             this.HasRequired(d => d.Agent)
                 .WithMany(p => p.DataMapAgents)

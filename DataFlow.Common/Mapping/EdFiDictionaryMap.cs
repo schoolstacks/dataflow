@@ -7,10 +7,10 @@ namespace DataFlow.Common.Mapping
     {
         public EdFiDictionaryMap()
         {
-            this.ToTable("edfi_dictionary", "dataflow");
+            this.ToTable("EdFiDictionary", "dbo");
             this.HasKey(x => x.Id);
 
-            this.Property(e => e.Id).HasColumnName("ID");
+            /* this.Property(e => e.Id).HasColumnName("ID"); */
 
             this.Property(e => e.DisplayValue)
                 .IsRequired()
