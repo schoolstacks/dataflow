@@ -7,6 +7,7 @@ using DataFlow.Common.Services;
 using DataFlow.Models;
 using DataFlow.Web.Helpers;
 using Newtonsoft.Json;
+using System.Net;
 
 namespace DataFlow.Web.Services
 {
@@ -66,6 +67,25 @@ namespace DataFlow.Web.Services
             };
             
             return conf;
+        }
+
+        public void FillSwaggerMetadata(string apiServerUrl)
+        {
+            System.Net.ServicePointManager.ServerCertificateValidationCallback = (senderLocal, certificate, chain, sslPolicyErrors) => true;
+
+            using (DataFlowDbContext ctx = new DataFlowDbContext())
+            {
+                WebClient client = new WebClient();
+                string baseUrl = Common.Helpers.UrlUtility.GetUntilOrEmpty(apiServerUrl.Trim(), "/api/");
+
+                foreach (Entity entity in ctx.Entities)
+                {
+                    string url = baseUrl + entity.Url;
+                    string metadata = client.DownloadString(url);
+                    entity.Metadata = metadata;
+                }
+                ctx.SaveChanges();
+            }
         }
     }
 }

@@ -8,7 +8,7 @@ namespace DataFlow.Common.Migrations
         public override void Up()
         {
             CreateTable(
-                "dbo.Agent",
+                "dbo.Agents",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
@@ -28,7 +28,7 @@ namespace DataFlow.Common.Migrations
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.AgentSchedule",
+                "dbo.AgentSchedules",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
@@ -38,11 +38,11 @@ namespace DataFlow.Common.Migrations
                         Minute = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Agent", t => t.AgentId, cascadeDelete: true)
+                .ForeignKey("dbo.Agents", t => t.AgentId, cascadeDelete: true)
                 .Index(t => t.AgentId);
             
             CreateTable(
-                "dbo.DataMapAgent",
+                "dbo.DataMapAgents",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
@@ -51,71 +51,71 @@ namespace DataFlow.Common.Migrations
                         ProcessingOrder = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Agent", t => t.AgentId, cascadeDelete: true)
-                .ForeignKey("dbo.DataMap", t => t.DataMapId, cascadeDelete: true)
+                .ForeignKey("dbo.Agents", t => t.AgentId, cascadeDelete: true)
+                .ForeignKey("dbo.DataMaps", t => t.DataMapId, cascadeDelete: true)
                 .Index(t => t.DataMapId)
                 .Index(t => t.AgentId);
             
             CreateTable(
-                "dbo.DataMap",
+                "dbo.DataMaps",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        Name = c.String(nullable: false, maxLength: 255, unicode: false),
+                        Name = c.String(nullable: false, maxLength: 255),
                         EntityId = c.Int(nullable: false),
-                        Map = c.String(nullable: false, unicode: false),
+                        Map = c.String(nullable: false),
                         CreateDate = c.DateTime(),
                         UpdateDate = c.DateTime(),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Entity", t => t.EntityId, cascadeDelete: true)
+                .ForeignKey("dbo.Entities", t => t.EntityId, cascadeDelete: true)
                 .Index(t => t.EntityId);
             
             CreateTable(
-                "dbo.Entity",
+                "dbo.Entities",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        Name = c.String(nullable: false, maxLength: 255, unicode: false),
-                        URL = c.String(unicode: false),
-                        Metadata = c.String(unicode: false),
-                        CreateDate = c.DateTime(storeType: "date"),
-                        UpdateDate = c.DateTime(storeType: "date"),
+                        Name = c.String(),
+                        Url = c.String(),
+                        Metadata = c.String(),
+                        CreateDate = c.DateTime(),
+                        UpdateDate = c.DateTime(),
                     })
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.BootstrapData",
+                "dbo.BootstrapDatas",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
                         EntityId = c.Int(nullable: false),
-                        Data = c.String(nullable: false, unicode: false),
+                        Data = c.String(nullable: false),
                         ProcessingOrder = c.Int(nullable: false),
                         ProcessedDate = c.DateTime(),
                         CreateDate = c.DateTime(),
                         UpdateDate = c.DateTime(),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Entity", t => t.EntityId, cascadeDelete: true)
+                .ForeignKey("dbo.Entities", t => t.EntityId, cascadeDelete: true)
                 .Index(t => t.EntityId);
             
             CreateTable(
-                "dbo.File",
+                "dbo.Files",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        FileName = c.String(nullable: false, unicode: false),
+                        FileName = c.String(nullable: false),
                         Url = c.String(),
                         AgentId = c.Int(nullable: false),
-                        Status = c.String(nullable: false, maxLength: 255, unicode: false),
-                        Message = c.String(unicode: false),
+                        Status = c.String(nullable: false, maxLength: 255),
+                        Message = c.String(),
                         Rows = c.Int(),
                         CreateDate = c.DateTime(),
                         UpdateDate = c.DateTime(),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Agent", t => t.AgentId, cascadeDelete: true)
+                .ForeignKey("dbo.Agents", t => t.AgentId, cascadeDelete: true)
                 .ForeignKey("dbo.FileStatus", t => t.Status, cascadeDelete: true)
                 .Index(t => t.AgentId)
                 .Index(t => t.Status);
@@ -124,28 +124,28 @@ namespace DataFlow.Common.Migrations
                 "dbo.FileStatus",
                 c => new
                     {
-                        Value = c.String(nullable: false, maxLength: 255, unicode: false),
+                        Value = c.String(nullable: false, maxLength: 255),
                     })
                 .PrimaryKey(t => t.Value);
             
             CreateTable(
-                "dbo.LogIngestion",
+                "dbo.LogIngestions",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
                         EducationOrganizationId = c.Guid(),
-                        Level = c.String(nullable: false, maxLength: 255, unicode: false),
-                        Operation = c.String(nullable: false, maxLength: 255, unicode: false),
-                        AgentId = c.Int(nullable: false),
-                        Process = c.String(nullable: false, unicode: false),
+                        Level = c.String(maxLength: 255),
+                        Operation = c.String(maxLength: 255),
+                        AgentId = c.Int(),
+                        Process = c.String(),
                         FileName = c.String(),
-                        Result = c.String(nullable: false, maxLength: 255, unicode: false),
-                        Message = c.String(unicode: false),
+                        Result = c.String(maxLength: 255),
+                        Message = c.String(),
                         RecordCount = c.Int(),
                         Date = c.DateTime(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Agent", t => t.AgentId, cascadeDelete: true)
+                .ForeignKey("dbo.Agents", t => t.AgentId)
                 .Index(t => t.AgentId);
             
             CreateTable(
@@ -217,99 +217,52 @@ namespace DataFlow.Common.Migrations
                 .Index(t => t.UserId);
             
             CreateTable(
-                "dbo.Configuration",
+                "dbo.Configurations",
                 c => new
                     {
                         Key = c.String(nullable: false, maxLength: 255),
-                        Value = c.String(),
+                        Value = c.String(maxLength: 1024),
                     })
                 .PrimaryKey(t => t.Key);
             
             CreateTable(
-                "dbo.EdFiDictionary",
+                "dbo.EdfiDictionaries",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        GroupSet = c.String(nullable: false, maxLength: 50, unicode: false),
-                        OriginalValue = c.String(nullable: false, maxLength: 50, unicode: false),
-                        DisplayValue = c.String(nullable: false, maxLength: 50, unicode: false),
+                        GroupSet = c.String(nullable: false, maxLength: 255),
+                        OriginalValue = c.String(nullable: false, maxLength: 255),
+                        DisplayValue = c.String(nullable: false, maxLength: 255),
                         DisplayOrder = c.Int(),
                     })
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.LogApplication",
+                "dbo.Lookups",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        Date = c.DateTime(nullable: false),
-                        Thread = c.String(nullable: false, maxLength: 255, unicode: false),
-                        Level = c.String(nullable: false, maxLength: 50, unicode: false),
-                        Logger = c.String(nullable: false, maxLength: 255, unicode: false),
-                        Message = c.String(nullable: false, maxLength: 4000, unicode: false),
-                        Exception = c.String(maxLength: 2000, unicode: false),
+                        GroupSet = c.String(nullable: false, maxLength: 1024),
+                        Key = c.String(nullable: false, maxLength: 1024),
+                        Value = c.String(nullable: false, maxLength: 1024),
                     })
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.Lookup",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        GroupSet = c.String(nullable: false, maxLength: 1024, unicode: false),
-                        Key = c.String(nullable: false, maxLength: 1024, unicode: false),
-                        Value = c.String(nullable: false, maxLength: 1024, unicode: false),
-                    })
-                .PrimaryKey(t => t.Id);
-            
-            CreateTable(
-                "dbo.ProcessedData",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        Base64HashedString = c.String(),
-                    })
-                .PrimaryKey(t => t.Id);
-            
-            CreateTable(
-                "dbo.Statistic",
+                "dbo.Statistics",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
                         EntityId = c.Guid(nullable: false),
-                        EntityType = c.String(nullable: false, maxLength: 255, unicode: false),
+                        EntityType = c.String(nullable: false, maxLength: 255),
                         TermDescriptorId = c.Int(),
                         SchoolYear = c.Short(),
-                        Measure = c.String(nullable: false, maxLength: 255, unicode: false),
+                        Measure = c.String(nullable: false, maxLength: 255),
                         ValueInt = c.Int(),
                         ValueDecimal = c.Decimal(precision: 18, scale: 2),
                         ValueVarchar = c.String(),
                         InsertDate = c.DateTime(),
                         UpdateDate = c.DateTime(),
-                    })
-                .PrimaryKey(t => t.Id);
-            
-            CreateTable(
-                "dbo.NLog",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        MachineName = c.String(nullable: false, maxLength: 200),
-                        SiteName = c.String(nullable: false, maxLength: 200),
-                        Logged = c.DateTime(nullable: false),
-                        Level = c.String(nullable: false, maxLength: 5),
-                        UserName = c.String(maxLength: 200),
-                        Message = c.String(nullable: false),
-                        Logger = c.String(maxLength: 300),
-                        Properties = c.String(),
-                        ServerName = c.String(maxLength: 200),
-                        Port = c.String(maxLength: 100),
-                        Url = c.String(maxLength: 2000),
-                        Https = c.Boolean(),
-                        ServerAddress = c.String(maxLength: 100),
-                        RemoteAddress = c.String(maxLength: 100),
-                        Callsite = c.String(maxLength: 300),
-                        Exception = c.String(),
                     })
                 .PrimaryKey(t => t.Id);
             
@@ -321,49 +274,46 @@ namespace DataFlow.Common.Migrations
             DropForeignKey("dbo.AspNetUserLogins", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserClaims", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserRoles", "RoleId", "dbo.AspNetRoles");
-            DropForeignKey("dbo.LogIngestion", "AgentId", "dbo.Agent");
-            DropForeignKey("dbo.File", "Status", "dbo.FileStatus");
-            DropForeignKey("dbo.File", "AgentId", "dbo.Agent");
-            DropForeignKey("dbo.DataMapAgent", "DataMapId", "dbo.DataMap");
-            DropForeignKey("dbo.DataMap", "EntityId", "dbo.Entity");
-            DropForeignKey("dbo.BootstrapData", "EntityId", "dbo.Entity");
-            DropForeignKey("dbo.DataMapAgent", "AgentId", "dbo.Agent");
-            DropForeignKey("dbo.AgentSchedule", "AgentId", "dbo.Agent");
+            DropForeignKey("dbo.LogIngestions", "AgentId", "dbo.Agents");
+            DropForeignKey("dbo.Files", "Status", "dbo.FileStatus");
+            DropForeignKey("dbo.Files", "AgentId", "dbo.Agents");
+            DropForeignKey("dbo.DataMaps", "EntityId", "dbo.Entities");
+            DropForeignKey("dbo.BootstrapDatas", "EntityId", "dbo.Entities");
+            DropForeignKey("dbo.DataMapAgents", "DataMapId", "dbo.DataMaps");
+            DropForeignKey("dbo.DataMapAgents", "AgentId", "dbo.Agents");
+            DropForeignKey("dbo.AgentSchedules", "AgentId", "dbo.Agents");
             DropIndex("dbo.AspNetUserLogins", new[] { "UserId" });
             DropIndex("dbo.AspNetUserClaims", new[] { "UserId" });
             DropIndex("dbo.AspNetUsers", "UserNameIndex");
             DropIndex("dbo.AspNetUserRoles", new[] { "RoleId" });
             DropIndex("dbo.AspNetUserRoles", new[] { "UserId" });
             DropIndex("dbo.AspNetRoles", "RoleNameIndex");
-            DropIndex("dbo.LogIngestion", new[] { "AgentId" });
-            DropIndex("dbo.File", new[] { "Status" });
-            DropIndex("dbo.File", new[] { "AgentId" });
-            DropIndex("dbo.BootstrapData", new[] { "EntityId" });
-            DropIndex("dbo.DataMap", new[] { "EntityId" });
-            DropIndex("dbo.DataMapAgent", new[] { "AgentId" });
-            DropIndex("dbo.DataMapAgent", new[] { "DataMapId" });
-            DropIndex("dbo.AgentSchedule", new[] { "AgentId" });
-            DropTable("dbo.NLog");
-            DropTable("dbo.Statistic");
-            DropTable("dbo.ProcessedData");
-            DropTable("dbo.Lookup");
-            DropTable("dbo.LogApplication");
-            DropTable("dbo.EdFiDictionary");
-            DropTable("dbo.Configuration");
+            DropIndex("dbo.LogIngestions", new[] { "AgentId" });
+            DropIndex("dbo.Files", new[] { "Status" });
+            DropIndex("dbo.Files", new[] { "AgentId" });
+            DropIndex("dbo.BootstrapDatas", new[] { "EntityId" });
+            DropIndex("dbo.DataMaps", new[] { "EntityId" });
+            DropIndex("dbo.DataMapAgents", new[] { "AgentId" });
+            DropIndex("dbo.DataMapAgents", new[] { "DataMapId" });
+            DropIndex("dbo.AgentSchedules", new[] { "AgentId" });
+            DropTable("dbo.Statistics");
+            DropTable("dbo.Lookups");
+            DropTable("dbo.EdfiDictionaries");
+            DropTable("dbo.Configurations");
             DropTable("dbo.AspNetUserLogins");
             DropTable("dbo.AspNetUserClaims");
             DropTable("dbo.AspNetUsers");
             DropTable("dbo.AspNetUserRoles");
             DropTable("dbo.AspNetRoles");
-            DropTable("dbo.LogIngestion");
+            DropTable("dbo.LogIngestions");
             DropTable("dbo.FileStatus");
-            DropTable("dbo.File");
-            DropTable("dbo.BootstrapData");
-            DropTable("dbo.Entity");
-            DropTable("dbo.DataMap");
-            DropTable("dbo.DataMapAgent");
-            DropTable("dbo.AgentSchedule");
-            DropTable("dbo.Agent");
+            DropTable("dbo.Files");
+            DropTable("dbo.BootstrapDatas");
+            DropTable("dbo.Entities");
+            DropTable("dbo.DataMaps");
+            DropTable("dbo.DataMapAgents");
+            DropTable("dbo.AgentSchedules");
+            DropTable("dbo.Agents");
         }
     }
 }

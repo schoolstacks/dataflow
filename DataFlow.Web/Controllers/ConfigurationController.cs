@@ -89,6 +89,7 @@ namespace DataFlow.Web.Controllers
             };
 
             ConfigurationService.SaveConfiguration(confs);
+            ConfigurationService.FillSwaggerMetadata(apiServerUrl.Value);
 
             vm.FormResult.ShowInfoMessage = true;
             vm.FormResult.IsSuccess = true;

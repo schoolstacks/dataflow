@@ -13,7 +13,7 @@ namespace DataFlow.Common.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201712211609029_InitialMigration"; }
+            get { return "201712212203278_InitialMigration"; }
         }
         
         string IMigrationMetadata.Source

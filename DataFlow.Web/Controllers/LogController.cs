@@ -22,8 +22,8 @@ namespace DataFlow.Web.Controllers
             var vm = new LogsViewModel()
             {
                 Files = dataFlowDbContext.Files.Include(x => x.Agent).Take(100).OrderByDescending(x => x.CreateDate).ToList(),
-                LogIngestions = dataFlowDbContext.LogIngestions.Take(100).OrderByDescending(x => x.Date).ToList(),
-                LogApplications = dataFlowDbContext.LogApplications.Take(100).OrderByDescending(x => x.Date).ToList()
+                LogIngestions = dataFlowDbContext.LogIngestions.Take(100).OrderByDescending(x => x.Date).ToList() //,
+                //LogApplications = dataFlowDbContext.LogApplications.Take(100).OrderByDescending(x => x.Date).ToList()
             };
 
             return View(vm);

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataFlow.Models
 {
     public partial class BootstrapData
     {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an entity.")]
@@ -23,6 +25,7 @@ namespace DataFlow.Models
 
         public DateTime? UpdateDate { get; set; }
 
+        [ForeignKey("EntityId")]
         public Entity Entity { get; set; }
     }
 }
