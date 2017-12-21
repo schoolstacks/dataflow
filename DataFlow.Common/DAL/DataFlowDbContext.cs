@@ -33,6 +33,7 @@ namespace DataFlow.Common.DAL
         public IDbSet<File> Files { get; set; }
         public IDbSet<FileStatus> FileStatuses { get; set; }
         public IDbSet<LogIngestion> LogIngestions { get; set; }
+        public IDbSet<Models.NLog> NLogs { get; set; }
         public IDbSet<Lookup> Lookups { get; set; }
         public IDbSet<Statistic> Statistics { get; set; }
 

@@ -79,9 +79,9 @@
     <Compile Include="Mapping\AspNetUserLoginMap.cs" />
     <Compile Include="Mapping\AspNetUserRoleMap.cs" />
     <Compile Include="Mapping\AspNetUsersMap.cs" />
-    <Compile Include="Migrations\201712212203278_InitialMigration.cs" />
-    <Compile Include="Migrations\201712212203278_InitialMigration.Designer.cs">
-      <DependentUpon>201712212203278_InitialMigration.cs</DependentUpon>
+    <Compile Include="Migrations\201712212211331_InitialMigration.cs" />
+    <Compile Include="Migrations\201712212211331_InitialMigration.Designer.cs">
+      <DependentUpon>201712212211331_InitialMigration.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -101,8 +101,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201712212203278_InitialMigration.resx">
-      <DependentUpon>201712212203278_InitialMigration.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201712212211331_InitialMigration.resx">
+      <DependentUpon>201712212211331_InitialMigration.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
