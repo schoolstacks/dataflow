@@ -73,6 +73,7 @@
     <Compile Include="Enums\AgentTypeCodeEnum.cs" />
     <Compile Include="Enums\FileModeEnum.cs" />
     <Compile Include="Enums\FileStatusEnum.cs" />
+    <Compile Include="Helpers\UrlUtility.cs" />
     <Compile Include="Mapping\AgentMap.cs" />
     <Compile Include="Mapping\AgentScheduleMap.cs" />
     <Compile Include="Mapping\AspNetRoleMap.cs" />

@@ -30,7 +30,7 @@ namespace DataFlow.Web.Controllers
             {
                 System.Net.ServicePointManager.ServerCertificateValidationCallback = (senderLocal, certificate, chain, sslPolicyErrors) => true;
 
-                var oAuthUrl = Helpers.Common.GetUntilOrEmpty(apiServerUrl.Trim(), "/api/");
+                var oAuthUrl = Common.Helpers.UrlUtility.GetUntilOrEmpty(apiServerUrl.Trim(), "/api/");
 
                 var client = new RestClient(apiServerUrl);
                 var tokenRetriever = new TokenRetriever(oAuthUrl, apiServerKey, apiServerSecret);

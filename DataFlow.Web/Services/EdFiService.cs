@@ -39,7 +39,7 @@ namespace DataFlow.Web.Services
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             var conf = configurationService.GetConfiguration();
             var odsapiurlbase = conf.API_SERVER_URL;
-            var odsapioauthurl = Helpers.Common.GetUntilOrEmpty(odsapiurlbase, "/api/");
+            var odsapioauthurl = Common.Helpers.UrlUtility.GetUntilOrEmpty(odsapiurlbase, "/api/");
             var odsapikey = conf.API_SERVER_KEY;
             var odsapisecret = conf.API_SERVER_SECRET;
 
