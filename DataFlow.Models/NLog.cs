@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataFlow.Models
 {
+    [Table("NLog")]
     public partial class NLog
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
