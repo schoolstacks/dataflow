@@ -53,6 +53,7 @@ namespace DataFlow.Common.DAL
             modelBuilder.Configurations.Add(new LogApplicationMap());
             modelBuilder.Configurations.Add(new LogIngestionMap());
             modelBuilder.Configurations.Add(new LookupMap());
+            modelBuilder.Configurations.Add(new NLogMap());
             modelBuilder.Configurations.Add(new MigrationHistoryMap());
             modelBuilder.Configurations.Add(new ProcessedDataMap());
             modelBuilder.Configurations.Add(new StatisticMap());

@@ -7,14 +7,14 @@ namespace DataFlow.Common.Mapping
     {
         public AgentScheduleMap()
         {
-            this.ToTable("agent_schedule", "dataflow");
+            this.ToTable("AgentSchedule", "dbo");
             this.HasKey(e => e.Id);
 
             this.Property(e => e.Id)
-                .HasColumnName("ID");
+                .HasColumnName("Id");
 
             this.Property(e => e.AgentId)
-                .HasColumnName("AgentID");
+                .HasColumnName("AgentId");
 
             this.HasRequired(d => d.Agent)
                 .WithMany(p => p.AgentSchedules)
