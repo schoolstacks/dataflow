@@ -38,6 +38,23 @@ namespace DataFlow.Common.Migrations
                 new EdfiDictionary() { GroupSet = "levelDescriptors", OriginalValue = "Twelfth grade", DisplayValue = "12th Grade", DisplayOrder = 13 },
                 new EdfiDictionary() { GroupSet = "levelDescriptors", OriginalValue = "Ungraded", DisplayValue = "Ungraded", DisplayOrder = 100 }
             );
+
+            context.Entities.AddOrUpdate(
+                new Entity() { Name = "students", Url = "/metadata/resources/api-docs/students" },
+                new Entity() { Name = "studentAssessments", Url = "/metadata/resources/api-docs/studentAssessments" },
+                new Entity() { Name = "studentSchoolAssociations", Url = "/metadata/resources/api-docs/studentSchoolAssociations" },
+                new Entity() { Name = "studentSectionAssociations", Url = "/metadata/resources/api-docs/studentSectionAssociations" },
+                new Entity() { Name = "staffs", Url = "/metadata/resources/api-docs/staffs" },
+                new Entity() { Name = "assessments", Url = "/metadata/resources/api-docs/assessments" },
+                new Entity() { Name = "staffSchoolAssociations", Url = "/metadata/resources/api-docs/staffSchoolAssociations" },
+                new Entity() { Name = "staffSectionAssociations", Url = "/metadata/resources/api-docs/staffSectionAssociations" },
+                new Entity() { Name = "schools", Url = "/metadata/resources/api-docs/schools" },
+                new Entity() { Name = "localEducationAgencies", Url = "/metadata/resources/api-docs/localEducationAgencies" },
+                new Entity() { Name = "sections", Url = "/metadata/resources/api-docs/sections" },
+                new Entity() { Name = "assessmentItem", Url = "/metadata/resources/api-docs/assessmentItem" },
+                new Entity() { Name = "objectiveAssessment", Url = "/metadata/resources/api-docs/objectiveAssessments" },
+                new Entity() { Name = "performanceLevels", Url = "/metadata/descriptors/api-docs/performanceLevelDescriptors" }
+                );
         }
     }
 }
