@@ -17,17 +17,19 @@
             <th>Entity</th>
             <th data-sortable="false" data-filterable="false"></th>
             <th data-sortable="false" data-filterable="false"></th>
+            <th data-sortable="false" data-filterable="false"></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var m in Model)
         {
-            <tr>
-                <td>@m.Name</td>
-                <td>@m.Entity.Name</td>
-                <td>@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
-                <td>@Html.ActionLink("Delete", "Delete", new { m.Id })</td>
-            </tr>
+        <tr>
+            <td>@m.Name</td>
+            <td>@m.Entity.Name</td>
+            <td style="text-align: center;">@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
+            <td style="text-align: center;">@Html.ActionLink("Adv Edit", "Index", new { Controller = "DataMapper", mapId = m.Id })</td>
+            <td style="text-align: center;">@Html.ActionLink("Delete", "Delete", new { m.Id })</td>
+        </tr>
         }
     </tbody>
 </table>

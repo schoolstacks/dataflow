@@ -151,5 +151,85 @@
                 alert("Please select a file to upload");
             }
         });
+        /* Partial View JS */
+        $(document).on("change", ".field-block", function (e) {
+            var frmData = $("#frmDataMapper").serialize();
+
+            $.ajax({
+                type: "POST",
+                url: "/DataMapper/UpdateJsonMap?triggeredBy=" + e.target.id,
+                data: frmData,
+                dataType: "json",
+                success: function (data) {
+                    $("#JsonMap").val(data);
+                },
+                fail: function (data) {
+                    alert("Error: " + data);
+                }
+            });
+        });
+
+        $(document).on("change", ".source-type", function () {
+            var sourceTypeFormId = this.id;
+            var sourceTypeValue = this.value;
+
+            var sourceColumnDropDownId = "#" + sourceTypeFormId.replace("_SourceType", "_SourceColumn");
+            var sourceTableDropDownId = "#" + sourceTypeFormId.replace("_SourceType", "_SourceTable");
+            var staticValueTextBoxId = "#" + sourceTypeFormId.replace("_SourceType", "_StaticValue").replace("ddl", "txt");
+            var defaultValueTextBoxId = "#" + sourceTypeFormId.replace("_SourceType", "_DefaultValue").replace("ddl", "txt");;
+
+            if (sourceTypeValue === "lookup-table") {
+                $(sourceColumnDropDownId).show();
+                $(sourceTableDropDownId).show();
+                $(staticValueTextBoxId).hide();
+                $(defaultValueTextBoxId).show();
+            }
+            else if (sourceTypeValue === "static") {
+                $(sourceColumnDropDownId).hide();
+                $(sourceTableDropDownId).hide();
+                $(staticValueTextBoxId).show();
+                $(defaultValueTextBoxId).hide();
+            }
+            else if (sourceTypeValue === "column") {
+                $(sourceColumnDropDownId).show();
+                $(sourceTableDropDownId).hide();
+                $(staticValueTextBoxId).hide();
+                $(defaultValueTextBoxId).show();
+            }
+            else {
+                $(sourceColumnDropDownId).hide();
+                $(sourceTableDropDownId).hide();
+                $(staticValueTextBoxId).hide();
+                $(defaultValueTextBoxId).hide();
+            }
+        });
+
+        $(document).on("click", "add-row", function (e) {
+            var btnAddId = this.id;
+            var divBefore = btnAddId.replace("btn", "div") + "_Add";
+            var divToCopy = btnAddId.replace("btn", "div");
+
+            var rowCount = parseInt($(this).attr("data-rows"));
+            $(this).attr("data-rows", rowCount + 1);
+
+            $("#" + divToCopy).clone(true)
+                .attr("id", divToCopy + rowCount)
+                .insertBefore("#" + divBefore)
+                .find("*")
+                .each(function () {
+                    var newId = this.id;
+                    if (newId) {
+                        $(this).attr("id", newId + rowCount);
+
+                        if ($(this).is("input:text,select")) {
+                            $(this).val("");
+
+                            if (newId.indexOf("SourceType") === -1) {
+                                $(this).hide();
+                            }
+                        }
+                    }
+                });
+        });
     </script>
 }

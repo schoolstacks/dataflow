@@ -5,7 +5,6 @@ using System.Data.Entity.Migrations;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using CsvHelper;
@@ -22,14 +21,12 @@ namespace DataFlow.Web.Controllers
     public class DataMapperController : BaseController
     {
         private readonly DataFlowDbContext dataFlowDbContext;
-        private readonly EdFiService edFiService;
         private readonly EdFiMetadataProcessor edFiMetadataProcessor;
 
-        public DataMapperController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService,
-            EdFiMetadataProcessor edFiMetadataProcessor, IBaseServices baseService) : base(baseService)
+        public DataMapperController(DataFlowDbContext dataFlowDbContext, EdFiMetadataProcessor edFiMetadataProcessor, 
+            IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
-            this.edFiService = edFiService;
             this.edFiMetadataProcessor = edFiMetadataProcessor;
         }
 
@@ -55,17 +52,10 @@ namespace DataFlow.Web.Controllers
                     vm = GetEntityFields(vm);
 
                     var jsonMap = WebUtility.HtmlDecode(dataMap.Map);
-                    var dataMappers = DataMapperBuilder.BuildPropertyUniqueKey(JsonConvert.DeserializeObject<List<DataMapper>>(jsonMap, DataMapper.JsonSerializerSettings));
-
-                    vm.Fields = dataMappers;
+                    var dataMappers = JsonConvert.DeserializeObject<List<DataMapper>>(dataMap.Map, DataMapper.JsonSerializerSettings);
                     vm.JsonMap = JsonConvert.SerializeObject(dataMappers, DataMapper.JsonSerializerSettings);
 
-                    //var sb = new StringBuilder();
-                    //sb.AppendLine(vm.Fields.ToString(string.Empty));
-                    //sb.AppendLine("----------------------------------");
-                    //sb.AppendLine(dataMappers.ToString(string.Empty));
-
-                    //vm.JsonMap = sb.ToString();
+                    vm.Fields = DataMapperBuilder.BuildPropertyUniqueKey(dataMappers);
                 }
             }
 
@@ -288,7 +278,7 @@ namespace DataFlow.Web.Controllers
                     var firstParent = parentTypes.ElementAtOrDefault(0).NullIfWhiteSpace();
                     var secondParent = parentTypes.ElementAtOrDefault(1).NullIfWhiteSpace();
 
-                    if (nonObjectsOrArrays.Contains(dataType) && firstParent == null)
+                    if ((nonObjectsOrArrays.Contains(dataType) || dataType.EndsWith("Reference")) && firstParent == null)
                     {
                         var modelProperty = dataMapperModels.FirstOrDefault(x => x.Name == GetJsonFieldName(f));
                         if (modelProperty == null)
@@ -311,9 +301,9 @@ namespace DataFlow.Web.Controllers
                             dataMapperModels.Add(model);
                         }
                     }
-                    else if (nonObjectsOrArrays.Contains(dataType) && secondParent != null)
+                    else if ((nonObjectsOrArrays.Contains(dataType) || dataType.EndsWith("Reference")) && secondParent != null)
                     {
-                        var parentName = $"{firstParent}_Item{i}";
+                        var parentName = firstParent.EndsWith("Reference") ? firstParent : $"{firstParent}_Item{i}";
 
                         var parentModel = dataMapperModels
                             .Where(x => x.Name == firstParent)
@@ -397,8 +387,9 @@ namespace DataFlow.Web.Controllers
 
                         if (firstParent != null && secondParent == null)
                         {
-                            var parentName = $"{firstParent}_Item{i}";
-                            var parentModel = dataMapperModels.SelectMany(x => x.SubDataMappers).FirstOrDefault(x => x.Name == parentName);
+                            var parentName = firstParent.EndsWith("Reference") ? firstParent : $"{firstParent}_Item{i}";
+                            var parentModel = dataMapperModels.SelectMany(x => x.SubDataMappers).FirstOrDefault(x => x.Name == parentName)
+                                              ?? dataMapperModels.FirstOrDefault(x => x.Name == parentName);
 
                             parentModel?.SubDataMappers.Add(
                                 new DataMapper()
