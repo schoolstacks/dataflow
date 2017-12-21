@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using CsvHelper;
@@ -39,12 +41,29 @@ namespace DataFlow.Web.Controllers
                 vm = GetEntityFields(vm);
             }
 
-            //var dataMapJson = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == 13);
-            //var jsonMap = $"[{WebUtility.HtmlDecode(dataMapJson.Map)}]";
+            if (int.TryParse(Request.QueryString["mapId"], out var mapId))
+            {
+                var dataMap = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == mapId);
 
-            //var dataMappers = JsonConvert.DeserializeObject<List<DataMapper>>(jsonMap);
+                if (dataMap != null)
+                {
+                    vm.MapToEntity = dataMap.EntityId;
+                    vm = GetEntityFields(vm);
 
-            //vm.JsonMap = JsonConvert.SerializeObject(dataMappers, Formatting.Indented);
+                    var jsonMap = WebUtility.HtmlDecode(dataMap.Map);
+                    var dataMappers = DataMapperBuilder.BuildPropertyUniqueKey(JsonConvert.DeserializeObject<List<DataMapper>>(jsonMap, DataMapper.JsonSerializerSettings));
+
+                    vm.Fields = dataMappers;
+                    vm.JsonMap = JsonConvert.SerializeObject(dataMappers, DataMapper.JsonSerializerSettings);
+
+                    //var sb = new StringBuilder();
+                    //sb.AppendLine(vm.Fields.ToString(string.Empty));
+                    //sb.AppendLine("----------------------------------");
+                    //sb.AppendLine(dataMappers.ToString(string.Empty));
+
+                    //vm.JsonMap = sb.ToString();
+                }
+            }
 
             if (TempData["CsvColumnHeaders"] is string csvColumnHeaders)
             {
@@ -108,7 +127,7 @@ namespace DataFlow.Web.Controllers
                     Entities = GetEntityList,
                     DataSources = GetDataSourceList,
                     SourceTables = GetSourceTableList,
-                    Fields = new List<DataMapperViewModel.Field>(),
+                    Fields = new List<DataMapper>(),
                     CsvColumnHeaders = new List<string>(),
                     IsSuccess = true,
                     ShowInfoMessage = true,
@@ -154,7 +173,7 @@ namespace DataFlow.Web.Controllers
                 Entities = GetEntityList,
                 DataSources = GetDataSourceList,
                 SourceTables = GetSourceTableList,
-                Fields = new List<DataMapperViewModel.Field>()
+                Fields = new List<DataMapper>()
             };
             return vm;
         }
@@ -174,12 +193,12 @@ namespace DataFlow.Web.Controllers
                     if (x.Name == "id")
                         return;
 
-                    var dataMapperField = new DataMapperViewModel.Field(
+                    var dataMapperField = new DataMapper(
                         name: x.Name,
-                        dataType: x.Type,
-                        childType: !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty,
-                        parentType: string.Empty,
-                        formFieldName: x.Name);
+                        dataMapperProperty: new DataMapperProperty(
+                            dataType: x.Type,
+                            childType: !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty
+                        ));
                     if (!string.IsNullOrWhiteSpace(x.SubType) && x.SubFields.Any())
                     {
                         x.SubFields.ForEach(subField =>
@@ -187,16 +206,17 @@ namespace DataFlow.Web.Controllers
                             if (subField.Name == "id")
                                 return;
                             ;
-                            if (subField.Required)
-                            {
-                                dataMapperField.SubFields.Add(
-                                    item: new DataMapperViewModel.Field(
-                                        name: subField.Name,
+                            var subDataMapper = new DataMapper();
+
+                        if (subField.Required || GetAdditionalFields(x.Name).Contains(subField.Name))
+                        {
+                            subDataMapper = new DataMapper(
+                                    name: subField.Name,
+                                    dataMapperProperty: new DataMapperProperty(
                                         dataType: subField.Type,
-                                        childType: !string.IsNullOrWhiteSpace(subField.SubType) ? subField.Name : string.Empty,
-                                        parentType: !string.IsNullOrWhiteSpace(x.SubType) ? x.Name : string.Empty,
-                                        formFieldName: $"{x.Name}_{subField.Name}")
-                                );
+                                        childType: !string.IsNullOrWhiteSpace(subField.SubType) ? subField.Name : string.Empty
+                                    ));
+                                dataMapperField.SubDataMappers.Add(subDataMapper);
                             }
 
                             if (!string.IsNullOrWhiteSpace(subField.SubType) && subField.SubFields.Any())
@@ -206,22 +226,26 @@ namespace DataFlow.Web.Controllers
                                     if (triField.Name == "id")
                                         return;
 
-                                    if (triField.Required)
-                                    {
-                                        dataMapperField.SubFields.Add(
-                                            item: new DataMapperViewModel.Field(
-                                                name: triField.Name,
+                                if (triField.Required)
+                                {
+                                    var triDataMapper = new DataMapper(
+                                            name: triField.Name,
+                                            dataMapperProperty: new DataMapperProperty(
                                                 dataType: triField.Type,
-                                                childType: !string.IsNullOrWhiteSpace(triField.SubType) ? triField.Name : string.Empty,
-                                                parentType: !string.IsNullOrWhiteSpace(subField.SubType) ? $"{x.Name}:{subField.Name}" : string.Empty,
-                                                formFieldName: $"{x.Name}_{subField.Name}_{triField.Name}")
-                                        );
+                                                childType: !string.IsNullOrWhiteSpace(triField.SubType) ? triField.Name : string.Empty
+                                            ));
+
+                                        subDataMapper.SubDataMappers.Add(triDataMapper);
                                     }
                                 });
                             }
                         });
                     }
-                    vm.Fields.Add(dataMapperField);
+
+                    var dataMappers = new List<DataMapper> {dataMapperField};
+                    var builder = DataMapperBuilder.BuildPropertyUniqueKey(dataMappers);
+
+                    vm.Fields.AddRange(builder);
                 });
             }
             return vm;
@@ -415,14 +439,7 @@ namespace DataFlow.Web.Controllers
                 });
             });
 
-
-            var settings = new JsonSerializerSettings()
-            {
-                Converters = new List<JsonConverter> { new DataMapperListConverter() },
-                Formatting = Formatting.Indented
-            };
-
-            var jsonMap = JsonConvert.SerializeObject(dataMapperModels, settings);
+            var jsonMap = JsonConvert.SerializeObject(dataMapperModels, DataMapper.JsonSerializerSettings);
 
             return Json(jsonMap);
         }
@@ -513,9 +530,14 @@ namespace DataFlow.Web.Controllers
         {
             var addtFields = new List<string>();
 
-            if (entityName == "studentAssessments")
+            switch (entityName)
             {
-                addtFields.AddRange(new[] { "performanceLevels", "scoreResults", "studentObjectiveAssessments" });
+                case "studentAssessments":
+                    addtFields.AddRange(new[] { "performanceLevels", "scoreResults", "studentObjectiveAssessments" });
+                    break;
+                case "studentObjectiveAssessments":
+                    addtFields.AddRange(new[] { "objectiveAssessmentReference", "performanceLevels", "scoreResults" });
+                    break;
             }
 
             return addtFields;

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
@@ -12,7 +11,7 @@ namespace DataFlow.Web.Models
         public DataMapperViewModel()
         {
             Entities = new List<SelectListItem>();
-            Fields = new List<Field>();
+            Fields = new List<DataMapper>();
             CsvColumnHeaders = new List<string>();
             SourceTables = new List<SelectListItem>();
             DataSources = new List<SelectListItem>();
@@ -25,7 +24,7 @@ namespace DataFlow.Web.Models
         [Display(Name = "Map to Entity")]
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an entity to map to.")]
         public int? MapToEntity { get; set; }
-        public List<Field> Fields { get; set; }
+        public List<DataMapper> Fields { get; set; }
         public List<string> CsvColumnHeaders { get; set; }
         public DataTable CsvPreviewDataTable { get; set; }
 
@@ -54,18 +53,17 @@ namespace DataFlow.Web.Models
             
             Fields.ForEach(f =>
             {
-                fields.Add(f.FormFieldName);
-                fields.AddRange(f.SubFields.Select(x => x.FormFieldName));
-                //fields.AddRange(f.SubFields.SelectMany(x => x.SubFields.Select(y => x.FormFieldName)));
-                //if (f.SubFields.Any())
-                //{
-                //    fields.AddRange(f.SubFields.Select(x => x.Name));
+                fields.Add(f.DataMapperProperty.UniqueKey);
 
-                //    if (f.SubFields.Any(x => x.SubFields.Any()))
-                //    {
-                //        fields.AddRange(f.SubFields.SelectMany(x => x.SubFields.Select(y => y.Name)));
-                //    }
-                //}
+                f.SubDataMappers.ForEach(s =>
+                {
+                    fields.Add(s.DataMapperProperty.UniqueKey);
+
+                    s.SubDataMappers.ForEach(t =>
+                    {
+                        fields.Add(t.DataMapperProperty.UniqueKey);
+                    });
+                });
             });
 
             return fields;
@@ -74,25 +72,5 @@ namespace DataFlow.Web.Models
         public bool IsSuccess { get; set; }
         public bool ShowInfoMessage { get; set; }
         public string InfoMessage { get; set; }
-
-        public class Field
-        {
-            public Field(string name, string dataType, string childType, string parentType, string formFieldName)
-            {
-                Name = name;
-                DataType = dataType;
-                ChildType = childType;
-                ParentType = parentType;
-                FormFieldName = formFieldName;
-                SubFields = new List<Field>();
-            }
-
-            public string Name { get; set; }
-            public string DataType { get; set; }
-            public string ChildType { get; set; }
-            public string ParentType { get; set; }
-            public string FormFieldName { get; set; }
-            public List<Field> SubFields { get; set; }
-        }
     }
 }

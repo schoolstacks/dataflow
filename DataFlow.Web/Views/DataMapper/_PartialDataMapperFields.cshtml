@@ -2,60 +2,64 @@
 @using Humanizer
 @model DataFlow.Web.Models.DataMapperViewModel
 
-@foreach (var t in Model.Fields)
+@foreach (var f in Model.Fields)
 {
-    if (!t.SubFields.Any())
+    if (!f.SubDataMappers.Any())
     {
-        <div class="form-group" id="@($"div{t.FormFieldName}_Header")">
+        <div class="form-group" id="@($"div{f.DataMapperProperty.UniqueKey}_Header")">
             <div class="col-sm-2">
-                <label id="@($"lbl{t.FormFieldName}")" name="@($"lbl{t.FormFieldName}")" for="@($"ddl{t.FormFieldName}_SourceColumn")">@($"{t.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
+                <label id="@($"lbl{f.DataMapperProperty.UniqueKey}")" name="@($"lbl{f.DataMapperProperty.UniqueKey}")" for="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceColumn")">@($"{f.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
             </div>
             <div class="col-sm-10 field-block">
-                <select id="@($"ddl{t.FormFieldName}_SourceType")" name="@($"ddl{t.FormFieldName}_SourceType")" class="form-control source-type">
+                <select id="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceType")" name="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceType")" class="form-control source-type">
                     @foreach (var sourceType in Model.DataSources)
                     {
-                        <option value="@sourceType.Value">@sourceType.Text</option>
+                        <option value="@sourceType.Value" @(sourceType.Value == f.DataMapperProperty.Source ? "selected" : "")>@sourceType.Text</option>
                     }
                 </select>
-                <select id="@($"ddl{t.FormFieldName}_SourceColumn")" name="@($"ddl{t.FormFieldName}_SourceColumn")" class="form-control" style="display: none;">
+                <select id="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceColumn")" name="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceColumn")" class="form-control" @Html.Raw(f.DataMapperProperty.Source != "column" ? "style='display: none;'" : "")>
                     @foreach (var sourceColumn in Model.SourceColumns)
                     {
-                        <option value="@sourceColumn.Value">@sourceColumn.Text</option>
+                        <option value="@sourceColumn.Value" @(sourceColumn.Value == f.DataMapperProperty.SourceColumn ? "selected" : "")>@sourceColumn.Text</option>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(f.DataMapperProperty.SourceColumn) && Model.SourceColumns.All(x => x.Value != f.DataMapperProperty.SourceColumn))
+                    {
+                        <option value="@f.DataMapperProperty.SourceColumn" selected="">@f.DataMapperProperty.SourceColumn</option>
                     }
                 </select>
-                <select id="@($"ddl{t.FormFieldName}_SourceTable")" name="@($"ddl{t.FormFieldName}_SourceTable")" class="form-control" style="display: none;">
+                <select id="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceTable")" name="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceTable")" class="form-control" @Html.Raw(f.DataMapperProperty.Source != "lookup_table" ? "style='display: none;'" : "")>
                     @foreach (var sourceTable in Model.SourceTables)
                     {
-                        <option value="@sourceTable.Value">@sourceTable.Text</option>
+                        <option value="@sourceTable.Value" @(sourceTable.Value == f.DataMapperProperty.SourceTable ? "selected" : "")>@sourceTable.Text</option>
                     }
                 </select>
-                <input id="@($"txt{t.FormFieldName}_StaticValue")" name="@($"txt{t.FormFieldName}_StaticValue")" type="text" class="form-control" placeholder="Static Value" style="display: none;" />
-                <input id="@($"txt{t.FormFieldName}_DefaultValue")" name="@($"txt{t.FormFieldName}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" style="display: none;" />
-                <input id="@($"hf{t.FormFieldName}_DataType")" name="@($"hf{t.FormFieldName}_DataType")" type="hidden" value="@t.DataType" />
-                <input id="@($"hf{t.FormFieldName}_ChildType")" name="@($"hf{t.FormFieldName}_ChildType")" type="hidden" value="@t.ChildType" />
-                <input id="@($"hf{t.FormFieldName}_ParentType")" name="@($"hf{t.FormFieldName}_ParentType")" type="hidden" value="@t.ParentType" />
+                <input id="@($"txt{f.DataMapperProperty.UniqueKey}_StaticValue")" name="@($"txt{f.DataMapperProperty.UniqueKey}_StaticValue")" type="text" class="form-control" placeholder="Static Value" value="@f.DataMapperProperty.Value" @Html.Raw(f.DataMapperProperty.Source != "static" ? "style='display: none;'" : "") />
+                <input id="@($"txt{f.DataMapperProperty.UniqueKey}_DefaultValue")" name="@($"txt{f.DataMapperProperty.UniqueKey}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" value="@f.DataMapperProperty.Default" @Html.Raw(f.DataMapperProperty.Source != "column" || f.DataMapperProperty.Source != "lookup_table" ? "style='display: none;'" : "") />
+                <input id="@($"hf{f.DataMapperProperty.UniqueKey}_DataType")" name="@($"hf{f.DataMapperProperty.UniqueKey}_DataType")" type="hidden" value="@f.DataMapperProperty.DataType" />
+                <input id="@($"hf{f.DataMapperProperty.UniqueKey}_ChildType")" name="@($"hf{f.DataMapperProperty.UniqueKey}_ChildType")" type="hidden" value="@f.DataMapperProperty.ChildType" />
+                <input id="@($"hf{f.DataMapperProperty.UniqueKey}_ParentType")" name="@($"hf{f.DataMapperProperty.UniqueKey}_ParentType")" type="hidden" value="@f.DataMapperProperty.ParentType" />
             </div>
         </div>
     }
     else
     {
-        <div id="@($"div{t.FormFieldName}")">
-            @for (var i = 0; i < t.SubFields.Count; i++)
+        <div id="@($"div{f.DataMapperProperty.UniqueKey}")">
+            @for (var i = 0; i < f.SubDataMappers.Count; i++)
             {
-                var s = t.SubFields[i];
+                var s = f.SubDataMappers[i];
 
                 if (i == 0)
                 {
-                    <div class="form-group" id="@($"div{t.FormFieldName}_Header")">
+                    <div class="form-group" id="@($"div{f.DataMapperProperty.UniqueKey}_Header")">
                         <div class="col-sm-2">
-                            <label id="@($"lbl{t.FormFieldName}")" name="@($"lbl{t.FormFieldName}")" for="@($"ddl{t.FormFieldName}_SourceColumn")">@($"{t.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
+                            <label id="@($"lbl{f.DataMapperProperty.UniqueKey}")" name="@($"lbl{f.DataMapperProperty.UniqueKey}")" for="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceColumn")">@($"{f.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
                         </div>
                         <div class="col-sm-10 field-block">
-                            <input id="@($"txt{t.FormFieldName}_StaticValue")" name="@($"txt{t.FormFieldName}_StaticValue")" type="text" class="form-control" placeholder="Static Value" style="display: none;" />
-                            <input id="@($"txt{t.FormFieldName}_DefaultValue")" name="@($"txt{t.FormFieldName}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" style="display: none;" />
-                            <input id="@($"hf{t.FormFieldName}_DataType")" name="@($"hf{t.FormFieldName}_DataType")" type="hidden" value="@t.DataType" />
-                            <input id="@($"hf{t.FormFieldName}_ChildType")" name="@($"hf{t.FormFieldName}_ChildType")" type="hidden" value="@t.ChildType" />
-                            <input id="@($"hf{t.FormFieldName}_ParentType")" name="@($"hf{t.FormFieldName}_ParentType")" type="hidden" value="@t.ParentType" />
+                            <input id="@($"txt{f.DataMapperProperty.UniqueKey}_StaticValue")" name="@($"txt{f.DataMapperProperty.UniqueKey}_StaticValue")" type="text" class="form-control" placeholder="Static Value" style="display: none;" />
+                            <input id="@($"txt{f.DataMapperProperty.UniqueKey}_DefaultValue")" name="@($"txt{f.DataMapperProperty.UniqueKey}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" style="display: none;" />
+                            <input id="@($"hf{f.DataMapperProperty.UniqueKey}_DataType")" name="@($"hf{f.DataMapperProperty.UniqueKey}_DataType")" type="hidden" value="@f.DataMapperProperty.DataType" />
+                            <input id="@($"hf{f.DataMapperProperty.UniqueKey}_ChildType")" name="@($"hf{f.DataMapperProperty.UniqueKey}_ChildType")" type="hidden" value="@f.DataMapperProperty.ChildType" />
+                            <input id="@($"hf{f.DataMapperProperty.UniqueKey}_ParentType")" name="@($"hf{f.DataMapperProperty.UniqueKey}_ParentType")" type="hidden" value="@f.DataMapperProperty.ParentType" />
                         </div>
                     </div>
                 }
@@ -63,40 +67,86 @@
                 <div class="form-group">
                     <div>
                         <div class="col-sm-2" style="padding-left: 30px;">
-                            <label id="@($"lbl{s.FormFieldName}")" name="@($"lbl{s.FormFieldName}")" for="@($"ddl{s.FormFieldName}_SourceColumn")">@($"{s.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
+                            <label id="@($"lbl{s.DataMapperProperty.UniqueKey}")" name="@($"lbl{s.DataMapperProperty.UniqueKey}")" for="@($"ddl{s.DataMapperProperty.UniqueKey}_SourceColumn")">@($"{s.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
                         </div>
-                        <div class="col-sm-10 field-block" style="display: @(string.IsNullOrWhiteSpace(s.ChildType) ? "block" : "none");">
-                            <select id="@($"ddl{s.FormFieldName}_SourceType")" name="@($"ddl{s.FormFieldName}_SourceType")" class="form-control source-type">
+                        <div class="col-sm-10 field-block" style="display: @(string.IsNullOrWhiteSpace(s.DataMapperProperty.ChildType) ? "block" : "none");">
+                            <select id="@($"ddl{s.DataMapperProperty.UniqueKey}_SourceType")" name="@($"ddl{s.DataMapperProperty.UniqueKey}_SourceType")" class="form-control source-type">
                                 @foreach (var sourceType in Model.DataSources)
                                 {
-                                    <option value="@sourceType.Value">@sourceType.Text</option>
+                                    <option value="@sourceType.Value" @(sourceType.Value == s.DataMapperProperty.Source ? "selected" : "")>@sourceType.Text</option>
                                 }
                             </select>
-                            <select id="@($"ddl{s.FormFieldName}_SourceColumn")" name="@($"ddl{s.FormFieldName}_SourceColumn")" class="form-control" style="display: none;">
+                            <select id="@($"ddl{s.DataMapperProperty.UniqueKey}_SourceColumn")" name="@($"ddl{s.DataMapperProperty.UniqueKey}_SourceColumn")" class="form-control" @Html.Raw(s.DataMapperProperty.Source != "column" ? "style='display: none;'" : "")>
                                 @foreach (var sourceColumn in Model.SourceColumns)
                                 {
-                                    <option value="@sourceColumn.Value">@sourceColumn.Text</option>
+                                    <option value="@sourceColumn.Value" @(sourceColumn.Value == s.DataMapperProperty.SourceColumn ? "selected" : "")>@sourceColumn.Text</option>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(s.DataMapperProperty.SourceColumn) && Model.SourceColumns.All(x => x.Value != s.DataMapperProperty.SourceColumn))
+                                {
+                                    <option value="@s.DataMapperProperty.SourceColumn" selected="">@s.DataMapperProperty.SourceColumn</option>
                                 }
                             </select>
-                            <select id="@($"ddl{s.FormFieldName}_SourceTable")" name="@($"ddl{s.FormFieldName}_SourceTable")" class="form-control" style="display: none;">
+                            <select id="@($"ddl{s.DataMapperProperty.UniqueKey}_SourceTable")" name="@($"ddl{s.DataMapperProperty.UniqueKey}_SourceTable")" class="form-control" @Html.Raw(s.DataMapperProperty.Source != "lookup_table" ? "style='display: none;'" : "")>
                                 @foreach (var sourceTable in Model.SourceTables)
                                 {
-                                    <option value="@sourceTable.Value">@sourceTable.Text</option>
+                                    <option value="@sourceTable.Value" @(sourceTable.Value == s.DataMapperProperty.SourceTable ? "selected" : "")>@sourceTable.Text</option>
                                 }
                             </select>
-                            <input id="@($"txt{s.FormFieldName}_StaticValue")" name="@($"txt{s.FormFieldName}_StaticValue")" type="text" class="form-control" placeholder="Static Value" style="display: none;" />
-                            <input id="@($"txt{s.FormFieldName}_DefaultValue")" name="@($"txt{s.FormFieldName}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" style="display: none;" />
-                            <input id="@($"hf{s.FormFieldName}_DataType")" name="@($"hf{s.FormFieldName}_DataType")" type="hidden" value="@s.DataType" />
-                            <input id="@($"hf{s.FormFieldName}_ChildType")" name="@($"hf{s.FormFieldName}_ChildType")" type="hidden" value="@s.ChildType" />
-                            <input id="@($"hf{s.FormFieldName}_ParentType")" name="@($"hf{s.FormFieldName}_ParentType")" type="hidden" value="@s.ParentType" />
+                            <input id="@($"txt{s.DataMapperProperty.UniqueKey}_StaticValue")" name="@($"txt{s.DataMapperProperty.UniqueKey}_StaticValue")" type="text" class="form-control" placeholder="Static Value" value="@s.DataMapperProperty.Value" @Html.Raw(s.DataMapperProperty.Source != "static" ? "style='display: none;'" : "") />
+                            <input id="@($"txt{s.DataMapperProperty.UniqueKey}_DefaultValue")" name="@($"txt{s.DataMapperProperty.UniqueKey}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" value="@s.DataMapperProperty.Default" @Html.Raw(s.DataMapperProperty.Source != "column" || s.DataMapperProperty.Source != "lookup_table" ? "style='display: none;'" : "") />
+                            <input id="@($"hf{s.DataMapperProperty.UniqueKey}_DataType")" name="@($"hf{s.DataMapperProperty.UniqueKey}_DataType")" type="hidden" value="@s.DataMapperProperty.DataType" />
+                            <input id="@($"hf{s.DataMapperProperty.UniqueKey}_ChildType")" name="@($"hf{s.DataMapperProperty.UniqueKey}_ChildType")" type="hidden" value="@s.DataMapperProperty.ChildType" />
+                            <input id="@($"hf{s.DataMapperProperty.UniqueKey}_ParentType")" name="@($"hf{s.DataMapperProperty.UniqueKey}_ParentType")" type="hidden" value="@s.DataMapperProperty.ParentType" />
                         </div>
                     </div>
                 </div>
+                if (s.SubDataMappers.Any())
+                {
+                    foreach (var t in s.SubDataMappers)
+                    {
+                        <div class="form-group">
+                            <div>
+                                <div class="col-sm-2" style="padding-left: 45px;">
+                                    <label id="@($"lbl{t.DataMapperProperty.UniqueKey}")" name="@($"lbl{t.DataMapperProperty.UniqueKey}")" for="@($"ddl{t.DataMapperProperty.UniqueKey}_SourceColumn")">@($"{t.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
+                                </div>
+                                <div class="col-sm-10 field-block" style="display: @(string.IsNullOrWhiteSpace(t.DataMapperProperty.ChildType) ? "block" : "none");">
+                                    <select id="@($"ddl{t.DataMapperProperty.UniqueKey}_SourceType")" name="@($"ddl{t.DataMapperProperty.UniqueKey}_SourceType")" class="form-control source-type">
+                                        @foreach (var sourceType in Model.DataSources)
+                                        {
+                                            <option value="@sourceType.Value" @(sourceType.Value == t.DataMapperProperty.Source ? "selected" : "")>@sourceType.Text</option>
+                                        }
+                                    </select>
+                                    <select id="@($"ddl{t.DataMapperProperty.UniqueKey}_SourceColumn")" name="@($"ddl{t.DataMapperProperty.UniqueKey}_SourceColumn")" class="form-control" @Html.Raw(t.DataMapperProperty.Source != "column" ? "style='display: none;'" : "")>
+                                        @foreach (var sourceColumn in Model.SourceColumns)
+                                        {
+                                            <option value="@sourceColumn.Value" @(sourceColumn.Value == t.DataMapperProperty.SourceColumn ? "selected" : "")>@sourceColumn.Text</option>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(t.DataMapperProperty.SourceColumn) && Model.SourceColumns.All(x => x.Value != t.DataMapperProperty.SourceColumn))
+                                        {
+                                            <option value="@t.DataMapperProperty.SourceColumn" selected="">@t.DataMapperProperty.SourceColumn</option>
+                                        }
+                                    </select>
+                                    <select id="@($"ddl{t.DataMapperProperty.UniqueKey}_SourceTable")" name="@($"ddl{t.DataMapperProperty.UniqueKey}_SourceTable")" class="form-control" @Html.Raw(f.DataMapperProperty.Source != "lookup_table" ? "style='display: none;'" : "")>
+                                        @foreach (var sourceTable in Model.SourceTables)
+                                        {
+                                            <option value="@sourceTable.Value" @(sourceTable.Value == t.DataMapperProperty.SourceTable ? "selected" : "")>@sourceTable.Text</option>
+                                        }
+                                    </select>
+                                    <input id="@($"txt{t.DataMapperProperty.UniqueKey}_StaticValue")" name="@($"txt{t.DataMapperProperty.UniqueKey}_StaticValue")" type="text" class="form-control" placeholder="Static Value" value="@t.DataMapperProperty.Value" @Html.Raw(t.DataMapperProperty.Source != "static" ? "style='display: none;'" : "") />
+                                    <input id="@($"txt{t.DataMapperProperty.UniqueKey}_DefaultValue")" name="@($"txt{t.DataMapperProperty.UniqueKey}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" value="@t.DataMapperProperty.Default" @Html.Raw(t.DataMapperProperty.Source != "column" || t.DataMapperProperty.Source != "lookup_table" ? "style='display: none;'" : "") />
+                                    <input id="@($"hf{t.DataMapperProperty.UniqueKey}_DataType")" name="@($"hf{t.DataMapperProperty.UniqueKey}_DataType")" type="hidden" value="@t.DataMapperProperty.DataType" />
+                                    <input id="@($"hf{t.DataMapperProperty.UniqueKey}_ChildType")" name="@($"hf{t.DataMapperProperty.UniqueKey}_ChildType")" type="hidden" value="@t.DataMapperProperty.ChildType" />
+                                    <input id="@($"hf{t.DataMapperProperty.UniqueKey}_ParentType")" name="@($"hf{t.DataMapperProperty.UniqueKey}_ParentType")" type="hidden" value="@t.DataMapperProperty.ParentType" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
             }
         </div>
-        <div class="form-group" id="@($"div{t.FormFieldName}_Add")">
+        <div class="form-group" id="@($"div{f.DataMapperProperty.UniqueKey}_Add")">
             <div class="col-sm-offset-2 col-sm-10">
-                <button id="@($"btn{t.FormFieldName}")" type="button" class="btn btn-default add-row" data-rows="1">Add to @($"{t.Name.UpperCaseFirstLetter().UnPascalCase()}")</button>
+                <button id="@($"btn{f.DataMapperProperty.UniqueKey}")" type="button" class="btn btn-default add-row" data-rows="1">Add to @($"{f.Name.UpperCaseFirstLetter().UnPascalCase()}")</button>
             </div>
         </div>
     }
