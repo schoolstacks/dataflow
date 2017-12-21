@@ -9,12 +9,13 @@ namespace DataFlow.Common.DAL
     {
         static DataFlowDbContext()
         {
-            Database.SetInitializer<DataFlowDbContext>(null);
+            Database.SetInitializer<DataFlowDbContext>(new CreateDatabaseIfNotExists<DataFlowDbContext>());
         }
 
         public DataFlowDbContext() : base("Name=defaultConnection")
         {
             Configuration.LazyLoadingEnabled = false;
+            Database.SetInitializer<DataFlowDbContext>(new CreateDatabaseIfNotExists<DataFlowDbContext>());
         }
 
         public IDbSet<Agent> Agents { get; set; }
