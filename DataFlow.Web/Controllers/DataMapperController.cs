@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity.Migrations;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,6 +11,7 @@ using System.Web.Mvc;
 using CsvHelper;
 using DataFlow.Common.DAL;
 using DataFlow.Common.ExtensionMethods;
+using DataFlow.Models;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Models;
 using DataFlow.Web.Services;
@@ -47,6 +49,8 @@ namespace DataFlow.Web.Controllers
 
                 if (dataMap != null)
                 {
+                    vm.DataMapId = dataMap.Id;
+                    vm.MapName = dataMap.Name;
                     vm.MapToEntity = dataMap.EntityId;
                     vm = GetEntityFields(vm);
 
@@ -105,16 +109,29 @@ namespace DataFlow.Web.Controllers
 
             try
             {
-                var map = new DataFlow.Models.DataMap
-                {
-                    Name = vm.MapName,
-                    EntityId = vm.MapToEntity.Value,
-                    Map = vm.JsonMap,
-                    CreateDate = DateTime.Now,
-                    UpdateDate = DateTime.Now
-                };
+                var isUpdate = vm.DataMapId > 0;
+                DataMap map;
 
-                dataFlowDbContext.DataMaps.Add(map);
+                if (isUpdate)
+                {
+                    map = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == vm.DataMapId);
+                    if (map != null)
+                    {
+                        map.Id = vm.DataMapId;
+                    }
+                }
+                else
+                {
+                    map = new DataMap();
+                }
+
+                map.Name = vm.MapName;
+                map.EntityId = vm.MapToEntity.Value;
+                map.Map = vm.JsonMap;
+                map.CreateDate = isUpdate ? map .CreateDate : DateTime.Now;
+                map.UpdateDate = DateTime.Now;
+
+                dataFlowDbContext.DataMaps.AddOrUpdate(map);
                 dataFlowDbContext.SaveChanges();
 
                 ModelState.Clear();

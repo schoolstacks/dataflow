@@ -17,6 +17,7 @@ namespace DataFlow.Web.Models
             DataSources = new List<SelectListItem>();
         }
 
+        public int DataMapId { get; set; }
         [Display(Name = "Map Name")]
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a map name.")]
         public string MapName { get; set; }
