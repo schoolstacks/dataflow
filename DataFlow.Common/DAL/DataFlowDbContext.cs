@@ -40,6 +40,8 @@ namespace DataFlow.Common.DAL
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Configurations.Add(new AgentMap());
             modelBuilder.Configurations.Add(new AgentScheduleMap());
             modelBuilder.Configurations.Add(new BootstrapDataMap());

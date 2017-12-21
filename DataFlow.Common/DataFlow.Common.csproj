@@ -95,17 +95,9 @@
     <Compile Include="Mapping\NLogMap.cs" />
     <Compile Include="Mapping\ProcessedDataMap.cs" />
     <Compile Include="Mapping\StatisticMap.cs" />
-    <Compile Include="Migrations\201712210730304_InitialMigrations.cs" />
-    <Compile Include="Migrations\201712210730304_InitialMigrations.Designer.cs">
-      <DependentUpon>201712210730304_InitialMigrations.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201712210736125_AgentTableRename.cs" />
-    <Compile Include="Migrations\201712210736125_AgentTableRename.Designer.cs">
-      <DependentUpon>201712210736125_AgentTableRename.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201712210743283_AgentDbSchema.cs" />
-    <Compile Include="Migrations\201712210743283_AgentDbSchema.Designer.cs">
-      <DependentUpon>201712210743283_AgentDbSchema.cs</DependentUpon>
+    <Compile Include="Migrations\201712210813018_InitialMigration.cs" />
+    <Compile Include="Migrations\201712210813018_InitialMigration.Designer.cs">
+      <DependentUpon>201712210813018_InitialMigration.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -125,14 +117,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201712210730304_InitialMigrations.resx">
-      <DependentUpon>201712210730304_InitialMigrations.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201712210736125_AgentTableRename.resx">
-      <DependentUpon>201712210736125_AgentTableRename.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201712210743283_AgentDbSchema.resx">
-      <DependentUpon>201712210743283_AgentDbSchema.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201712210813018_InitialMigration.resx">
+      <DependentUpon>201712210813018_InitialMigration.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
