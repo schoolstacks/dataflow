@@ -10,9 +10,6 @@ namespace DataFlow.Common.Mapping
             this.ToTable("Agent");
             this.HasKey(e => e.Id);
 
-            //this.Property(e => e.Id)
-            //    .HasColumnName("Id");
-
             this.Property(e => e.AgentTypeCode)
                 .IsRequired()
                 .HasMaxLength(50);
@@ -20,9 +17,6 @@ namespace DataFlow.Common.Mapping
             this.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(255);
-
-            //this.Property(e => e.Url)
-            //    .HasColumnName("Url");
         }
     }
 }

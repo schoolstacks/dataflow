@@ -7,7 +7,7 @@ namespace DataFlow.Common.Mapping
     {
         public AspNetUsersMap()
         {
-            this.ToTable("AspNetUsers", "dbo");
+            this.ToTable("AspNetUsers");
 
             this.HasKey(a => a.Id);
 

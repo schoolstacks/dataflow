@@ -10,9 +10,7 @@ namespace DataFlow.Common.Mapping
             this.ToTable("LogApplication");
             this.HasKey(x => x.Id);
 
-            this.Property(e => e.Id).HasColumnName("ID");
-
-            this.Property(e => e.Date).HasColumnType("datetime");
+            //this.Property(e => e.Date).HasColumnType("datetime");
 
             this.Property(e => e.Exception)
                 .HasMaxLength(2000)

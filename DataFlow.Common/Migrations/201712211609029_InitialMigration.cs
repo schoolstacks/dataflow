@@ -75,14 +75,14 @@ namespace DataFlow.Common.Migrations
                 "dbo.Entity",
                 c => new
                     {
-                        ID = c.Int(nullable: false, identity: true),
+                        Id = c.Int(nullable: false, identity: true),
                         Name = c.String(nullable: false, maxLength: 255, unicode: false),
                         URL = c.String(unicode: false),
                         Metadata = c.String(unicode: false),
                         CreateDate = c.DateTime(storeType: "date"),
                         UpdateDate = c.DateTime(storeType: "date"),
                     })
-                .PrimaryKey(t => t.ID);
+                .PrimaryKey(t => t.Id);
             
             CreateTable(
                 "dbo.BootstrapData",
@@ -104,20 +104,20 @@ namespace DataFlow.Common.Migrations
                 "dbo.File",
                 c => new
                     {
-                        ID = c.Int(nullable: false, identity: true),
-                        Filename = c.String(nullable: false, unicode: false),
-                        URL = c.String(unicode: false),
-                        AgentID = c.Int(nullable: false),
+                        Id = c.Int(nullable: false, identity: true),
+                        FileName = c.String(nullable: false, unicode: false),
+                        Url = c.String(),
+                        AgentId = c.Int(nullable: false),
                         Status = c.String(nullable: false, maxLength: 255, unicode: false),
                         Message = c.String(unicode: false),
                         Rows = c.Int(),
                         CreateDate = c.DateTime(),
                         UpdateDate = c.DateTime(),
                     })
-                .PrimaryKey(t => t.ID)
-                .ForeignKey("dbo.Agent", t => t.AgentID, cascadeDelete: true)
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Agent", t => t.AgentId, cascadeDelete: true)
                 .ForeignKey("dbo.FileStatus", t => t.Status, cascadeDelete: true)
-                .Index(t => t.AgentID)
+                .Index(t => t.AgentId)
                 .Index(t => t.Status);
             
             CreateTable(
@@ -132,21 +132,21 @@ namespace DataFlow.Common.Migrations
                 "dbo.LogIngestion",
                 c => new
                     {
-                        ID = c.Int(nullable: false, identity: true),
+                        Id = c.Int(nullable: false, identity: true),
                         EducationOrganizationId = c.Guid(),
                         Level = c.String(nullable: false, maxLength: 255, unicode: false),
                         Operation = c.String(nullable: false, maxLength: 255, unicode: false),
-                        AgentID = c.Int(nullable: false),
+                        AgentId = c.Int(nullable: false),
                         Process = c.String(nullable: false, unicode: false),
-                        Filename = c.String(unicode: false),
+                        FileName = c.String(),
                         Result = c.String(nullable: false, maxLength: 255, unicode: false),
                         Message = c.String(unicode: false),
                         RecordCount = c.Int(),
                         Date = c.DateTime(nullable: false),
                     })
-                .PrimaryKey(t => t.ID)
-                .ForeignKey("dbo.Agent", t => t.AgentID, cascadeDelete: true)
-                .Index(t => t.AgentID);
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Agent", t => t.AgentId, cascadeDelete: true)
+                .Index(t => t.AgentId);
             
             CreateTable(
                 "dbo.AspNetRoles",
@@ -221,8 +221,6 @@ namespace DataFlow.Common.Migrations
                 c => new
                     {
                         Key = c.String(nullable: false, maxLength: 255),
-                        Category = c.String(maxLength: 255),
-                        Type = c.String(maxLength: 255),
                         Value = c.String(),
                     })
                 .PrimaryKey(t => t.Key);
@@ -243,7 +241,7 @@ namespace DataFlow.Common.Migrations
                 "dbo.LogApplication",
                 c => new
                     {
-                        ID = c.Int(nullable: false, identity: true),
+                        Id = c.Int(nullable: false, identity: true),
                         Date = c.DateTime(nullable: false),
                         Thread = c.String(nullable: false, maxLength: 255, unicode: false),
                         Level = c.String(nullable: false, maxLength: 50, unicode: false),
@@ -251,34 +249,34 @@ namespace DataFlow.Common.Migrations
                         Message = c.String(nullable: false, maxLength: 4000, unicode: false),
                         Exception = c.String(maxLength: 2000, unicode: false),
                     })
-                .PrimaryKey(t => t.ID);
+                .PrimaryKey(t => t.Id);
             
             CreateTable(
                 "dbo.Lookup",
                 c => new
                     {
-                        ID = c.Int(nullable: false, identity: true),
+                        Id = c.Int(nullable: false, identity: true),
                         GroupSet = c.String(nullable: false, maxLength: 1024, unicode: false),
                         Key = c.String(nullable: false, maxLength: 1024, unicode: false),
                         Value = c.String(nullable: false, maxLength: 1024, unicode: false),
                     })
-                .PrimaryKey(t => t.ID);
+                .PrimaryKey(t => t.Id);
             
             CreateTable(
                 "dbo.ProcessedData",
                 c => new
                     {
-                        ID = c.Int(nullable: false, identity: true),
-                        base64HashedString = c.String(nullable: false),
+                        Id = c.Int(nullable: false, identity: true),
+                        Base64HashedString = c.String(),
                     })
-                .PrimaryKey(t => t.ID);
+                .PrimaryKey(t => t.Id);
             
             CreateTable(
                 "dbo.Statistic",
                 c => new
                     {
-                        ID = c.Int(nullable: false, identity: true),
-                        EntityID = c.Guid(nullable: false),
+                        Id = c.Int(nullable: false, identity: true),
+                        EntityId = c.Guid(nullable: false),
                         EntityType = c.String(nullable: false, maxLength: 255, unicode: false),
                         TermDescriptorId = c.Int(),
                         SchoolYear = c.Short(),
@@ -289,13 +287,13 @@ namespace DataFlow.Common.Migrations
                         InsertDate = c.DateTime(),
                         UpdateDate = c.DateTime(),
                     })
-                .PrimaryKey(t => t.ID);
+                .PrimaryKey(t => t.Id);
             
             CreateTable(
                 "dbo.NLog",
                 c => new
                     {
-                        ID = c.Int(nullable: false, identity: true),
+                        Id = c.Int(nullable: false, identity: true),
                         MachineName = c.String(nullable: false, maxLength: 200),
                         SiteName = c.String(nullable: false, maxLength: 200),
                         Logged = c.DateTime(nullable: false),
@@ -313,7 +311,7 @@ namespace DataFlow.Common.Migrations
                         Callsite = c.String(maxLength: 300),
                         Exception = c.String(),
                     })
-                .PrimaryKey(t => t.ID);
+                .PrimaryKey(t => t.Id);
             
         }
         
@@ -323,9 +321,9 @@ namespace DataFlow.Common.Migrations
             DropForeignKey("dbo.AspNetUserLogins", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserClaims", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserRoles", "RoleId", "dbo.AspNetRoles");
-            DropForeignKey("dbo.LogIngestion", "AgentID", "dbo.Agent");
+            DropForeignKey("dbo.LogIngestion", "AgentId", "dbo.Agent");
             DropForeignKey("dbo.File", "Status", "dbo.FileStatus");
-            DropForeignKey("dbo.File", "AgentID", "dbo.Agent");
+            DropForeignKey("dbo.File", "AgentId", "dbo.Agent");
             DropForeignKey("dbo.DataMapAgent", "DataMapId", "dbo.DataMap");
             DropForeignKey("dbo.DataMap", "EntityId", "dbo.Entity");
             DropForeignKey("dbo.BootstrapData", "EntityId", "dbo.Entity");
@@ -337,9 +335,9 @@ namespace DataFlow.Common.Migrations
             DropIndex("dbo.AspNetUserRoles", new[] { "RoleId" });
             DropIndex("dbo.AspNetUserRoles", new[] { "UserId" });
             DropIndex("dbo.AspNetRoles", "RoleNameIndex");
-            DropIndex("dbo.LogIngestion", new[] { "AgentID" });
+            DropIndex("dbo.LogIngestion", new[] { "AgentId" });
             DropIndex("dbo.File", new[] { "Status" });
-            DropIndex("dbo.File", new[] { "AgentID" });
+            DropIndex("dbo.File", new[] { "AgentId" });
             DropIndex("dbo.BootstrapData", new[] { "EntityId" });
             DropIndex("dbo.DataMap", new[] { "EntityId" });
             DropIndex("dbo.DataMapAgent", new[] { "AgentId" });

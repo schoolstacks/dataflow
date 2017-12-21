@@ -10,14 +10,9 @@ namespace DataFlow.Common.Mapping
             this.ToTable("File");
             this.HasKey(x => x.Id);
 
-            this.Property(e => e.Id).HasColumnName("ID");
-
-            this.Property(e => e.AgentId).HasColumnName("AgentID");
-
-            this.Property(e => e.CreateDate).HasColumnType("datetime");
+            // this.Property(e => e.CreateDate).HasColumnType("datetime");
 
             this.Property(e => e.FileName)
-                .HasColumnName("Filename")
                 .IsRequired()
                 .IsUnicode(false);
 
@@ -29,10 +24,6 @@ namespace DataFlow.Common.Mapping
                 .IsUnicode(false);
 
             this.Property(e => e.UpdateDate).HasColumnType("datetime");
-
-            this.Property(e => e.Url)
-                .HasColumnName("URL")
-                .IsUnicode(false);
 
             this.HasRequired(d => d.Agent)
                 .WithMany(p => p.Files)

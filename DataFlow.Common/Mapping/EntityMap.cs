@@ -7,10 +7,8 @@ namespace DataFlow.Common.Mapping
     {
         public EntityMap()
         {
-            this.ToTable("Entity", "dbo");
+            this.ToTable("Entity");
             this.HasKey(x => x.Id);
-
-            this.Property(e => e.Id).HasColumnName("ID");
 
             this.Property(e => e.CreateDate).HasColumnType("date");
 

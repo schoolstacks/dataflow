@@ -10,15 +10,7 @@ namespace DataFlow.Common.Mapping
             this.ToTable("LogIngestion");
             this.HasKey(x => x.Id);
 
-            this.Property(e => e.Id).HasColumnName("ID");
-
-            this.Property(e => e.AgentId).HasColumnName("AgentID");
-
             this.Property(e => e.Date).HasColumnType("datetime");
-
-            this.Property(e => e.FileName)
-                .HasColumnName("Filename")
-                .IsUnicode(false);
 
             this.Property(e => e.Level)
                 .IsRequired()

@@ -7,7 +7,7 @@ namespace DataFlow.Common.Mapping
     {
         public AspNetUserRoleMap()
         {
-            this.ToTable("AspNetUserRoles", "dbo");
+            this.ToTable("AspNetUserRoles");
             this.HasKey(x => new { x.UserId, x.RoleId });
 
             this.Property(e => e.UserId)

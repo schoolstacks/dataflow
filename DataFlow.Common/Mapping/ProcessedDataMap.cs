@@ -10,11 +10,9 @@ namespace DataFlow.Common.Mapping
             this.ToTable("ProcessedData");
             this.HasKey(x => x.Id);
 
-            this.Property(e => e.Id).HasColumnName("ID");
-
-            this.Property(e => e.Base64HashedString)
+            /* this.Property(e => e.Base64HashedString)
                 .IsRequired()
-                .HasColumnName("base64HashedString");
+                .HasColumnName("base64HashedString"); */
         }
     }
 }

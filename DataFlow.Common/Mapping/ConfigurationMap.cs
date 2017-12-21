@@ -7,16 +7,10 @@ namespace DataFlow.Common.Mapping
     {
         public ConfigurationMap()
         {
-            this.ToTable("Configuration", "dbo");
+            this.ToTable("Configuration");
             this.HasKey(x => x.Key);
 
             this.Property(e => e.Key)
-                .HasMaxLength(255);
-
-            this.Property(e => e.Category)
-                .HasMaxLength(255);
-
-            this.Property(e => e.Type)
                 .HasMaxLength(255);
         }
     }

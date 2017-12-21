@@ -10,10 +10,6 @@ namespace DataFlow.Common.Mapping
             this.ToTable("Statistic");
             this.HasKey(x => x.Id);
 
-            this.Property(e => e.Id).HasColumnName("ID");
-
-            this.Property(e => e.EntityId).HasColumnName("EntityID");
-
             this.Property(e => e.EntityType)
                 .IsRequired()
                 .HasMaxLength(255)

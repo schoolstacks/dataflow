@@ -10,8 +10,6 @@ namespace DataFlow.Common.Mapping
             this.ToTable("Lookup");
             this.HasKey(x => x.Id);
 
-            this.Property(e => e.Id).HasColumnName("ID");
-
             this.Property(e => e.GroupSet)
                 .IsRequired()
                 .HasMaxLength(1024)

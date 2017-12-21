@@ -6,11 +6,8 @@ namespace DataFlow.Common.Mapping
     {
         public NLogMap()
         {
-            this.ToTable("NLog", "dbo");
+            this.ToTable("NLog");
             this.HasKey(x => x.Id);
-
-            this.Property(x => x.Id)
-                .HasColumnName("ID");
 
             this.Property(x => x.MachineName)
                 .HasMaxLength(200)

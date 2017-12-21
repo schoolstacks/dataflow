@@ -10,18 +10,12 @@ namespace DataFlow.Common.Mapping
             this.ToTable("BootstrapData");
             this.HasKey(e => e.Id);
 
-            /* this.Property(e => e.Id)
-                .HasColumnName("Id"); */
-
             this.Property(e => e.CreateDate)
                 .HasColumnType("datetime");
 
             this.Property(e => e.Data)
                 .IsRequired()
                 .IsUnicode(false);
-
-            /* this.Property(e => e.EntityId)
-                .HasColumnName("EntityId"); */
 
             this.Property(e => e.ProcessedDate)
                 .HasColumnType("datetime");
