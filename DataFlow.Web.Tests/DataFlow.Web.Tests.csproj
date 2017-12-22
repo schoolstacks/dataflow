@@ -107,6 +107,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\appSettings.config">
+      <Link>appSettings.config</Link>
+    </None>
+    <None Include="..\connectionStrings.config">
+      <Link>connectionStrings.config</Link>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

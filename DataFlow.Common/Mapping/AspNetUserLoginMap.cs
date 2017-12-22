@@ -7,7 +7,7 @@ namespace DataFlow.Common.Mapping
     {
         public AspNetUserLoginMap()
         {
-            this.ToTable("AspNetUserLogins", "dbo");
+            this.ToTable("AspNetUserLogins");
             this.HasKey(e => new { e.LoginProvider, e.ProviderKey, e.UserId });
 
             this.Property(e => e.LoginProvider)

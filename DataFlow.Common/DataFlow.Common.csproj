@@ -73,27 +73,17 @@
     <Compile Include="Enums\AgentTypeCodeEnum.cs" />
     <Compile Include="Enums\FileModeEnum.cs" />
     <Compile Include="Enums\FileStatusEnum.cs" />
-    <Compile Include="Mapping\AgentMap.cs" />
-    <Compile Include="Mapping\AgentScheduleMap.cs" />
+    <Compile Include="Helpers\UrlUtility.cs" />
     <Compile Include="Mapping\AspNetRoleMap.cs" />
     <Compile Include="Mapping\AspNetUserClaimMap.cs" />
     <Compile Include="Mapping\AspNetUserLoginMap.cs" />
     <Compile Include="Mapping\AspNetUserRoleMap.cs" />
     <Compile Include="Mapping\AspNetUsersMap.cs" />
-    <Compile Include="Mapping\BootstrapDataMap.cs" />
-    <Compile Include="Mapping\ConfigurationMap.cs" />
-    <Compile Include="Mapping\DataMapAgentMap.cs" />
-    <Compile Include="Mapping\DataMapMap.cs" />
-    <Compile Include="Mapping\EdFiDictionaryMap.cs" />
-    <Compile Include="Mapping\EntityMap.cs" />
-    <Compile Include="Mapping\FileMap.cs" />
-    <Compile Include="Mapping\FileStatusMapcs.cs" />
-    <Compile Include="Mapping\LogApplicationMap.cs" />
-    <Compile Include="Mapping\LogIngestionMap.cs" />
-    <Compile Include="Mapping\LookupMap.cs" />
-    <Compile Include="Mapping\MigrationHistoryMap.cs" />
-    <Compile Include="Mapping\ProcessedDataMap.cs" />
-    <Compile Include="Mapping\StatisticMap.cs" />
+    <Compile Include="Migrations\201712212220191_InitialMigration.cs" />
+    <Compile Include="Migrations\201712212220191_InitialMigration.Designer.cs">
+      <DependentUpon>201712212220191_InitialMigration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\CacheService.cs" />
     <Compile Include="Services\ICacheService.cs" />
@@ -110,6 +100,10 @@
       <Name>DataFlow.Models</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201712212220191_InitialMigration.resx">
+      <DependentUpon>201712212220191_InitialMigration.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
