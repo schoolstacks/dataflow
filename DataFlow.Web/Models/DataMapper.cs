@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using DataFlow.Web.Helpers;
@@ -146,6 +147,22 @@ namespace DataFlow.Web.Models
         /// <returns></returns>
         public static List<DataMapper> BuildPropertyUniqueKey(List<DataMapper> dataMappers)
         {
+            var toMove = dataMappers.SelectMany(x => x.SubDataMappers.Where(y => y.Name.Contains("_Item"))).ToList();
+
+            foreach (var moveMapper in toMove)
+            {
+                var replace = dataMappers.FirstOrDefault(x => x.Name == DataMapperHelpers.CleanJsonArrayObjectName(moveMapper.Name));
+                if (replace != null)
+                {
+                    var index = dataMappers.IndexOf(replace);
+                    dataMappers[index].SubDataMappers.Clear();
+                    dataMappers[index].SubDataMappers.AddRange(moveMapper.SubDataMappers);
+
+                    //dataMappers.Remove(replace);
+                    //dataMappers.Insert(index, moveMapper);
+                }
+            }
+
             dataMappers.ForEach(dm =>
             {
                 if (dm.DataMapperProperty == null)
@@ -155,6 +172,10 @@ namespace DataFlow.Web.Models
 
                 if (dm.SubDataMappers.Any())
                 {
+                    dm.DataMapperProperty.DataType = dm.DataMapperProperty.DataType.EndsWith("Reference")
+                                                        ? dm.DataMapperProperty.DataType
+                                                        : "array";
+
                     dm.SubDataMappers.ForEach(sub =>
                     {
                         if (sub.DataMapperProperty == null)
@@ -168,6 +189,10 @@ namespace DataFlow.Web.Models
 
                         if (sub.SubDataMappers.Any())
                         {
+                            sub.DataMapperProperty.DataType = sub.DataMapperProperty.DataType.EndsWith("Reference")
+                                ? sub.DataMapperProperty.DataType
+                                : "array";
+
                             sub.SubDataMappers.ForEach(tri =>
                             {
                                 if (tri.DataMapperProperty == null)
@@ -177,12 +202,27 @@ namespace DataFlow.Web.Models
                                 tri.DataMapperProperty.UniqueKey = $"{dm.Name}_{sub.Name}_{tri.Name}";
 
                             });
+
+                            //if (sub.Name.EndsWith("Item0"))
+                            //{
+                            //    moveMappers.Add(new Tuple<DataMapper, DataMapper>(dm, sub));
+                            //}
                         }
                     });
                 }
             });
 
+            
+
             return dataMappers;
+        }
+    }
+
+    public class DataMapperHelpers
+    {
+        public static string CleanJsonArrayObjectName(string objectName)
+        {
+            return objectName.LastIndexOf('_') > 0 ? objectName.Remove(objectName.LastIndexOf('_')) : objectName;
         }
     }
 
