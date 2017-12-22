@@ -157,9 +157,6 @@ namespace DataFlow.Web.Models
                     var index = dataMappers.IndexOf(replace);
                     dataMappers[index].SubDataMappers.Clear();
                     dataMappers[index].SubDataMappers.AddRange(moveMapper.SubDataMappers);
-
-                    //dataMappers.Remove(replace);
-                    //dataMappers.Insert(index, moveMapper);
                 }
             }
 
@@ -176,6 +173,8 @@ namespace DataFlow.Web.Models
                                                         ? dm.DataMapperProperty.DataType
                                                         : "array";
 
+                    dm.DataMapperProperty.ChildType = dm.Name;
+                    
                     dm.SubDataMappers.ForEach(sub =>
                     {
                         if (sub.DataMapperProperty == null)
@@ -193,6 +192,8 @@ namespace DataFlow.Web.Models
                                 ? sub.DataMapperProperty.DataType
                                 : "array";
 
+                            sub.DataMapperProperty.ChildType = sub.Name;
+
                             sub.SubDataMappers.ForEach(tri =>
                             {
                                 if (tri.DataMapperProperty == null)
@@ -202,11 +203,6 @@ namespace DataFlow.Web.Models
                                 tri.DataMapperProperty.UniqueKey = $"{dm.Name}_{sub.Name}_{tri.Name}";
 
                             });
-
-                            //if (sub.Name.EndsWith("Item0"))
-                            //{
-                            //    moveMappers.Add(new Tuple<DataMapper, DataMapper>(dm, sub));
-                            //}
                         }
                     });
                 }
