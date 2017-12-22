@@ -75,17 +75,17 @@
         <table id="tblApplication" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true" data-paging="true" data-paging-size="20">
             <thead>
                 <tr>
-                    <th>Thread</th>
+                    <th>MachineName</th>
                     <th>Logger</th>
                     <th>Message</th>
                     <th>Exception</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var s in Model.LogApplications)
+                @foreach (var s in Model.NLogs)
             {
                     <tr>
-                        <td>@s.Thread</td>
+                        <td>@s.MachineName</td>
                         <td>@s.Logger</td>
                         <td>@s.Message</td>
                         <td>@s.Exception</td>
