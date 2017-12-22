@@ -98,7 +98,7 @@ namespace DataFlow.Server.TransformLoad
                 await InsertBootrapData(ctx);
                 MappingLookups = ctx.Lookups.ToList();
 
-                List<Models.File> files = ctx.Files.Where(file => file.Status.ToUpper() == FileStatusEnum.UPLOADED).Include(file => file.Agent).Include(file => file.Agent.DataMapAgents).Include(file => file.Agent.DataMapAgents.Select(da => da.DataMap)).Include(file => file.Agent.DataMapAgents.Select(da => da.DataMap.Entity)).ToList();
+                List<Models.File> files = ctx.Files.Where(file => file.Status.ToUpper() == FileStatusEnum.UPLOADED || file.Status.ToUpper() == FileStatusEnum.RETRY).Include(file => file.Agent).Include(file => file.Agent.DataMapAgents).Include(file => file.Agent.DataMapAgents.Select(da => da.DataMap)).Include(file => file.Agent.DataMapAgents.Select(da => da.DataMap.Entity)).ToList();
 
                 foreach (Models.File singleFile in files)
                 {
@@ -500,20 +500,22 @@ namespace DataFlow.Server.TransformLoad
             return new KeyValuePair<bool, string>(result, recordId);
         }
 
-        private static string GetApiBaseUrl(DataFlowDbContext ctx)
+        private static string GetApiUrl(DataFlowDbContext ctx)
         {
-            return ctx.Configurations.Where(p => p.Key == "API_SERVER_BASEURL").First().Value;
+            return ctx.Configurations.Where(p => p.Key == "API_SERVER_URL").First().Value;
         }
         internal static string GetAccessTokenUrl(DataFlowDbContext ctx)
         {
-            string baseUrl = GetApiBaseUrl(ctx);
-            return baseUrl + "/oauth/token";
+            string url = GetApiUrl(ctx);
+            url = DataFlow.Common.Helpers.UrlUtility.GetUntilOrEmpty(url, "/api");
+            return url + "/oauth/token";
         }
 
         internal static string GetAuthorizeUrl(DataFlowDbContext ctx)
         {
-            string baseUrl = GetApiBaseUrl(ctx);
-            return baseUrl + "/oauth/authorize";
+            string url = GetApiUrl(ctx);
+            url = DataFlow.Common.Helpers.UrlUtility.GetUntilOrEmpty(url, "/api");
+            return url + "/oauth/authorize";
         }
 
         internal static string GetApiClientSecret(DataFlowDbContext ctx)
@@ -532,9 +534,9 @@ namespace DataFlow.Server.TransformLoad
             try
             {
                 JToken swaggerMetaData = JToken.Parse(metadata);
-                string basePath = GetApiBaseUrl(ctx) + "/api/v2.0/2017";
+                string urlPath = GetApiUrl(ctx);
                 string resourcePath = swaggerMetaData["resourcePath"].Value<string>();
-                strUrl = string.Format("{0}{1}", basePath, resourcePath);
+                strUrl = string.Format("{0}{1}", urlPath, resourcePath);
             }
             catch (Exception ex)
             {
@@ -685,7 +687,7 @@ namespace DataFlow.Server.TransformLoad
                 rowNum++;
                 foreach (var singleDataMapAgent in orderedDataMapAgents)
                 {
-                    Log(log4net.Core.Level.Info, "Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Family: {4}. Row #: {5}",
+                    Log(log4net.Core.Level.Info, "Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Row #: {4}",
                         singleDataMapAgent.DataMap.Id, singleDataMapAgent.AgentId, singleDataMapAgent.DataMapId, singleDataMapAgent.DataMap.Entity.Name,
                         rowNum);
                     var entity = singleDataMapAgent.DataMap.Entity;
