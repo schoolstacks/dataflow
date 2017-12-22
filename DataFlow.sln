@@ -21,6 +21,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Server.TransformLo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFlow.Server.FileTransport.Tests", "DataFlow.Server.FileTransport.Tests\DataFlow.Server.FileTransport.Tests.csproj", "{4AF848E3-A7F5-4F7A-8C82-370F9A2E2D2D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AF8B985D-9D72-49BD-8EA5-AA904524282C}"
+	ProjectSection(SolutionItems) = preProject
+		appSettings.config = appSettings.config
+		connectionStrings.config = connectionStrings.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
