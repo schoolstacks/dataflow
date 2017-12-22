@@ -16,58 +16,94 @@ namespace DataFlow.Web.Helpers
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
+            /* Method One: Everything is a JObject */
             var list = (List<DataMapper>)value;
-            if (list.Any(dm => dm.DataMapperProperty != null))
+            var obj = new JObject(list.Select(dm =>
             {
-                var obj = new JObject(list.Select(dm =>
-                {
-                    var val = dm.DataMapperProperty != null
-                        ? JToken.FromObject(dm.DataMapperProperty, serializer)
-                        : JToken.FromObject(dm.SubDataMappers, serializer);
-                    return new JProperty(dm.Name, val);
-                }));
-                obj.WriteTo(writer);
-            }
-            else
-            {
-                serializer.Serialize(writer,
-                    list.Select(dm => new Dictionary<string, List<DataMapper>>
-                    {
-                        { dm.Name, dm.SubDataMappers }
-                    }));
-            }
+                var val = dm.DataMapperProperty != null
+                    ? JToken.FromObject(dm.DataMapperProperty, serializer)
+                    : JToken.FromObject(dm.SubDataMappers, serializer);
+
+                return new JProperty(dm.Name, val);
+            }));
+            obj.WriteTo(writer);
+
+            /* 
+             * Method Two: More complex, but utilizes JObject and JArray.
+             * Additionally requires that ALL objects belong to a DataMapper list.
+             * Also has the risk of being able to write a valid JSON document, but may not be able to read it.
+             */
+            //var list = (List<DataMapper>)value;
+            //if (list.Any(dm => dm.DataMapperProperty != null))
+            //{
+            //    var obj = new JObject(list.Select(dm =>
+            //    {
+            //        var val = dm.DataMapperProperty != null
+            //            ? JToken.FromObject(dm.DataMapperProperty, serializer)
+            //            : JToken.FromObject(dm.SubDataMappers, serializer);
+            //        return new JProperty(dm.Name, val);
+            //    }));
+            //    obj.WriteTo(writer);
+            //}
+            //else
+            //{
+            //    serializer.Serialize(writer,
+            //        list.Select(dm => new Dictionary<string, List<DataMapper>>
+            //        {
+            //            { dm.Name, dm.SubDataMappers }
+            //        }));
+            //}
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            /* Method One: Matches Write Method One Above */
             var token = JToken.Load(reader);
-            switch (token.Type)
-            {
-                case JTokenType.Object:
-                    return token.Children<JProperty>()
-                        .Select(jp =>
-                        {
-                            var mapper = new DataMapper { Name = jp.Name };
-                            var val = jp.Value;
-                            if (val["data-type"] != null)
-                                mapper.DataMapperProperty = jp.Value.ToObject<DataMapperProperty>(serializer);
-                            else
-                                mapper.SubDataMappers = jp.Value.ToObject<List<DataMapper>>(serializer);
-                            return mapper;
-                        })
-                        .ToList();
-                case JTokenType.Array:
-                    return token.Children<JObject>()
-                        .SelectMany(jo => jo.Properties())
-                        .Select(jp => new DataMapper
-                        {
-                            Name = jp.Name,
-                            SubDataMappers = jp.Value.ToObject<List<DataMapper>>(serializer)
-                        })
-                        .ToList();
-                default:
-                    throw new JsonException("Unexpected token type: " + token.Type);
-            }
+            var list = token
+                .Children<JProperty>()
+                .Select(jp =>
+                {
+                    var mapper = new DataMapper { Name = jp.Name };
+                    if (jp.Value["data-type"] != null)
+                        mapper.DataMapperProperty = jp.Value.ToObject<DataMapperProperty>(serializer);
+                    else
+                        mapper.SubDataMappers = jp.Value.ToObject<List<DataMapper>>(serializer);
+                    return mapper;
+                })
+                .ToList();
+            return list;
+
+            /* 
+             * Method Two: Matches Write Method Two Above.
+             */
+            //var token = JToken.Load(reader);
+            //switch (token.Type)
+            //{
+            //    case JTokenType.Object:
+            //        return token.Children<JProperty>()
+            //            .Select(jp =>
+            //            {
+            //                var mapper = new DataMapper { Name = jp.Name };
+            //                var val = jp.Value;
+            //                if (val["data-type"] != null)
+            //                    mapper.DataMapperProperty = jp.Value.ToObject<DataMapperProperty>(serializer);
+            //                else
+            //                    mapper.SubDataMappers = jp.Value.ToObject<List<DataMapper>>(serializer);
+            //                return mapper;
+            //            })
+            //            .ToList();
+            //    case JTokenType.Array:
+            //        return token.Children<JObject>()
+            //            .SelectMany(jo => jo.Properties())
+            //            .Select(jp => new DataMapper
+            //            {
+            //                Name = jp.Name,
+            //                SubDataMappers = jp.Value.ToObject<List<DataMapper>>(serializer)
+            //            })
+            //            .ToList();
+            //    default:
+            //        throw new JsonException("Unexpected token type: " + token.Type);
+            //}
         }
     }
 }

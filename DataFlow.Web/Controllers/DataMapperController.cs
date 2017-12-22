@@ -23,7 +23,7 @@ namespace DataFlow.Web.Controllers
         private readonly DataFlowDbContext dataFlowDbContext;
         private readonly EdFiMetadataProcessor edFiMetadataProcessor;
 
-        public DataMapperController(DataFlowDbContext dataFlowDbContext, EdFiMetadataProcessor edFiMetadataProcessor, 
+        public DataMapperController(DataFlowDbContext dataFlowDbContext, EdFiMetadataProcessor edFiMetadataProcessor,
             IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
@@ -118,7 +118,7 @@ namespace DataFlow.Web.Controllers
                 map.Name = vm.MapName;
                 map.EntityId = vm.MapToEntity.Value;
                 map.Map = vm.JsonMap;
-                map.CreateDate = isUpdate ? map .CreateDate : DateTime.Now;
+                map.CreateDate = isUpdate ? map.CreateDate : DateTime.Now;
                 map.UpdateDate = DateTime.Now;
 
                 dataFlowDbContext.DataMaps.AddOrUpdate(map);
@@ -215,14 +215,14 @@ namespace DataFlow.Web.Controllers
                             ;
                             var subDataMapper = new DataMapper();
 
-                        if (subField.Required || GetAdditionalFields(x.Name).Contains(subField.Name))
-                        {
-                            subDataMapper = new DataMapper(
-                                    name: subField.Name,
-                                    dataMapperProperty: new DataMapperProperty(
-                                        dataType: subField.Type,
-                                        childType: !string.IsNullOrWhiteSpace(subField.SubType) ? subField.Name : string.Empty
-                                    ));
+                            if (subField.Required || GetAdditionalFields(x.Name).Contains(subField.Name))
+                            {
+                                subDataMapper = new DataMapper(
+                                        name: subField.Name,
+                                        dataMapperProperty: new DataMapperProperty(
+                                            dataType: subField.Type,
+                                            childType: !string.IsNullOrWhiteSpace(subField.SubType) ? subField.Name : string.Empty
+                                        ));
                                 dataMapperField.SubDataMappers.Add(subDataMapper);
                             }
 
@@ -233,14 +233,14 @@ namespace DataFlow.Web.Controllers
                                     if (triField.Name == "id")
                                         return;
 
-                                if (triField.Required)
-                                {
-                                    var triDataMapper = new DataMapper(
-                                            name: triField.Name,
-                                            dataMapperProperty: new DataMapperProperty(
-                                                dataType: triField.Type,
-                                                childType: !string.IsNullOrWhiteSpace(triField.SubType) ? triField.Name : string.Empty
-                                            ));
+                                    if (triField.Required)
+                                    {
+                                        var triDataMapper = new DataMapper(
+                                                name: triField.Name,
+                                                dataMapperProperty: new DataMapperProperty(
+                                                    dataType: triField.Type,
+                                                    childType: !string.IsNullOrWhiteSpace(triField.SubType) ? triField.Name : string.Empty
+                                                ));
 
                                         subDataMapper.SubDataMappers.Add(triDataMapper);
                                     }
@@ -249,7 +249,7 @@ namespace DataFlow.Web.Controllers
                         });
                     }
 
-                    var dataMappers = new List<DataMapper> {dataMapperField};
+                    var dataMappers = new List<DataMapper> { dataMapperField };
                     var builder = DataMapperBuilder.BuildPropertyUniqueKey(dataMappers);
 
                     vm.Fields.AddRange(builder);
@@ -265,13 +265,19 @@ namespace DataFlow.Web.Controllers
             var nonObjectsOrArrays = new[] { "string", "date-time", "boolean", "integer" };
 
             var dataMapperModels = new List<DataMapper>();
+
             fields.ForEach(f =>
             {
                 var fieldCount = formCollection[$"hf{f}_ChildType"]?.Split(',').Length ?? 0;
 
                 for (var i = 0; i < fieldCount; i++)
                 {
+                    var source = formCollection[$"ddl{f}_SourceType"].SplitGetElementAt(',', i);
+                    var sourceColumn = formCollection[$"ddl{f}_SourceColumn"].SplitGetElementAt(',', i);
                     var dataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i);
+                    var defaultValue = formCollection[$"txt{f}_DefaultValue"].SplitGetElementAt(',', i);
+                    var sourceTable = formCollection[$"ddl{f}_SourceTable"].SplitGetElementAt(',', i);
+                    var staticValue = formCollection[$"txt{f}_StaticValue"].SplitGetElementAt(',', i);
                     var childType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i);
                     var parentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i);
                     var parentTypes = parentType?.Split(':').ToList() ?? new List<string>();
@@ -288,14 +294,14 @@ namespace DataFlow.Web.Controllers
                                 Name = GetJsonFieldName(f),
                                 DataMapperProperty = new DataMapperProperty
                                 {
-                                    Source = formCollection[$"ddl{f}_SourceType"].SplitGetElementAt(',', i),
-                                    SourceColumn = formCollection[$"ddl{f}_SourceColumn"].SplitGetElementAt(',', i),
-                                    DataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i),
-                                    Default = formCollection[$"txt{f}_DefaultValue"].SplitGetElementAt(',', i),
-                                    SourceTable = formCollection[$"ddl{f}_SourceTable"].SplitGetElementAt(',', i),
-                                    Value = formCollection[$"txt{f}_StaticValue"].SplitGetElementAt(',', i),
-                                    ChildType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i),
-                                    ParentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i)
+                                    Source = source,
+                                    SourceColumn = sourceColumn,
+                                    DataType = dataType,
+                                    Default = defaultValue,
+                                    SourceTable = sourceTable,
+                                    Value = staticValue,
+                                    ChildType = childType,
+                                    ParentType = parentType
                                 }
                             };
                             dataMapperModels.Add(model);
@@ -341,14 +347,14 @@ namespace DataFlow.Web.Controllers
                                 Name = $"{GetJsonFieldName(f)}",
                                 DataMapperProperty = new DataMapperProperty()
                                 {
-                                    Source = formCollection[$"ddl{f}_SourceType"].SplitGetElementAt(',', i),
-                                    SourceColumn = formCollection[$"ddl{f}_SourceColumn"].SplitGetElementAt(',', i),
-                                    DataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i),
-                                    Default = formCollection[$"txt{f}_DefaultValue"].SplitGetElementAt(',', i),
-                                    SourceTable = formCollection[$"ddl{f}_SourceTable"].SplitGetElementAt(',', i),
-                                    Value = formCollection[$"txt{f}_StaticValue"].SplitGetElementAt(',', i),
-                                    ChildType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i),
-                                    ParentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i)
+                                    Source = source,
+                                    SourceColumn = sourceColumn,
+                                    DataType = dataType,
+                                    Default = defaultValue,
+                                    SourceTable = sourceTable,
+                                    Value = staticValue,
+                                    ChildType = childType,
+                                    ParentType = parentType
                                 }
                             });
                     }
@@ -368,21 +374,24 @@ namespace DataFlow.Web.Controllers
                         }
                         if (model.SubDataMappers.All(x => x.Name != $"{GetJsonFieldName(f)}_Item{i}"))
                         {
-                            model.SubDataMappers.Add(new DataMapper()
+                            if(dataType == "array" && parentType == null)
                             {
-                                Name = $"{GetJsonFieldName(f)}_Item{i}",
-                                DataMapperProperty = new DataMapperProperty()
+                                model.SubDataMappers.Add(new DataMapper()
                                 {
-                                    Source = formCollection[$"ddl{f}_SourceType"].SplitGetElementAt(',', i),
-                                    SourceColumn = formCollection[$"ddl{f}_SourceColumn"].SplitGetElementAt(',', i),
-                                    DataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i),
-                                    Default = formCollection[$"txt{f}_DefaultValue"].SplitGetElementAt(',', i),
-                                    SourceTable = formCollection[$"ddl{f}_SourceTable"].SplitGetElementAt(',', i),
-                                    Value = formCollection[$"txt{f}_StaticValue"].SplitGetElementAt(',', i),
-                                    ChildType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i),
-                                    ParentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i)
-                                }
-                            });
+                                    Name = $"{GetJsonFieldName(f)}_Item{i}",
+                                    DataMapperProperty = new DataMapperProperty()
+                                    {
+                                        Source = source,
+                                        SourceColumn = sourceColumn,
+                                        DataType = dataType,
+                                        Default = defaultValue,
+                                        SourceTable = sourceTable,
+                                        Value = staticValue,
+                                        ChildType = childType,
+                                        ParentType = parentType
+                                    }
+                                });
+                            }
                         }
 
                         if (firstParent != null && secondParent == null)
@@ -397,34 +406,33 @@ namespace DataFlow.Web.Controllers
                                     Name = $"{GetJsonFieldName(f)}",
                                     DataMapperProperty = new DataMapperProperty()
                                     {
-                                        Source = formCollection[$"ddl{f}_SourceType"].SplitGetElementAt(',', i),
-                                        SourceColumn = formCollection[$"ddl{f}_SourceColumn"].SplitGetElementAt(',', i),
-                                        DataType = formCollection[$"hf{f}_DataType"].SplitGetElementAt(',', i),
-                                        Default = formCollection[$"txt{f}_DefaultValue"].SplitGetElementAt(',', i),
-                                        SourceTable = formCollection[$"ddl{f}_SourceTable"].SplitGetElementAt(',', i),
-                                        Value = formCollection[$"txt{f}_StaticValue"].SplitGetElementAt(',', i),
-                                        ChildType = formCollection[$"hf{f}_ChildType"].SplitGetElementAt(',', i),
-                                        ParentType = formCollection[$"hf{f}_ParentType"].SplitGetElementAt(',', i)
+                                        Source = source,
+                                        SourceColumn = sourceColumn,
+                                        DataType = dataType,
+                                        Default = defaultValue,
+                                        SourceTable = sourceTable,
+                                        Value = staticValue,
+                                        ChildType = childType,
+                                        ParentType = parentType
                                     }
                                 });
                         }
                         else
                         {
                             if (addModel)
+                            {
                                 dataMapperModels.Add(model);
+                            }
                         }
                     }
-
-
                 }
             });
 
-            //clean up, if a DataMapper has SubDataMappers it shouldn't have a DataMapperProperty
             dataMapperModels.ForEach(dm =>
             {
                 if (dm.SubDataMappers.Any())
                 {
-                    dm.Name = CleanJsonArrayObjectName(dm.Name);
+                    //dm.Name = CleanJsonArrayObjectName(dm.Name);
                     dm.DataMapperProperty = null;
                 }
 
@@ -432,7 +440,7 @@ namespace DataFlow.Web.Controllers
                 {
                     if (subdm.SubDataMappers.Any())
                     {
-                        subdm.Name = CleanJsonArrayObjectName(subdm.Name);
+                        //subdm.Name = CleanJsonArrayObjectName(subdm.Name);
                         subdm.DataMapperProperty = null;
                     }
 
@@ -440,14 +448,19 @@ namespace DataFlow.Web.Controllers
                     {
                         if (tridm.SubDataMappers.Any())
                         {
-                            tridm.Name = CleanJsonArrayObjectName(tridm.Name);
+                            //tridm.Name = CleanJsonArrayObjectName(tridm.Name);
                             tridm.DataMapperProperty = null;
                         }
                     });
                 });
             });
 
-            var jsonMap = JsonConvert.SerializeObject(dataMapperModels, DataMapper.JsonSerializerSettings);
+            var serializeOne = JsonConvert.SerializeObject(dataMapperModels, DataMapper.JsonSerializerSettings);
+            var deserialize = JsonConvert.DeserializeObject<List<DataMapper>>(serializeOne, DataMapper.JsonSerializerSettings);
+            var serializeTwo = JsonConvert.SerializeObject(deserialize, DataMapper.JsonSerializerSettings);
+
+
+            var jsonMap = serializeTwo;
 
             return Json(jsonMap);
         }
