@@ -185,7 +185,7 @@ namespace DataFlow.Web.Controllers
 
                     LogService.Info(string.Format("New User Registration: {0}", model.Email));
 
-                    if (!dataFlowDbContext.AspNetUsers.Any()) //send them to the configuration page
+                    if (dataFlowDbContext.AspNetUsers.Count() == 1) //send them to the configuration page
                         return RedirectToAction("Index", "Configuration");
 
                     return RedirectToAction("Index", "School");

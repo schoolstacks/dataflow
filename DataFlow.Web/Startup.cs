@@ -14,22 +14,22 @@ namespace DataFlow.Web
         public void Configuration(IAppBuilder app)
         {
             // Check to see if the default database exists, if not, create it
-            DataFlowDbContext context = new DataFlowDbContext();
-            bool exists = context.Database
-                     .SqlQuery<int?>(@"
-                         SELECT 1 FROM sys.tables AS T
-                         INNER JOIN sys.schemas AS S ON T.schema_id = S.schema_id
-                         WHERE S.Name = 'dbo' AND T.Name = 'Agents'")
-                     .SingleOrDefault() != null;            
-            if (!exists)
+            using (DataFlowDbContext ctx = new DataFlowDbContext())
             {
-                // Auto-migrate the DataFlow.Common entity model to the database
-                Configuration config = new Configuration();
-                DbMigrator migrator = new DbMigrator(config);
-                migrator.Update();
+                bool exists = ctx.Database
+                     .SqlQuery<int?>(@"
+                                     SELECT 1 FROM sys.tables AS T
+                                     INNER JOIN sys.schemas AS S ON T.schema_id = S.schema_id
+                                     WHERE S.Name = 'dbo' AND T.Name = 'Agents'")
+                     .SingleOrDefault() != null;
+                if (!exists)
+                {
+                    // Auto-migrate the DataFlow.Common entity model to the database
+                    Configuration config = new Configuration();
+                    DbMigrator migrator = new DbMigrator(config);
+                    migrator.Update();
+                }
             }
-
-
 
             ConfigureAuth(app);
         }
