@@ -1,7 +1,10 @@
 ﻿using Microsoft.Owin;
 using Owin;
 using DataFlow.Common.Migrations;
+using DataFlow.Common.DAL;
 using System.Data.Entity.Migrations;
+using System.Data.Entity;
+using System.Linq;
 
 [assembly: OwinStartupAttribute(typeof(DataFlow.Web.Startup))]
 namespace DataFlow.Web
@@ -10,10 +13,23 @@ namespace DataFlow.Web
     {
         public void Configuration(IAppBuilder app)
         {
-            // Auto-migrate the DataFlow.Common entity model to the database
-            Configuration config = new Configuration();
-            DbMigrator migrator = new DbMigrator(config);
-            migrator.Update();
+            // Check to see if the default database exists, if not, create it
+            DataFlowDbContext context = new DataFlowDbContext();
+            bool exists = context.Database
+                     .SqlQuery<int?>(@"
+                         SELECT 1 FROM sys.tables AS T
+                         INNER JOIN sys.schemas AS S ON T.schema_id = S.schema_id
+                         WHERE S.Name = 'dbo' AND T.Name = 'Agents'")
+                     .SingleOrDefault() != null;            
+            if (!exists)
+            {
+                // Auto-migrate the DataFlow.Common entity model to the database
+                Configuration config = new Configuration();
+                DbMigrator migrator = new DbMigrator(config);
+                migrator.Update();
+            }
+
+
 
             ConfigureAuth(app);
         }
