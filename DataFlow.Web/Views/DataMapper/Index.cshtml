@@ -43,13 +43,13 @@
         <div class="col-sm-2">
             @Html.Label("CSV File", new { @class = "control-label", @for = "uploadCsvFile" })
         </div>
-        <div class="col-sm-10">
+        <div class="col-sm-8">
             @Html.TextBox("uploadCsvFile", null, new { @class = "form-control auto-height", type = "file", required = "required", accept = ".csv,text/csv" })
+            
         </div>
-    </div>
-    <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-            <button id="btnUpload" type="submit" class="btn btn-primary">Upload</button>
+        <div class="col-sm-2">
+                <button id="btnUpload" type="submit" class="btn btn-primary">Upload</button>
+
         </div>
     </div>
 }
@@ -81,7 +81,6 @@
             </tbody>
         </table>
     </div>
-    <br />
 }
 
 @using (Html.BeginForm("Index", "DataMapper", FormMethod.Post, new { @class = "form-horizontal", id = "frmDataMapper" }))
@@ -101,12 +100,15 @@
         <div class="col-sm-2">
             @Html.LabelFor(m => m.MapToEntity, new { @class = "control-label" })
         </div>
-        <div class="col-sm-10">
+        <div class="col-sm-4">
             @Html.DropDownListFor(m => m.MapToEntity, Model.Entities, new { @class = "form-control" })
             @Html.ValidationMessageFor(m => m.MapToEntity)
         </div>
     </div>
-    <div id="divModelFields">
+    <div>
+        @Html.Label("CSV Fields")
+    </div>
+    <div id="divModelFields" style="border: 1px solid #ccc; padding: 10px;">
         @Html.Partial("_PartialDataMapperFields", Model)
     </div>
     <div class="form-group">
@@ -114,7 +116,8 @@
             @Html.LabelFor(m => m.JsonMap, new { @class = "control-label" })
         </div>
         <div class="col-sm-10">
-            @Html.TextAreaFor(m => m.JsonMap, new { @class = "form-control", type = "text", placeholder = "Json Map", style = "height:500px;" })
+            <button id="view_button" style="display:inline-block;" type="button" class="btn btn-primary" data-toggle="collapse" data-target="#fullmap">View</button>
+            @Html.TextAreaFor(m => m.JsonMap, new { @class = "form-control collapse fullmap", id = "fullmap", type = "text", placeholder = "Json Map", style = "height:500px;resize:none;min-height:500px" })
             @Html.ValidationMessageFor(m => m.JsonMap)
         </div>
     </div>
