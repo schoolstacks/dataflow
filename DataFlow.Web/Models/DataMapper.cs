@@ -149,27 +149,36 @@ namespace DataFlow.Web.Models
         {
             var toMove = dataMappers.SelectMany(x => x.SubDataMappers.Where(y => y.Name.Contains("_Item"))).ToList();
 
+            var lastEntityName = string.Empty;
+            var insertDataMapperAt = 0;
+
             foreach (var moveMapper in toMove)
             {
                 var replace = dataMappers.FirstOrDefault(x => x.Name == DataMapperHelpers.CleanJsonArrayObjectName(moveMapper.Name));
                 if (replace != null)
                 {
                     var index = dataMappers.IndexOf(replace);
+                    
                     if (dataMappers[index].SubDataMappers.Count == 1)
                     {
                         dataMappers[index].SubDataMappers.Clear();
                         dataMappers[index].SubDataMappers.AddRange(moveMapper.SubDataMappers);
                     }
-                    /*
-                     * The below generates the HTML as we'd like, but the UI shows the "Add" button for each item
-                     * further, the JSON doesn't write correctly as it tries to add existing names.
-                     */
                     else
                     {
-                        //dataMappers[index].SubDataMappers.RemoveRange(1, dataMappers[index].SubDataMappers.Count + 1);
-                        //dataMappers[index].SubDataMappers.Clear();
-                        dataMappers.RemoveAt(index);
-                        dataMappers.Add(moveMapper);
+                        if (lastEntityName != replace.Name)
+                        {
+                            lastEntityName = replace.Name;
+                            insertDataMapperAt = index;
+                            dataMappers.RemoveAt(index);
+                        }
+
+                        if (dataMappers.Count <= insertDataMapperAt)
+                            dataMappers.InsertRange(insertDataMapperAt, replace.SubDataMappers);
+                        else
+                        {
+                            dataMappers.AddRange(replace.SubDataMappers);
+                        }
                     }
                 }
             }

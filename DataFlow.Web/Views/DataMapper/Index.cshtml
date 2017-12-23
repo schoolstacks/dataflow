@@ -116,8 +116,8 @@
             @Html.LabelFor(m => m.JsonMap, new { @class = "control-label" })
         </div>
         <div class="col-sm-10">
-            <button id="view_button" style="display:inline-block;" type="button" class="btn btn-primary" data-toggle="collapse" data-target="#fullmap">View</button>
-            @Html.TextAreaFor(m => m.JsonMap, new { @class = "form-control collapse fullmap", id = "fullmap", type = "text", placeholder = "Json Map", style = "height:500px;resize:none;min-height:500px" })
+            <button id="view_button" style="display:inline-block;" type="button" class="btn btn-primary" data-toggle="collapse" data-target="#JsonMap">View</button>
+            @Html.TextAreaFor(m => m.JsonMap, new { @class = "form-control collapse fullmap", type = "text", placeholder = "Json Map", style = "height:500px;resize:none;min-height:500px" })
             @Html.ValidationMessageFor(m => m.JsonMap)
         </div>
     </div>
