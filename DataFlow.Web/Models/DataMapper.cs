@@ -167,8 +167,9 @@ namespace DataFlow.Web.Models
                     else
                     {
                         //dataMappers[index].SubDataMappers.RemoveRange(1, dataMappers[index].SubDataMappers.Count + 1);
-                        dataMappers[index].SubDataMappers.Clear();
-                        dataMappers.Insert(index + 1, moveMapper);
+                        //dataMappers[index].SubDataMappers.Clear();
+                        dataMappers.RemoveAt(index);
+                        dataMappers.Add(moveMapper);
                     }
                 }
             }
