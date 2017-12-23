@@ -7,37 +7,51 @@
     if (!f.SubDataMappers.Any())
     {
         <div class="form-group" id="@($"div{f.DataMapperProperty.UniqueKey}_Header")">
-            <div class="col-sm-2">
-                <label id="@($"lbl{f.DataMapperProperty.UniqueKey}")" name="@($"lbl{f.DataMapperProperty.UniqueKey}")" for="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceColumn")">@($"{f.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
-            </div>
-            <div class="col-sm-10 field-block">
-                <select id="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceType")" name="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceType")" class="form-control source-type">
-                    @foreach (var sourceType in Model.DataSources)
-                    {
-                        <option value="@sourceType.Value" @(sourceType.Value == f.DataMapperProperty.Source ? "selected" : "")>@sourceType.Text</option>
-                    }
-                </select>
-                <select id="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceColumn")" name="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceColumn")" class="form-control" @Html.Raw(f.DataMapperProperty.ShowSourceColumn ? "" : "style='display: none;'")>
-                    @foreach (var sourceColumn in Model.SourceColumns)
-                    {
-                        <option value="@sourceColumn.Value" @(sourceColumn.Value == f.DataMapperProperty.SourceColumn ? "selected" : "")>@sourceColumn.Text</option>
-                    }
-                    @if (!string.IsNullOrWhiteSpace(f.DataMapperProperty.SourceColumn) && Model.SourceColumns.All(x => x.Value != f.DataMapperProperty.SourceColumn))
-                    {
-                        <option value="@f.DataMapperProperty.SourceColumn" selected="">@f.DataMapperProperty.SourceColumn</option>
-                    }
-                </select>
-                <select id="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceTable")" name="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceTable")" class="form-control" @Html.Raw(f.DataMapperProperty.ShowSourceTable ? "" : "style='display: none;'")>
-                    @foreach (var sourceTable in Model.SourceTables)
-                    {
-                        <option value="@sourceTable.Value" @(sourceTable.Value == f.DataMapperProperty.SourceTable ? "selected" : "")>@sourceTable.Text</option>
-                    }
-                </select>
-                <input id="@($"txt{f.DataMapperProperty.UniqueKey}_StaticValue")" name="@($"txt{f.DataMapperProperty.UniqueKey}_StaticValue")" type="text" class="form-control" placeholder="Static Value" value="@f.DataMapperProperty.Value" @Html.Raw(f.DataMapperProperty.ShowStaticValue ? "" : "style='display: none;'") />
-                <input id="@($"txt{f.DataMapperProperty.UniqueKey}_DefaultValue")" name="@($"txt{f.DataMapperProperty.UniqueKey}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" value="@f.DataMapperProperty.Default" @Html.Raw(f.DataMapperProperty.ShowDefaultValue ? "" : "style='display: none;'") />
-                <input id="@($"hf{f.DataMapperProperty.UniqueKey}_DataType")" name="@($"hf{f.DataMapperProperty.UniqueKey}_DataType")" type="hidden" value="@f.DataMapperProperty.DataType" />
-                <input id="@($"hf{f.DataMapperProperty.UniqueKey}_ChildType")" name="@($"hf{f.DataMapperProperty.UniqueKey}_ChildType")" type="hidden" value="@f.DataMapperProperty.ChildType" />
-                <input id="@($"hf{f.DataMapperProperty.UniqueKey}_ParentType")" name="@($"hf{f.DataMapperProperty.UniqueKey}_ParentType")" type="hidden" value="@f.DataMapperProperty.ParentType" />
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label id="@($"lbl{f.DataMapperProperty.UniqueKey}")" name="@($"lbl{f.DataMapperProperty.UniqueKey}")" for="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceColumn")">@($"{f.Name.UpperCaseFirstLetter().UnPascalCase()}")</label>
+                            </div>
+                            <div class="col-sm-2">
+                                <select id="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceType")" name="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceType")" class="form-control source-type">
+                                    @foreach (var sourceType in Model.DataSources)
+                                    {
+                                        <option value="@sourceType.Value" @(sourceType.Value == f.DataMapperProperty.Source ? "selected" : "")>@sourceType.Text</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3">
+                                <select id="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceColumn")" name="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceColumn")" class="form-control" @Html.Raw(f.DataMapperProperty.ShowSourceColumn ? "" : "style='display: none;'")>
+                                    @foreach (var sourceColumn in Model.SourceColumns)
+                                    {
+                                        <option value="@sourceColumn.Value" @(sourceColumn.Value == f.DataMapperProperty.SourceColumn ? "selected" : "")>@sourceColumn.Text</option>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(f.DataMapperProperty.SourceColumn) && Model.SourceColumns.All(x => x.Value != f.DataMapperProperty.SourceColumn))
+                                    {
+                                        <option value="@f.DataMapperProperty.SourceColumn" selected="">@f.DataMapperProperty.SourceColumn</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-2">
+                                <select id="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceTable")" name="@($"ddl{f.DataMapperProperty.UniqueKey}_SourceTable")" class="form-control" @Html.Raw(f.DataMapperProperty.ShowSourceTable ? "" : "style='display: none;'")>
+                                    @foreach (var sourceTable in Model.SourceTables)
+                                    {
+                                        <option value="@sourceTable.Value" @(sourceTable.Value == f.DataMapperProperty.SourceTable ? "selected" : "")>@sourceTable.Text</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-2">
+                                <input id="@($"txt{f.DataMapperProperty.UniqueKey}_StaticValue")" name="@($"txt{f.DataMapperProperty.UniqueKey}_StaticValue")" type="text" class="form-control" placeholder="Static Value" value="@f.DataMapperProperty.Value" @Html.Raw(f.DataMapperProperty.ShowStaticValue ? "" : "style='display: none;'") />
+                                <input id="@($"txt{f.DataMapperProperty.UniqueKey}_DefaultValue")" name="@($"txt{f.DataMapperProperty.UniqueKey}_DefaultValue")" type="text" class="form-control" placeholder="Default Value" value="@f.DataMapperProperty.Default" @Html.Raw(f.DataMapperProperty.ShowDefaultValue ? "" : "style='display: none;'") />
+                                <input id="@($"hf{f.DataMapperProperty.UniqueKey}_DataType")" name="@($"hf{f.DataMapperProperty.UniqueKey}_DataType")" type="hidden" value="@f.DataMapperProperty.DataType" />
+                                <input id="@($"hf{f.DataMapperProperty.UniqueKey}_ChildType")" name="@($"hf{f.DataMapperProperty.UniqueKey}_ChildType")" type="hidden" value="@f.DataMapperProperty.ChildType" />
+                                <input id="@($"hf{f.DataMapperProperty.UniqueKey}_ParentType")" name="@($"hf{f.DataMapperProperty.UniqueKey}_ParentType")" type="hidden" value="@f.DataMapperProperty.ParentType" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     }
