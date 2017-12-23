@@ -155,13 +155,28 @@ namespace DataFlow.Web.Models
                 if (replace != null)
                 {
                     var index = dataMappers.IndexOf(replace);
-                    dataMappers[index].SubDataMappers.Clear();
-                    dataMappers[index].SubDataMappers.AddRange(moveMapper.SubDataMappers);
+                    if (dataMappers[index].SubDataMappers.Count == 1)
+                    {
+                        dataMappers[index].SubDataMappers.Clear();
+                        dataMappers[index].SubDataMappers.AddRange(moveMapper.SubDataMappers);
+                    }
+                    /*
+                     * The below generates the HTML as we'd like, but the UI shows the "Add" button for each item
+                     * further, the JSON doesn't write correctly as it tries to add existing names.
+                     */
+                    else
+                    {
+                        //dataMappers[index].SubDataMappers.RemoveRange(1, dataMappers[index].SubDataMappers.Count + 1);
+                        dataMappers[index].SubDataMappers.Clear();
+                        dataMappers.Insert(index + 1, moveMapper);
+                    }
                 }
             }
 
             dataMappers.ForEach(dm =>
             {
+                dm.Name = DataMapperHelpers.CleanJsonArrayObjectName(dm.Name);
+
                 if (dm.DataMapperProperty == null)
                     dm.DataMapperProperty = new DataMapperProperty(dm.Name);
 
@@ -174,9 +189,11 @@ namespace DataFlow.Web.Models
                                                         : "array";
 
                     dm.DataMapperProperty.ChildType = dm.Name;
-                    
+
                     dm.SubDataMappers.ForEach(sub =>
                     {
+                        sub.Name = DataMapperHelpers.CleanJsonArrayObjectName(sub.Name);
+
                         if (sub.DataMapperProperty == null)
                         {
                             sub.DataMapperProperty = new DataMapperProperty(sub.Name);
@@ -196,19 +213,28 @@ namespace DataFlow.Web.Models
 
                             sub.SubDataMappers.ForEach(tri =>
                             {
+                                tri.Name = DataMapperHelpers.CleanJsonArrayObjectName(tri.Name);
+
                                 if (tri.DataMapperProperty == null)
                                     tri.DataMapperProperty = new DataMapperProperty(tri.Name);
 
+                                //if (dm.Name != sub.Name)
+                                //{
+                                // this item is third object that differs from the parent
                                 tri.DataMapperProperty.ParentType = $"{dm.Name}:{sub.Name}";
                                 tri.DataMapperProperty.UniqueKey = $"{dm.Name}_{sub.Name}_{tri.Name}";
+                                //}
+                                //else
+                                //{
+                                //    tri.DataMapperProperty.ParentType = dm.Name;
+                                //    tri.DataMapperProperty.UniqueKey = $"{dm.Name}_{sub.Name}";
+                                //}
 
                             });
                         }
                     });
                 }
             });
-
-            
 
             return dataMappers;
         }

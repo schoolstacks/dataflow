@@ -67,7 +67,7 @@ namespace DataFlow.Web.Models
                 });
             });
 
-            return fields;
+            return fields.Distinct().ToList();
         }
 
         public bool IsSuccess { get; set; }
