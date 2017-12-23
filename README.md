@@ -30,7 +30,7 @@ For education entities that are using Ed-Fi Cloud ODS (see: (https://techdocs.ed
 
 Login to Microsoft Azure and create a new Web App + SQL web service.  For SQL Server, a Standard S0 instance (with 10 DTU and 250 GB) is fine for initial deploy and can be scaled up as needed.  Input a SQL Admin Username and Password.
 
-![Azure App Service Setup](https://www.dropbox.com/s/6qt5wgxjj1iccza/DataFlow-01.png?dl=0)
+![Azure App Service Setup](https://www.dropbox.com/s/6qt5wgxjj1iccza/DataFlow-01.png?dl=1)
 
 ![Azure App Service Setup](https://www.dropbox.com/s/x980tqc6dcqdlxg/DataFlow-02.png?dl=0)
 
