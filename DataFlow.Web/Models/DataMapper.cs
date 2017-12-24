@@ -173,7 +173,7 @@ namespace DataFlow.Web.Models
                             dataMappers.RemoveAt(index);
                         }
 
-                        if (dataMappers.Count <= insertDataMapperAt)
+                        if (insertDataMapperAt <= dataMappers.Count)
                             dataMappers.InsertRange(insertDataMapperAt, replace.SubDataMappers);
                         else
                         {
@@ -183,8 +183,9 @@ namespace DataFlow.Web.Models
                 }
             }
 
-            dataMappers.ForEach(dm =>
+            for (var firstIndex = 0; firstIndex < dataMappers.Count; firstIndex++)
             {
+                var dm = dataMappers[firstIndex];
                 dm.Name = DataMapperHelpers.CleanJsonArrayObjectName(dm.Name);
 
                 if (dm.DataMapperProperty == null)
@@ -195,8 +196,8 @@ namespace DataFlow.Web.Models
                 if (dm.SubDataMappers.Any())
                 {
                     dm.DataMapperProperty.DataType = dm.DataMapperProperty.DataType.EndsWith("Reference")
-                                                        ? dm.DataMapperProperty.DataType
-                                                        : "array";
+                        ? dm.DataMapperProperty.DataType
+                        : "array";
 
                     dm.DataMapperProperty.ChildType = dm.Name;
 
@@ -239,12 +240,11 @@ namespace DataFlow.Web.Models
                                 //    tri.DataMapperProperty.ParentType = dm.Name;
                                 //    tri.DataMapperProperty.UniqueKey = $"{dm.Name}_{sub.Name}";
                                 //}
-
                             });
                         }
                     });
                 }
-            });
+            }
 
             return dataMappers;
         }
