@@ -30,6 +30,9 @@ namespace DataFlow.Web.Models
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<DataMapper> SubDataMappers { get; set; }
 
+        [JsonIgnore]
+        public bool? ShowAddRecordButton { get; set; }
+
         /// <summary>
         /// Serializer settings so that the DataMap is generated and read correctly.
         /// </summary>
@@ -158,7 +161,7 @@ namespace DataFlow.Web.Models
                 if (replace != null)
                 {
                     var index = dataMappers.IndexOf(replace);
-                    
+
                     if (dataMappers[index].SubDataMappers.Count == 1)
                     {
                         dataMappers[index].SubDataMappers.Clear();
@@ -206,9 +209,7 @@ namespace DataFlow.Web.Models
                         sub.Name = DataMapperHelpers.CleanJsonArrayObjectName(sub.Name);
 
                         if (sub.DataMapperProperty == null)
-                        {
                             sub.DataMapperProperty = new DataMapperProperty(sub.Name);
-                        }
 
                         sub.DataMapperProperty.ParentType = dm.Name;
                         sub.DataMapperProperty.UniqueKey = $"{dm.Name}_{sub.Name}";
@@ -229,21 +230,31 @@ namespace DataFlow.Web.Models
                                 if (tri.DataMapperProperty == null)
                                     tri.DataMapperProperty = new DataMapperProperty(tri.Name);
 
-                                //if (dm.Name != sub.Name)
-                                //{
-                                // this item is third object that differs from the parent
                                 tri.DataMapperProperty.ParentType = $"{dm.Name}:{sub.Name}";
                                 tri.DataMapperProperty.UniqueKey = $"{dm.Name}_{sub.Name}_{tri.Name}";
-                                //}
-                                //else
-                                //{
-                                //    tri.DataMapperProperty.ParentType = dm.Name;
-                                //    tri.DataMapperProperty.UniqueKey = $"{dm.Name}_{sub.Name}";
-                                //}
                             });
                         }
                     });
                 }
+            }
+
+            var firstLevelGroup = dataMappers
+                .GroupBy(x => x.Name)
+                .Select(x => new
+                {
+                    Name = x.Key,
+                    Count = x.Count()
+                })
+                .Where(x => x.Count > 0)
+                .Select(x => x.Name)
+                .Distinct()
+                .ToList();
+
+            foreach (var dataMapper in dataMappers.Where(x => firstLevelGroup.Contains(x.Name)))
+            {
+                var lastArrayItem = dataMappers.LastOrDefault(x => x.Name == dataMapper.Name);
+                if (lastArrayItem != null)
+                    lastArrayItem.ShowAddRecordButton = true;
             }
 
             return dataMappers;

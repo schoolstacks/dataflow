@@ -3,7 +3,6 @@
 @model DataFlow.Web.Models.DataMapperViewModel
 
 @{
-    var lastDataMap = string.Empty;
     var itemIndex = 0;
 }
 
@@ -62,15 +61,9 @@
     }
     else
     {
-        //        lastDataMap = f.DataMapperProperty.UniqueKey;
-
-
-
-
         <div id="@($"div{f.DataMapperProperty.UniqueKey}{itemIndex}")">
             @for (var i = 0; i < f.SubDataMappers.Count; i++)
             {
-                itemIndex = i;
                 var s = f.SubDataMappers[i];
 
                 if (i == 0)
@@ -172,22 +165,20 @@
 
         if (!f.DataMapperProperty.DataType.EndsWith("Reference"))
         {
-            @*@Html.Raw(Model.Fields.Count(x => x.DataMapperProperty.UniqueKey == f.DataMapperProperty.UniqueKey))
-            @Html.Raw(itemIndex)*@
-
-            if (f.SubDataMappers.Count > itemIndex && lastDataMap != f.DataMapperProperty.UniqueKey)
+            if (f.ShowAddRecordButton.GetValueOrDefault(false))
             {
+                itemIndex = 0;
 
-
-                lastDataMap = f.DataMapperProperty.UniqueKey;
-
-                <div class="form-group" id="@($"div{f.DataMapperProperty.UniqueKey}_Add")">
+                <div class="form-group" id="@($"div{f.DataMapperProperty.UniqueKey}{itemIndex}_Add")">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button id="@($"btn{f.DataMapperProperty.UniqueKey}")" type="button" class="btn btn-default add-row" data-rows="@($"{f.SubDataMappers.Count}")">Add to @($"{f.Name.UpperCaseFirstLetter().UnPascalCase()}")</button>
+                        <button id="@($"btn{f.DataMapperProperty.UniqueKey}{itemIndex}")" type="button" class="btn btn-default add-row" data-rows="@($"{f.SubDataMappers.Count}")">Add to @($"{f.Name.UpperCaseFirstLetter().UnPascalCase()}")</button>
                     </div>
                 </div>
             }
-
+            else
+            {
+                itemIndex++;
+            }
         }
     }
 }
