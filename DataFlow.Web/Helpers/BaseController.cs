@@ -1,6 +1,7 @@
 ﻿using System.Web.Mvc;
 using DataFlow.Common.Services;
 using DataFlow.Web.Services;
+using NLog;
 
 namespace DataFlow.Web.Helpers
 {
@@ -22,6 +23,8 @@ namespace DataFlow.Web.Helpers
             this.CacheService = baseServices.CacheService;
             this.ConfigurationService = baseServices.ConfigurationService;
             this.WebConfigAppSettingsService = baseServices.WebConfigAppSettingsService;
+
+            this.LogService.Name = GetType().FullName;
 
             ViewBag.CompanyLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO).Value;
             ViewBag.CompanyUrl = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL).Value;

@@ -397,11 +397,11 @@
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="..\appSettings.config">
       <Link>appSettings.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="..\connectionStrings.config">
       <Link>connectionStrings.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Properties\PublishProfiles\dataflow-deploy01 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\dataflow-deploy01 - Web Deploy.pubxml" />
