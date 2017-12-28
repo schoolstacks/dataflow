@@ -15,12 +15,14 @@ namespace DataFlow.Models
             LogIngestions = new HashSet<LogIngestion>();
         }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a name for this agent.")]
+        [MaxLength(255)]
         public string Name { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please select agent type.")]
         [Display(Name = "Agent Type")]
+        [MaxLength(50)]
         public string AgentTypeCode { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a url or connection string.")]
         public string Url { get; set; }

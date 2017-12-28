@@ -1,6 +1,5 @@
 ﻿{
   "$schema": "http://schemastore.org/schemas/json/webjob-publish-settings.json",
-  "webJobName": "transform-api-load-janitor",
-  "runMode": "OnDemand",
-  "stopping_wait_time": 5400
+  "webJobName": "TransformLoad",
+  "runMode": "OnDemand"
 }

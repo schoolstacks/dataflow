@@ -7,7 +7,7 @@ namespace DataFlow.Common.Mapping
     {
         public AspNetUserClaimMap()
         {
-            this.ToTable("AspNetUserClaims", "dbo");
+            this.ToTable("AspNetUserClaims");
             this.HasKey(e => e.Id);
 
             this.Property(e => e.UserId)

@@ -77,6 +77,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\appSettings.config">
+      <Link>appSettings.config</Link>
+    </None>
+    <None Include="..\connectionStrings.config">
+      <Link>connectionStrings.config</Link>
+    </None>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>

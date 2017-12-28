@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataFlow.Models
 {
@@ -11,8 +12,10 @@ namespace DataFlow.Models
             DataMapAgents = new HashSet<DataMapAgent>();
         }
 
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a map name.")]
+        [MaxLength(255)]
         public string Name { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an entity.")]
         public int EntityId { get; set; }
@@ -21,6 +24,7 @@ namespace DataFlow.Models
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
 
+        [ForeignKey("EntityId")]
         public Entity Entity { get; set; }
         public ICollection<DataMapAgent> DataMapAgents { get; set; }
     }

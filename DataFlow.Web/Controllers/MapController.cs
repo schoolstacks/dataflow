@@ -119,14 +119,13 @@ namespace DataFlow.Web.Controllers
         {
             get
             {
-                var entityList = new List<SelectListItem>();
-                entityList.Add(new SelectListItem() { Text = "Select Entity", Value = string.Empty });
-                entityList.AddRange(dataFlowDbContext.Entities.Select(x =>
-                    new SelectListItem()
-                    {
-                        Text = x.Name,
-                        Value = x.Id.ToString()
-                    }));
+                var entityList = new List<SelectListItem>
+                {
+                    new SelectListItem {Text = "Select Entity", Value = string.Empty}
+                };
+                entityList.AddRange(dataFlowDbContext.Entities
+                    .OrderBy(x => x.Name)
+                    .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }));
 
                 return entityList;
             }

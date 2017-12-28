@@ -199,8 +199,6 @@ namespace DataFlow.Server.FileTransport
                 }
 
             }
-
-            //TransferFileFromSFTPToAzure(agent, _azureFileConnectionString, file);
         }
 
         private static MemoryStream TransferFileFromSFTP(Agent sftpagent, string file)
@@ -260,9 +258,6 @@ namespace DataFlow.Server.FileTransport
 
         private static void TransferFileToLocal(MemoryStream stream, string file, Agent agent)
         {
-            var uri = new System.Uri("c:\\foo");
-            var converted = uri.AbsoluteUri;
-
             try
             {
                 string shortFileName = file.Substring(file.LastIndexOf('/') + 1);

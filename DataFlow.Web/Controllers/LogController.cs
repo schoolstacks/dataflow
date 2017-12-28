@@ -23,7 +23,7 @@ namespace DataFlow.Web.Controllers
             {
                 Files = dataFlowDbContext.Files.Include(x => x.Agent).Take(100).OrderByDescending(x => x.CreateDate).ToList(),
                 LogIngestions = dataFlowDbContext.LogIngestions.Take(100).OrderByDescending(x => x.Date).ToList(),
-                LogApplications = dataFlowDbContext.LogApplications.Take(100).OrderByDescending(x => x.Date).ToList()
+                NLogs = dataFlowDbContext.NLogs.Take(100).OrderByDescending(x => x.Logged).ToList()
             };
 
             return View(vm);
