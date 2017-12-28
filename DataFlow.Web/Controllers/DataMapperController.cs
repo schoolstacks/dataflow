@@ -51,7 +51,7 @@ namespace DataFlow.Web.Controllers
                     vm.MapToEntity = dataMap.EntityId;
                     vm = GetEntityFields(vm);
 
-                    var jsonMap = WebUtility.HtmlDecode(dataMap.Map);
+                    dataMap.Map = dataMap.Map.Replace("lookup_table", "lookup-table");
                     var dataMappers = JsonConvert.DeserializeObject<List<DataMapper>>(dataMap.Map, DataMapper.JsonSerializerSettings);
                     vm.JsonMap = JsonConvert.SerializeObject(dataMappers, DataMapper.JsonSerializerSettings);
 
