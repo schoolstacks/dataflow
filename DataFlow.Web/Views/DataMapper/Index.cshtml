@@ -12,8 +12,15 @@
     .field-block input[type],
     .field-block textarea,
     .field-block select {
-        display: block;
+        display: inline-block;
         margin-bottom: 5px;
+        width: auto;
+    }
+
+    .property-border {
+        border-top: #2fa4e7 thin solid;
+        margin-top: -10px;
+        padding-top: 10px;
     }
 
     #tblCsvDataPreview th, #tblCsvDataPreview td {
@@ -131,6 +138,10 @@
 }
 @section scripts{
     <script type="text/javascript">
+        $(function() {
+            $("#divModelFields").find("div").eq(0).removeClass("property-border");
+        });
+
         $("#MapToEntity").change(function () {
             var frmData = $("#frmDataMapper").serialize();
 
@@ -141,6 +152,7 @@
                 success: function (data) {
                     $('#divModelFields').html(data);
                     $("#JsonMap").val("");
+                    $("#divModelFields").find("div").eq(0).removeClass("property-border");
                 },
                 fail: function (data) {
                     alert("Error: " + data);
