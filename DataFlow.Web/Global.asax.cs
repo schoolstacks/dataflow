@@ -61,7 +61,8 @@ namespace DataFlow.Web
             builder.RegisterType<ConfigurationService>().AsImplementedInterfaces().InstancePerRequest();
             builder.Register(c => LogManager.GetLogger(appName)).As<ILogger>().InstancePerRequest();
             builder.RegisterType<NLogService>().AsImplementedInterfaces().InstancePerRequest();
-            builder.RegisterType<WebConfigAppSettingsService>().AsImplementedInterfaces().InstancePerRequest();
+            builder.RegisterType<WebConfigAppSettingsService>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<AgentService>().InstancePerRequest();
 
             builder.RegisterType<CacheService>().WithParameters(new[]
             {

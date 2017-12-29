@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.IO;
@@ -15,21 +14,21 @@ using DataFlow.Models;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Models;
 using DataFlow.Web.Services;
-using Microsoft.WindowsAzure.Storage;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
-using File = DataFlow.Models.File;
 
 namespace DataFlow.Web.Controllers
 {
     public class AgentController : BaseController
     {
         private readonly DataFlowDbContext dataFlowDbContext;
+        private readonly AgentService agentService;
         private readonly string EncryptionKey;
 
-        public AgentController(DataFlowDbContext dataFlowDbContext, IBaseServices baseService) : base(baseService)
+        public AgentController(DataFlowDbContext dataFlowDbContext, AgentService agentService, IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
+            this.agentService = agentService;
             this.EncryptionKey = WebConfigAppSettingsService.GetSetting<string>(Constants.AppSettingEncryptionKey);
         }
 
@@ -246,7 +245,7 @@ namespace DataFlow.Web.Controllers
 
         private string GetManualAgentBaseDirectory(Agent agent)
         {
-            if (agent.AgentTypeCode == "Manual")
+            if (agent.AgentTypeCode == AgentService.Types.Manual)
             {
                 if (string.IsNullOrWhiteSpace(agent.Directory))
                 {
@@ -256,7 +255,7 @@ namespace DataFlow.Web.Controllers
                     if (string.IsNullOrWhiteSpace(baseDirectory))
                         baseDirectory = Server.MapPath("~/App_Data");
 
-                    directoryPath = Path.Combine(baseDirectory, "Agents", Guid.NewGuid().ToString());
+                    directoryPath = Path.Combine(baseDirectory, "Agents", Guid.NewGuid().ToString().ToUpper());
 
                     if (Directory.Exists(directoryPath) == false)
                     {
@@ -282,8 +281,8 @@ namespace DataFlow.Web.Controllers
 
             switch (agent.AgentTypeCode)
             {
-                case "FTPS":
-                case "SFTP":
+                case AgentService.Types.FTPS:
+                case AgentService.Types.SFTP:
                     if (string.IsNullOrWhiteSpace(agent.Url))
                         msd.AddModelError("Url", "Please enter a url or connection string.");
 
@@ -299,7 +298,7 @@ namespace DataFlow.Web.Controllers
                     if (string.IsNullOrWhiteSpace(agent.FilePattern))
                         msd.AddModelError("FilePattern", "Please enter a file pattern.");
                     break;
-                case "Chrome":
+                case AgentService.Types.Chrome:
                     if (string.IsNullOrWhiteSpace(agent.AgentAction))
                         msd.AddModelError("AgentAction", "Please select an action.");
 
@@ -344,7 +343,10 @@ namespace DataFlow.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UploadFile(HttpPostedFileBase File, string Agents)
         {
-            TempData["FormResult"] = new FormResult() {IsSuccess = false, ShowInfoMessage = false, InfoMessage = string.Empty};
+            TempData["FormResult"] = new FormResult()
+            {
+                IsSuccess = false, ShowInfoMessage = false, InfoMessage = string.Empty
+            };
 
             var formResult = new FormResult();
 
@@ -352,39 +354,14 @@ namespace DataFlow.Web.Controllers
             {
                 if (File.ContentLength > 0)
                 {
-                    var azureFileConnectionString = ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString;
-                    var shareName = ConfigurationManager.AppSettings["azureShareName"];
-
                     var agentId = Convert.ToInt32(Agents);
+                    var agent = dataFlowDbContext.Agents.FirstOrDefault(x => x.Id == agentId);
 
-                    var agent = dataFlowDbContext.Agents
-                        .FirstOrDefault(x => x.Id == agentId);
+                    var uploadFile = agentService.UploadFile(File, agent);
 
-                    var storageAccount = CloudStorageAccount.Parse(azureFileConnectionString);
-                    var fileClient = storageAccount.CreateCloudFileClient();
-                    var fileShare = fileClient.GetShareReference(shareName);
-
-                    if (!fileShare.Exists())
-                    {
-                    }
-                    else
-                    {
-                        var fileDirectoryRoot = fileShare.GetRootDirectoryReference();
-                        var fileAgentDirectory = fileDirectoryRoot.GetDirectoryReference(agent.Queue.ToString());
-
-                        fileAgentDirectory.CreateIfNotExists();
-                        var cloudFile = fileAgentDirectory.GetFileReference(File.FileName);
-                        cloudFile.UploadFromStream(File.InputStream);
-                        var recordCount = TotalLines(File.InputStream);
-
-                        LogFile(agent.Id, File.FileName, cloudFile.StorageUri.PrimaryUri.ToString(), "UPLOADED", recordCount);
-
-                        LogService.Info($"File {File.FileName} was uploaded to {agent.Name} (Id: {agent.Id}).");
-
-                        formResult.IsSuccess = true;
-                        formResult.ShowInfoMessage = true;
-                        formResult.InfoMessage = $"Your file, {File.FileName}, has been successfully uploaded to the following agent: {agent.Name}.";
-                    }
+                    formResult.IsSuccess = uploadFile.Item1;
+                    formResult.ShowInfoMessage = true;
+                    formResult.InfoMessage = uploadFile.Item2;
                 }
             }
             catch (Exception ex)
@@ -416,39 +393,13 @@ namespace DataFlow.Web.Controllers
             }
         }
 
-        private void LogFile(int agentId, string fileName, string url, string status, int rows)
-        {
-            var fileLog = new File
-            {
-                AgentId = agentId,
-                FileName = fileName,
-                Url = url,
-                Rows = rows,
-                Status = status,
-                CreateDate = DateTime.Now
-            };
-            dataFlowDbContext.Files.Add(fileLog);
-            dataFlowDbContext.SaveChanges();
-
-        }
-
-        private int TotalLines(Stream stream)
-        {
-            using (StreamReader r = new StreamReader(stream))
-            {
-                int i = 0;
-                while (r.ReadLine() != null) { i++; }
-                return i;
-            }
-        }
-
         private List<SelectListItem> GetAgentTypes
         {
             get
             {
                 var agentTypes = new List<SelectListItem>();
                 agentTypes.Add(new SelectListItem { Text = "Select Type", Value = string.Empty });
-                agentTypes.AddRange(AgentHelper.Types.ToList().Select(x =>
+                agentTypes.AddRange(AgentService.Types.ToList().Select(x =>
                       new SelectListItem
                       {
                           Text = x,
