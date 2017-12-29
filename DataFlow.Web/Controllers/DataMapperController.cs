@@ -538,7 +538,7 @@ namespace DataFlow.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogService.Error("Data Mapper Error Uploading File", ex);
+                LogService.Error($"Error Uploading File in Data Mapper", ex);
                 TempData["IsSuccess"] = false;
                 TempData["ShowInfoMessage"] = true;
                 TempData["InfoMessage"] = "There was an error uploading your file.";
