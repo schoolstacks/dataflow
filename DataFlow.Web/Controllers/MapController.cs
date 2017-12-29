@@ -54,6 +54,8 @@ namespace DataFlow.Web.Controllers
             var dataMap = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == id);
             if (dataMap != null)
             {
+                LogService.Info(LogTemplates.InfoCrud("DataMap", dataMap.Name, dataMap.Id, LogTemplates.EntityAction.Deleted));
+
                 dataFlowDbContext.DataMaps.Remove(dataMap);
                 await dataFlowDbContext.SaveChangesAsync();
             }
@@ -73,6 +75,8 @@ namespace DataFlow.Web.Controllers
 
             SaveDataMap(vm);
 
+            LogService.Info(LogTemplates.InfoCrud("DataMap", vm.Name, vm.Id, LogTemplates.EntityAction.Added));
+
             return RedirectToAction("Index");
         }
 
@@ -87,6 +91,8 @@ namespace DataFlow.Web.Controllers
             }
 
             SaveDataMap(vm);
+
+            LogService.Info(LogTemplates.InfoCrud("DataMap", vm.Name, vm.Id, LogTemplates.EntityAction.Deleted));
 
             return RedirectToAction("Index");
         }

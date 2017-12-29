@@ -43,6 +43,7 @@ namespace DataFlow.Web.Controllers
             }
             catch (Exception e)
             {
+                LogService.Error("Configuration for API failed.", e);
                 return false;
             }
         }
@@ -94,6 +95,8 @@ namespace DataFlow.Web.Controllers
             vm.FormResult.ShowInfoMessage = true;
             vm.FormResult.IsSuccess = true;
             vm.FormResult.InfoMessage = "Application configuration saved!";
+
+            LogService.Info("Configuration was modified.");
 
             return View(vm);
         }

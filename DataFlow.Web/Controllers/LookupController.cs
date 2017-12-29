@@ -46,6 +46,7 @@ namespace DataFlow.Web.Controllers
             var lookup = dataFlowDbContext.Lookups.FirstOrDefault(x => x.Id == id);
             if (lookup != null)
             {
+                LogService.Info(LogTemplates.InfoCrud("Lookup", lookup.Key, lookup.Id, LogTemplates.EntityAction.Deleted));
                 dataFlowDbContext.Lookups.Remove(lookup);
                 await dataFlowDbContext.SaveChangesAsync();
             }
@@ -95,6 +96,9 @@ namespace DataFlow.Web.Controllers
 
             dataFlowDbContext.Lookups.AddOrUpdate(lookup);
             dataFlowDbContext.SaveChanges();
+
+            LogService.Info(LogTemplates.InfoCrud("Lookup", lookup.Key, lookup.Id,
+                isUpdate ? LogTemplates.EntityAction.Modified : LogTemplates.EntityAction.Added));
 
             return lookup;
         }

@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
-using DataFlow.Common.ExtensionMethods;
 using DataFlow.Models;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Services;
@@ -53,6 +51,8 @@ namespace DataFlow.Web.Controllers
             var bootstrapData = dataFlowDbContext.BootstrapData.FirstOrDefault(x => x.Id == id);
             if (bootstrapData != null)
             {
+                LogService.Info(LogTemplates.InfoCrud("BootstrapData", bootstrapData.Entity.Name, bootstrapData.Id, LogTemplates.EntityAction.Deleted));
+
                 var startFrom = bootstrapData.ProcessingOrder;
 
                 dataFlowDbContext.BootstrapData.Remove(bootstrapData);
@@ -124,6 +124,8 @@ namespace DataFlow.Web.Controllers
 
             dataFlowDbContext.BootstrapData.AddOrUpdate(bootstrapData);
             dataFlowDbContext.SaveChanges();
+
+            LogService.Info(LogTemplates.InfoCrud("BootstrapData", bootstrapData.Entity.Name, bootstrapData.Id, LogTemplates.EntityAction.Deleted));
 
             ReorderBootstrapData(bootstrapData.ProcessingOrder, bootstrapData.Id, false, isUpdate && processedOrderChanged);
 

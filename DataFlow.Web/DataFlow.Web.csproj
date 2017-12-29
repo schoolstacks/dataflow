@@ -345,6 +345,7 @@
     <Compile Include="Helpers\DataMapperListConverter.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
+    <Compile Include="Helpers\LogTemplates.cs" />
     <Compile Include="MappingProfiles\AgentProfile.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AgentViewModel.cs" />

@@ -139,6 +139,8 @@ namespace DataFlow.Web.Controllers
             }
 
             SaveSchool(vm);
+            LogService.Info(LogTemplates.InfoCrud("School", vm.School.NameOfInstitution,
+                vm.School.SchoolId, LogTemplates.EntityAction.Added));
 
             return RedirectToAction("Index");
         }
@@ -159,6 +161,8 @@ namespace DataFlow.Web.Controllers
             }
 
             SaveSchool(vm);
+            LogService.Info(LogTemplates.InfoCrud("School", vm.School.NameOfInstitution,
+                vm.School.SchoolId, LogTemplates.EntityAction.Modified));
 
             return RedirectToAction("Index");
         }

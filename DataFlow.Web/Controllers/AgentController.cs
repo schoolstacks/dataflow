@@ -122,6 +122,9 @@ namespace DataFlow.Web.Controllers
             var agent = dataFlowDbContext.Agents.FirstOrDefault(x => x.Id == id);
             if (agent != null)
             {
+                LogService.Info(LogTemplates.InfoCrud("Agent", agent.Name, agent.Id,
+                    LogTemplates.EntityAction.Deleted));
+
                 dataFlowDbContext.Agents.Remove(agent);
                 await dataFlowDbContext.SaveChangesAsync();
             }
@@ -233,7 +236,11 @@ namespace DataFlow.Web.Controllers
 
             var savevm = MapperService.Map<AgentViewModel>(agent);
 
-            LogService.Info($"Agent {agent.Name} was {(isUpdate ? "updated" : "created")}.");
+
+            LogService.Info(LogTemplates.InfoCrud("Agent", agent.Name, agent.Id,
+                isUpdate ? LogTemplates.EntityAction.Modified : LogTemplates.EntityAction.Added));
+
+
 
             return savevm;
         }
@@ -341,6 +348,8 @@ namespace DataFlow.Web.Controllers
 
                         LogFile(agent.Id, File.FileName, cloudFile.StorageUri.PrimaryUri.ToString(), "UPLOADED", recordCount);
 
+                        LogService.Info($"File {File.FileName} was uploaded to {agent.Name} (Id: {agent.Id}).");
+
                         TempData["FileStatus"] = "File successfully uploaded: " + File.FileName;
                     }
                 }
@@ -382,6 +391,7 @@ namespace DataFlow.Web.Controllers
             };
             dataFlowDbContext.Files.Add(fileLog);
             dataFlowDbContext.SaveChanges();
+
         }
 
         private int TotalLines(Stream stream)
