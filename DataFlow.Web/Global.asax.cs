@@ -21,6 +21,23 @@ namespace DataFlow.Web
         protected void Application_Start()
         {
             var appName = ConfigurationManager.AppSettings["AppName"] ?? string.Empty;
+            
+
+            /*
+             * Turning on HTTPS locally without properly setting up the DataFlow.Web project
+             * can result in webpage timeouts and redirect errors. To have Https work locally,
+             * go to the project properties and change "SSL Enabled" from False to True.
+             * Take note of the SSL URL that is then generated. Now, right click on DataFlow.Web
+             * and go to Properties and then navigate to the Web tab and enter the SSL URL
+             * for Project URL.
+             */
+            if (Request.IsLocal == false)
+            {
+                var forceHttps = Convert.ToBoolean(ConfigurationManager.AppSettings["ForceHttps"] ?? "false");
+
+                if (forceHttps)
+                    GlobalFilters.Filters.Add(new RequireHttpsAttribute());
+            }
 
             var cacheConfig = ConfigurationBuilder.BuildConfiguration(appName, settings =>
             {
