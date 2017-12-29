@@ -24,7 +24,7 @@
             <th>Source</th>
             <th>Type</th>
             <th data-type="number">Records</th>
-            <th data-type="date" data-format-string="yyyy-MM-dd hh:MM tt">Last Executed</th>
+            <th data-type="date" data-format-string="yyyy-MM-ddTHH:mm:ss">Last Executed</th>
             <th>Enabled</th>
             <th data-sortable="false" data-filterable="false"></th>
         </tr>
@@ -36,7 +36,7 @@
                 <td>@m.Name</td>
                 <td>@m.AgentTypeCode</td>
                 <td data-type="number">@m.Files.Count</td>
-                <td data-type="date" data-format-string="yyyy-MM-dd hh:MM tt">@(m.LastExecuted?.ToString("yyyy-MM-dd hh:MM tt"))</td>
+                <td  data-sort-value="@(m.LastExecuted?.ToString("s"))">@(m.LastExecuted?.ToString("yyyy-MM-dd hh:MM tt"))</td>
                 <td>@Html.ActionLink(Convert.ToString(m.Enabled), "ToggleAgentStatus", new { m.Id }, new { title = "Toggle Status" })</td>
                 <td style="text-align: center;">@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
             </tr>
