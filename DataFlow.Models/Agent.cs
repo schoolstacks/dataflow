@@ -17,28 +17,38 @@ namespace DataFlow.Models
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a name for this agent.")]
+
         [MaxLength(255)]
         public string Name { get; set; }
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please select agent type.")]
+
         [Display(Name = "Agent Type")]
         [MaxLength(50)]
         public string AgentTypeCode { get; set; }
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a url or connection string.")]
+        
+        [Display(Name = "Agent Action")]
+        [MaxLength(50)]
+        public string AgentAction { get; set; }
+
         public string Url { get; set; }
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a username.")]
+
         public string Username { get; set; }
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a password.")]
+
         public string Password { get; set; }
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a directory.")]
+
         public string Directory { get; set; }
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter a file pattern.")]
+
         [Display(Name = "File Pattern")]
         public string FilePattern { get; set; }
+
         public Guid Queue { get; set; }
+
+        [Display(Name = "Custom Parameters")]
         public string Custom { get; set; }
+
         public bool Enabled { get; set; }
+
         public DateTime Created { get; set; }
+
         public DateTime? LastExecuted { get; set; }
 
         public ICollection<DataMapAgent> DataMapAgents { get; set; }

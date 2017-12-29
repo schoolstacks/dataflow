@@ -1,4 +1,4 @@
-﻿@model DataFlow.Models.Agent
+﻿@model DataFlow.Web.Models.AgentViewModel
 
 @{
     ViewBag.Title = "Edit Agent";
@@ -6,6 +6,14 @@
 }
 
 <h2>@ViewBag.Title</h2>
+
+@if (Model.FormResult != null && Model.FormResult.ShowInfoMessage)
+{
+    <div class="panel @(Model.FormResult.IsSuccess ? "panel-success" : "panel-danger")">
+        <div class="panel-heading">@(Model.FormResult.IsSuccess ? "Success" : "Error")</div>
+        <div class="panel-body">@Model.FormResult.InfoMessage</div>
+    </div>
+}
 
 @using (Html.BeginForm("Edit", "Agent", FormMethod.Post, new { @class = "form-horizontal" }))
 {
@@ -15,7 +23,49 @@
     @Scripts.Render("~/bundles/jqueryval")
 
     <script type="text/javascript">
-        $("#btnTest").click(function () {
+        $(function() {
+            var agentType = "@Model.AgentTypeCode";
+
+            agentWork(agentType);
+        });
+
+        $(document).on("change", "#AgentTypeCode", function(e) {
+            var agentType = $("#AgentTypeCode").val();
+
+            agentWork(agentType);
+        });
+
+        function agentWork(agentType) {
+            if (agentType === "Manual" || agentType === "Chrome") {
+                $("#divUrl").hide();
+                $("#divUsername").hide();
+                $("#divPassword").hide();
+                $("#divDirectory").hide();
+                $("#divFilePattern").hide();
+                $("#divAgentTestButton").hide();
+                $("#divAgentSchedule").hide();
+
+                if (agentType === "Chrome") {
+                    $("#divAgentAction").show();
+                    $("#divCustom").show();
+                } else {
+                    $("#divAgentAction").hide();
+                    $("#divCustom").hide();
+                }
+            } else {
+                $("#divAgentAction").hide();
+                $("#divCustom").hide();
+                $("#divUrl").show();
+                $("#divUsername").show();
+                $("#divPassword").show();
+                $("#divDirectory").show();
+                $("#divFilePattern").show();
+                $("#divAgentTestButton").show();
+                $("#divAgentSchedule").show();
+            }
+        }
+
+        $("#btnTest").click(function() {
             $("#btnTest").attr("disabled", true);
 
             var url = $("#Url").val();

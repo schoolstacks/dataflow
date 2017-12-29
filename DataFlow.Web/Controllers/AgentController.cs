@@ -13,6 +13,7 @@ using DataFlow.Common.DAL;
 using DataFlow.Common.ExtensionMethods;
 using DataFlow.Models;
 using DataFlow.Web.Helpers;
+using DataFlow.Web.Models;
 using DataFlow.Web.Services;
 using Microsoft.WindowsAzure.Storage;
 using Renci.SshNet;
@@ -75,14 +76,16 @@ namespace DataFlow.Web.Controllers
         public ActionResult Add()
         {
             var agent = new Agent();
+            var vm = MapperService.Map<AgentViewModel>(agent);
 
             ViewBag.DataMaps = GetDataMapList;
             ViewBag.AgentTypes = GetAgentTypes;
+            ViewBag.AgentActions = GetAgentActions;
 
-            return View(agent);
+            return View(vm);
         }
 
-        public ActionResult Edit(int id)
+        public ActionResult Edit(int id, bool? success)
         {
             var agent = dataFlowDbContext.Agents
                 .Include(x => x.AgentSchedules)
@@ -97,8 +100,21 @@ namespace DataFlow.Web.Controllers
 
             ViewBag.DataMaps = GetDataMapList;
             ViewBag.AgentTypes = GetAgentTypes;
+            ViewBag.AgentActions = GetAgentActions;
 
-            return View(agent);
+            var vm = MapperService.Map<AgentViewModel>(agent);
+
+            if (success.GetValueOrDefault(false))
+            {
+                vm.FormResult = new FormResult()
+                {
+                    ShowInfoMessage = true,
+                    IsSuccess = true,
+                    InfoMessage = $"Agent {agent.Name} has been saved!."
+                };
+            }
+
+            return View(vm);
         }
 
         public async Task<ActionResult> Delete(int id)
@@ -115,39 +131,48 @@ namespace DataFlow.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Add(Agent vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
+        public ActionResult Add(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
             string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
         {
+            var validate = Validate(vm);
+            ModelState.Merge(validate);
+
             if (!ModelState.IsValid)
             {
                 ViewBag.DataMaps = GetDataMapList;
                 ViewBag.AgentTypes = GetAgentTypes;
+                ViewBag.AgentActions = GetAgentActions;
                 return View(vm);
             }
 
             var agent = SaveAgent(vm, btnAddMap, ddlDataMaps, dataMapAgentNextOrder, btnAddSchedule, ddlDay, ddlHour, ddlMinute);
 
-            return RedirectToAction("Edit", new { agent.Id });
+            return RedirectToAction("Edit", new { agent.Id, success = true });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(Agent vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
+        public ActionResult Edit(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
             string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
         {
+            var validate = Validate(vm);
+            ModelState.Merge(validate);
+
             if (!ModelState.IsValid)
             {
                 ViewBag.DataMaps = GetDataMapList;
                 ViewBag.AgentTypes = GetAgentTypes;
+                ViewBag.AgentActions = GetAgentActions;
+                
                 return View(vm);
             }
 
             var agent = SaveAgent(vm, btnAddMap, ddlDataMaps, dataMapAgentNextOrder, btnAddSchedule, ddlDay, ddlHour, ddlMinute);
 
-            return RedirectToAction("Edit", new { agent.Id });
+            return RedirectToAction("Edit", new { agent.Id, success = true });
         }
 
-        private Agent SaveAgent(Agent vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
+        private AgentViewModel SaveAgent(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
             string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
         {
             var isUpdate = false;
@@ -206,7 +231,52 @@ namespace DataFlow.Web.Controllers
             dataFlowDbContext.Agents.AddOrUpdate(agent);
             dataFlowDbContext.SaveChanges();
 
-            return agent;
+            var savevm = MapperService.Map<AgentViewModel>(agent);
+
+            LogService.Info($"Agent {agent.Name} was {(isUpdate ? "updated" : "created")}.");
+
+            return savevm;
+        }
+
+        public ModelStateDictionary Validate(AgentViewModel agent)
+        {
+            var msd = new ModelStateDictionary();
+
+            if(string.IsNullOrWhiteSpace(agent.Name))
+                msd.AddModelError("Name", "Please enter a name for this agent.");
+
+            if (string.IsNullOrWhiteSpace(agent.AgentTypeCode))
+                msd.AddModelError("AgentTypeCode", "Please select agent type.");
+
+            switch (agent.AgentTypeCode)
+            {
+                case "FTPS":
+                case "SFTP":
+                    if (string.IsNullOrWhiteSpace(agent.Url))
+                        msd.AddModelError("Url", "Please enter a url or connection string.");
+
+                    if (string.IsNullOrWhiteSpace(agent.Username))
+                        msd.AddModelError("Username", "Please enter a username.");
+
+                    if (string.IsNullOrWhiteSpace(agent.Password))
+                        msd.AddModelError("Password", "Please enter a password.");
+
+                    if (string.IsNullOrWhiteSpace(agent.Directory))
+                        msd.AddModelError("Directory", "Please enter a directory.");
+
+                    if (string.IsNullOrWhiteSpace(agent.FilePattern))
+                        msd.AddModelError("FilePattern", "Please enter a file pattern.");
+                    break;
+                case "Chrome":
+                    if (string.IsNullOrWhiteSpace(agent.AgentAction))
+                        msd.AddModelError("AgentAction", "Please select an action.");
+
+                    if (string.IsNullOrWhiteSpace(agent.Custom))
+                        msd.AddModelError("Custom", "Please enter the parameters.");
+                    break;
+            }
+
+            return msd;
         }
 
         public async Task<ActionResult> DeleteDataMap(int agentId, int id)
@@ -330,7 +400,7 @@ namespace DataFlow.Web.Controllers
             {
                 var agentTypes = new List<SelectListItem>();
                 agentTypes.Add(new SelectListItem { Text = "Select Type", Value = string.Empty });
-                agentTypes.AddRange(new[] { "SFTP", "FTPS" }.Select(x =>
+                agentTypes.AddRange(new[] { "Chrome","Manual", "SFTP", "FTPS" }.Select(x =>
                       new SelectListItem
                       {
                           Text = x,
@@ -338,6 +408,23 @@ namespace DataFlow.Web.Controllers
                       }));
 
                 return agentTypes;
+            }
+        }
+
+        private List<SelectListItem> GetAgentActions
+        {
+            get
+            {
+                var agentActions = new List<SelectListItem>();
+                agentActions.Add(new SelectListItem { Text = "Select Action", Value = string.Empty });
+                agentActions.AddRange(new[] { "GET", "POST" }.Select(x =>
+                    new SelectListItem
+                    {
+                        Text = x,
+                        Value = x
+                    }));
+
+                return agentActions;
             }
         }
 

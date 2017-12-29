@@ -82,6 +82,14 @@
     <Compile Include="Migrations\201712282146264_NLogStoredProcedure.Designer.cs">
       <DependentUpon>201712282146264_NLogStoredProcedure.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201712282210008_AddAgentActionColumn.cs" />
+    <Compile Include="Migrations\201712282210008_AddAgentActionColumn.Designer.cs">
+      <DependentUpon>201712282210008_AddAgentActionColumn.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201712282304289_RemoveAgentRequiredValidations.cs" />
+    <Compile Include="Migrations\201712282304289_RemoveAgentRequiredValidations.Designer.cs">
+      <DependentUpon>201712282304289_RemoveAgentRequiredValidations.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\CacheService.cs" />
@@ -105,6 +113,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201712282146264_NLogStoredProcedure.resx">
       <DependentUpon>201712282146264_NLogStoredProcedure.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201712282210008_AddAgentActionColumn.resx">
+      <DependentUpon>201712282210008_AddAgentActionColumn.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201712282304289_RemoveAgentRequiredValidations.resx">
+      <DependentUpon>201712282304289_RemoveAgentRequiredValidations.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

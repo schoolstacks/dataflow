@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using DataFlow.Common.Services;
 
 namespace DataFlow.Web.Services
@@ -13,5 +14,6 @@ namespace DataFlow.Web.Services
         ICacheService CacheService { get; }
         IConfigurationService ConfigurationService { get; }
         IWebConfigAppSettingsService WebConfigAppSettingsService { get; }
+        IMapper MapperService { get; }
     }
 }

@@ -67,6 +67,9 @@
       <HintPath>..\packages\Autofac.WebApi.3.1.0\lib\net40\Autofac.Integration.WebApi.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="AutoMapper, Version=6.2.2.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.6.2.2\lib\net45\AutoMapper.dll</HintPath>
+    </Reference>
     <Reference Include="CacheManager.Core, Version=1.1.2.0, Culture=neutral, PublicKeyToken=5b450b4fb65c4cdb, processorArchitecture=MSIL">
       <HintPath>..\packages\CacheManager.Core.1.1.2\lib\net45\CacheManager.Core.dll</HintPath>
       <Private>True</Private>
@@ -334,6 +337,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\AutoMapperModule.cs" />
     <Compile Include="Helpers\BaseController.cs" />
     <Compile Include="Helpers\BaseViewPage.cs" />
     <Compile Include="Helpers\Constants.cs" />
@@ -341,7 +345,9 @@
     <Compile Include="Helpers\DataMapperListConverter.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
+    <Compile Include="MappingProfiles\AgentProfile.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\AgentViewModel.cs" />
     <Compile Include="Models\ApiConfigurationValues.cs" />
     <Compile Include="Models\AssessmentViewModel.cs" />
     <Compile Include="Models\DataMapper.cs" />

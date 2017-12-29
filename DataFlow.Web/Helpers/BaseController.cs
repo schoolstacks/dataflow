@@ -1,4 +1,5 @@
 ﻿using System.Web.Mvc;
+using AutoMapper;
 using DataFlow.Common.Services;
 using DataFlow.Web.Services;
 using NLog;
@@ -12,17 +13,15 @@ namespace DataFlow.Web.Helpers
         public readonly ICacheService CacheService;
         public readonly IConfigurationService ConfigurationService;
         public readonly IWebConfigAppSettingsService WebConfigAppSettingsService;
-
-        private readonly IBaseServices BaseServices;
+        public readonly IMapper MapperService;
 
         public BaseController(IBaseServices baseServices)
         {
-            this.BaseServices = baseServices;
-
             this.LogService = baseServices.LogService;
             this.CacheService = baseServices.CacheService;
             this.ConfigurationService = baseServices.ConfigurationService;
             this.WebConfigAppSettingsService = baseServices.WebConfigAppSettingsService;
+            this.MapperService = baseServices.MapperService;
 
             this.LogService.Name = GetType().FullName;
 

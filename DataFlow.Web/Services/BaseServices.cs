@@ -1,4 +1,5 @@
-﻿using DataFlow.Common.Services;
+﻿using AutoMapper;
+using DataFlow.Common.Services;
 
 namespace DataFlow.Web.Services
 {
@@ -8,5 +9,6 @@ namespace DataFlow.Web.Services
         public ICacheService CacheService { get; }
         public IConfigurationService ConfigurationService { get; }
         public IWebConfigAppSettingsService WebConfigAppSettingsService { get; }
+        public IMapper MapperService { get; }
     }
 }

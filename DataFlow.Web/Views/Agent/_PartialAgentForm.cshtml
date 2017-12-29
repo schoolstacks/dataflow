@@ -1,4 +1,4 @@
-﻿@model DataFlow.Models.Agent
+﻿@model DataFlow.Web.Models.AgentViewModel
 
 @Html.AntiForgeryToken()
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -21,7 +21,25 @@
         @Html.ValidationMessageFor(m => m.AgentTypeCode)
     </div>
 </div>
-<div class="form-group">
+<div id="divAgentAction" class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.AgentAction, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.DropDownListFor(m => m.AgentAction, (IEnumerable<SelectListItem>)ViewBag.AgentActions, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.AgentAction)
+    </div>
+</div>
+<div id="divCustom" class="form-group">
+    <div class="col-sm-2">
+        @Html.LabelFor(m => m.Custom, new { @class = "control-label" })
+    </div>
+    <div class="col-sm-10">
+        @Html.TextAreaFor(m => m.Custom, new { @class = "form-control", type = "text", placeholder = "Parameters", style = "height:100px;" })
+        @Html.ValidationMessageFor(m => m.Custom)
+    </div>
+</div>
+<div id="divUrl" class="form-group">
     <div class="col-sm-2">
         @Html.LabelFor(m => m.Url, new { @class = "control-label" })
     </div>
@@ -30,7 +48,7 @@
         @Html.ValidationMessageFor(m => m.Url)
     </div>
 </div>
-<div class="form-group">
+<div id="divUsername" class="form-group">
     <div class="col-sm-2">
         @Html.LabelFor(m => m.Username, new { @class = "control-label" })
     </div>
@@ -39,7 +57,7 @@
         @Html.ValidationMessageFor(m => m.Username)
     </div>
 </div>
-<div class="form-group">
+<div id="divPassword" class="form-group">
     <div class="col-sm-2">
         @Html.LabelFor(m => m.Password, new { @class = "control-label" })
     </div>
@@ -48,7 +66,7 @@
         @Html.ValidationMessageFor(m => m.Password)
     </div>
 </div>
-<div class="form-group">
+<div id="divDirectory" class="form-group">
     <div class="col-sm-2">
         @Html.LabelFor(m => m.Directory, new { @class = "control-label" })
     </div>
@@ -57,7 +75,7 @@
         @Html.ValidationMessageFor(m => m.Directory)
     </div>
 </div>
-<div class="form-group">
+<div id="divFilePattern" class="form-group">
     <div class="col-sm-2">
         @Html.LabelFor(m => m.FilePattern, new { @class = "control-label" })
     </div>
@@ -71,7 +89,7 @@
         @Html.CheckBoxFor(m => m.Enabled) @Html.LabelFor(m => m.Enabled)
     </div>
 </div>
-<div class="form-group">
+<div id="divAgentTestButton" class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
         <button id="btnTest" type="button" class="btn btn-primary">Test Connection</button>
     </div>
@@ -120,68 +138,69 @@
     </div>
 </div>
 
-<h4>Schedule</h4>
-<table id="tblAgentSchedule" class="table table-striped table-hover table-bordered table-responsive">
-    <thead>
-        <tr>
-            <td>Day</td>
-            <td>Hour</td>
-            <td>Minute</td>
-            <td></td>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var m in Model.AgentSchedules)
-        {
+<div id="divAgentSchedule">
+    <h4>Schedule</h4>
+    <table id="tblAgentSchedule" class="table table-striped table-hover table-bordered table-responsive">
+        <thead>
             <tr>
-                <td>@Enum.GetName(typeof(DayOfWeek), m.Day)</td>
-                <td>@(Convert.ToString(m.Hour).PadLeft(2, '0'))</td>
-                <td>@(Convert.ToString(m.Minute).PadLeft(2, '0'))</td>
-                <td style="text-align: center;">@Html.ActionLink("Delete", "DeleteSchedule", new { agentId = Model.Id, id = m.Id })</td>
+                <td>Day</td>
+                <td>Hour</td>
+                <td>Minute</td>
+                <td></td>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var m in Model.AgentSchedules)
+            {
+                <tr>
+                    <td>@Enum.GetName(typeof(DayOfWeek), m.Day)</td>
+                    <td>@(Convert.ToString(m.Hour).PadLeft(2, '0'))</td>
+                    <td>@(Convert.ToString(m.Minute).PadLeft(2, '0'))</td>
+                    <td style="text-align: center;">@Html.ActionLink("Delete", "DeleteSchedule", new { agentId = Model.Id, id = m.Id })</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-<div class="form-group row">
-    <div class="col-xs-2">
-        @Html.Label("Add Schedule", new { @class = "control-label", @for = "ddlDay" })
-    </div>
-    <div class="col-xs-2">
-        <select id="ddlDay" name="ddlDay" class="form-control">
-            <option value="">Select Day</option>
-            @foreach (var i in Enumerable.Range(0, 7))
-            {
-                <option value="@i">@Enum.GetName(typeof(DayOfWeek), i)</option>
-            }
-        </select>
-    </div>
-    <div class="col-xs-2">
-        <select id="ddlHour" name="ddlHour" class="form-control">
-            <option value="">Select Hour</option>
-            @foreach (var i in Enumerable.Range(0, 24))
-            {
-                <option value="@i">@i</option>
-            }
-        </select>
-    </div>
-    <div class="col-xs-2">
-        <select id="ddlMinute" name="ddlMinute" class="form-control">
-            <option value="">Select Minute</option>
-            @foreach (var i in Enumerable.Range(0, 60))
-            {
-                <option value="@i">@i</option>
-            }
-        </select>
-    </div>
-    <div class="col-xs-2">
-        <button id="btnAddSchedule" name="btnAddSchedule" type="submit" class="btn btn-default">Add Schedule</button>
+    <div class="form-group row">
+        <div class="col-xs-2">
+            @Html.Label("Add Schedule", new { @class = "control-label", @for = "ddlDay" })
+        </div>
+        <div class="col-xs-2">
+            <select id="ddlDay" name="ddlDay" class="form-control">
+                <option value="">Select Day</option>
+                @foreach (var i in Enumerable.Range(0, 7))
+                {
+                    <option value="@i">@Enum.GetName(typeof(DayOfWeek), i)</option>
+                }
+            </select>
+        </div>
+        <div class="col-xs-2">
+            <select id="ddlHour" name="ddlHour" class="form-control">
+                <option value="">Select Hour</option>
+                @foreach (var i in Enumerable.Range(0, 24))
+                {
+                    <option value="@i">@i</option>
+                }
+            </select>
+        </div>
+        <div class="col-xs-2">
+            <select id="ddlMinute" name="ddlMinute" class="form-control">
+                <option value="">Select Minute</option>
+                @foreach (var i in Enumerable.Range(0, 60))
+                {
+                    <option value="@i">@i</option>
+                }
+            </select>
+        </div>
+        <div class="col-xs-2">
+            <button id="btnAddSchedule" name="btnAddSchedule" type="submit" class="btn btn-default">Add Schedule</button>
+        </div>
     </div>
 </div>
 <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
         @Html.HiddenFor(m => m.Id)
-        @Html.HiddenFor(m => m.Custom)
         @Html.HiddenFor(m => m.Queue)
         <button id="btnSubmit" type="submit" class="btn btn-primary">Save Agent</button>
     </div>

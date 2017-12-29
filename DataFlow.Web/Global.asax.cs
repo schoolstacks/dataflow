@@ -10,6 +10,7 @@ using Autofac.Integration.Mvc;
 using CacheManager.Core;
 using DataFlow.Common.DAL;
 using DataFlow.Common.Services;
+using DataFlow.Web.Helpers;
 using DataFlow.Web.Services;
 using NLog;
 
@@ -35,6 +36,7 @@ namespace DataFlow.Web
             builder.RegisterControllers(typeof(MvcApplication).Assembly);
             builder.RegisterAggregateService<IBaseServices>();
             builder.RegisterModule<AutofacWebTypesModule>();
+            builder.RegisterModule(new AutoMapperModule());
             builder.RegisterType<DataFlowDbContext>().InstancePerRequest();
             builder.RegisterType<EdFiService>().InstancePerRequest();
             builder.RegisterType<EdFiMetadataProcessor>().InstancePerRequest();
