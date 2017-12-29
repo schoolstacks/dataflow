@@ -194,11 +194,12 @@ namespace DataFlow.Web.Controllers
             agent.Url = vm.Url;
             agent.Username = vm.Username;
             agent.Password = Encryption.Encrypt(vm.Password, EncryptionKey);
-            agent.Directory = vm.Directory;
+            agent.Directory = vm.Directory ?? GetManualAgentBaseDirectory(agent);
             agent.FilePattern = vm.FilePattern;
             agent.Enabled = vm.Enabled;
             agent.Queue = vm.Queue;
             agent.Custom = vm.Custom;
+
 
             if (!isUpdate)
             {
@@ -241,6 +242,32 @@ namespace DataFlow.Web.Controllers
                 isUpdate ? LogTemplates.EntityAction.Modified : LogTemplates.EntityAction.Added));
 
             return savevm;
+        }
+
+        private string GetManualAgentBaseDirectory(Agent agent)
+        {
+            if (agent.AgentTypeCode == "Manual")
+            {
+                if (string.IsNullOrWhiteSpace(agent.Directory))
+                {
+                    var directoryPath = string.Empty;
+
+                    var baseDirectory = WebConfigAppSettingsService.GetSetting<string>("DefaultBaseDirectory");
+                    if (string.IsNullOrWhiteSpace(baseDirectory))
+                        baseDirectory = Server.MapPath("~/App_Data");
+
+                    directoryPath = Path.Combine(baseDirectory, "Agents", Guid.NewGuid().ToString());
+
+                    if (Directory.Exists(directoryPath) == false)
+                    {
+                        Directory.CreateDirectory(directoryPath);
+                    }
+
+                    return directoryPath;
+                }
+            }
+
+            return string.Empty;
         }
 
         public ModelStateDictionary Validate(AgentViewModel agent)

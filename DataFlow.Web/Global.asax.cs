@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Web.Hosting;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
@@ -31,7 +32,7 @@ namespace DataFlow.Web
              * and go to Properties and then navigate to the Web tab and enter the SSL URL
              * for Project URL.
              */
-            if (Request.IsLocal == false)
+            if (HostingEnvironment.IsDevelopmentEnvironment == false)
             {
                 var forceHttps = Convert.ToBoolean(ConfigurationManager.AppSettings["ForceHttps"] ?? "false");
 
