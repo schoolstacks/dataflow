@@ -12,17 +12,18 @@ namespace DataFlow.Common.Migrations
 
         protected override void Seed(DataFlow.Common.DAL.DataFlowDbContext context)
         {
-            context.FileStatuses.AddOrUpdate(
-                            new FileStatus() { Value = "ERROR_LOADING" },
-                            new FileStatus() { Value = "ERROR_TRANSFORM" },
-                            new FileStatus() { Value = "ERROR_UPLOADED" },
-                            new FileStatus() { Value = "LOADED" },
-                            new FileStatus() { Value = "LOADING" },
-                            new FileStatus() { Value = "TRANSFORMING" },
-                            new FileStatus() { Value = "UPLOADED" },
-                            new FileStatus() { Value = "RETRY" });
+            context.FileStatuses.AddOrUpdate(x => x.Value,
+                new FileStatus() {Value = "ERROR_LOADING"},
+                new FileStatus() {Value = "ERROR_TRANSFORM"},
+                new FileStatus() {Value = "ERROR_UPLOADED"},
+                new FileStatus() {Value = "LOADED"},
+                new FileStatus() {Value = "LOADING"},
+                new FileStatus() {Value = "TRANSFORMING"},
+                new FileStatus() {Value = "UPLOADED"},
+                new FileStatus() {Value = "RETRY"}
+            );
 
-            context.EdfiDictionary.AddOrUpdate(x=>
+            context.EdfiDictionary.AddOrUpdate(x => new { x.GroupSet, x.OriginalValue, x.DisplayValue, x.DisplayOrder },
                 new EdfiDictionary() { GroupSet = "levelDescriptors", OriginalValue = "Kindergarten", DisplayValue = "Kindergarten", DisplayOrder = 1 },
                 new EdfiDictionary() { GroupSet = "levelDescriptors", OriginalValue = "First grade", DisplayValue = "1st Grade", DisplayOrder = 2 },
                 new EdfiDictionary() { GroupSet = "levelDescriptors", OriginalValue = "Second grade", DisplayValue = "2nd Grade", DisplayOrder = 3 },
@@ -39,22 +40,22 @@ namespace DataFlow.Common.Migrations
                 new EdfiDictionary() { GroupSet = "levelDescriptors", OriginalValue = "Ungraded", DisplayValue = "Ungraded", DisplayOrder = 100 }
             );
 
-            context.Entities.AddOrUpdate(
-                new Entity() { Name = "students", Url = "/metadata/resources/api-docs/students" },
-                new Entity() { Name = "studentAssessments", Url = "/metadata/resources/api-docs/studentAssessments" },
-                new Entity() { Name = "studentSchoolAssociations", Url = "/metadata/resources/api-docs/studentSchoolAssociations" },
-                new Entity() { Name = "studentSectionAssociations", Url = "/metadata/resources/api-docs/studentSectionAssociations" },
-                new Entity() { Name = "staffs", Url = "/metadata/resources/api-docs/staffs" },
-                new Entity() { Name = "assessments", Url = "/metadata/resources/api-docs/assessments" },
-                new Entity() { Name = "staffSchoolAssociations", Url = "/metadata/resources/api-docs/staffSchoolAssociations" },
-                new Entity() { Name = "staffSectionAssociations", Url = "/metadata/resources/api-docs/staffSectionAssociations" },
-                new Entity() { Name = "schools", Url = "/metadata/resources/api-docs/schools" },
-                new Entity() { Name = "localEducationAgencies", Url = "/metadata/resources/api-docs/localEducationAgencies" },
-                new Entity() { Name = "sections", Url = "/metadata/resources/api-docs/sections" },
-                new Entity() { Name = "assessmentItem", Url = "/metadata/resources/api-docs/assessmentItem" },
-                new Entity() { Name = "objectiveAssessment", Url = "/metadata/resources/api-docs/objectiveAssessments" },
-                new Entity() { Name = "performanceLevels", Url = "/metadata/descriptors/api-docs/performanceLevelDescriptors" }
-                );
+            context.Entities.AddOrUpdate(x => new {x.Name, x.Url},
+                new Entity() {Name = "students", Url = "/metadata/resources/api-docs/students"},
+                new Entity() {Name = "studentAssessments", Url = "/metadata/resources/api-docs/studentAssessments"},
+                new Entity() {Name = "studentSchoolAssociations", Url = "/metadata/resources/api-docs/studentSchoolAssociations"},
+                new Entity() {Name = "studentSectionAssociations", Url = "/metadata/resources/api-docs/studentSectionAssociations"},
+                new Entity() {Name = "staffs", Url = "/metadata/resources/api-docs/staffs"},
+                new Entity() {Name = "assessments", Url = "/metadata/resources/api-docs/assessments"},
+                new Entity() {Name = "staffSchoolAssociations", Url = "/metadata/resources/api-docs/staffSchoolAssociations"},
+                new Entity() {Name = "staffSectionAssociations", Url = "/metadata/resources/api-docs/staffSectionAssociations"},
+                new Entity() {Name = "schools", Url = "/metadata/resources/api-docs/schools"},
+                new Entity() {Name = "localEducationAgencies", Url = "/metadata/resources/api-docs/localEducationAgencies"},
+                new Entity() {Name = "sections", Url = "/metadata/resources/api-docs/sections"},
+                new Entity() {Name = "assessmentItem", Url = "/metadata/resources/api-docs/assessmentItem"},
+                new Entity() {Name = "objectiveAssessment", Url = "/metadata/resources/api-docs/objectiveAssessments"},
+                new Entity() {Name = "performanceLevels", Url = "/metadata/descriptors/api-docs/performanceLevelDescriptors"}
+            );
         }
     }
 }
