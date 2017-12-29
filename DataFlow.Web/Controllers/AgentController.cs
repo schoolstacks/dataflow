@@ -190,6 +190,7 @@ namespace DataFlow.Web.Controllers
 
             agent.Name = vm.Name;
             agent.AgentTypeCode = vm.AgentTypeCode;
+            agent.AgentAction = vm.AgentAction;
             agent.Url = vm.Url;
             agent.Username = vm.Username;
             agent.Password = Encryption.Encrypt(vm.Password, EncryptionKey);
