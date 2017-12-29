@@ -7,13 +7,7 @@
 
 <h2>@ViewBag.Title</h2>
 
-@if (Model.FormResult != null && Model.FormResult.ShowInfoMessage)
-{
-    <div class="panel @(Model.FormResult.IsSuccess ? "panel-success" : "panel-danger")">
-        <div class="panel-heading">@(Model.FormResult.IsSuccess ? "Success" : "Error")</div>
-        <div class="panel-body">@Model.FormResult.InfoMessage</div>
-    </div>
-}
+@Html.Partial("_FormResultPartial", Model.FormResult)
 
 @using (Html.BeginForm("Edit", "Agent", FormMethod.Post, new { @class = "form-horizontal" }))
 {

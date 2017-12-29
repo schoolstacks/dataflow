@@ -5,6 +5,11 @@ namespace DataFlow.Web.Models
 {
     public class AgentViewModel : Agent
     {
+        public AgentViewModel()
+        {
+            FormResult = new FormResult();
+        }
+
         [NotMapped]
         public FormResult FormResult { get; set; }
     }

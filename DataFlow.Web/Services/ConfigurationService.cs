@@ -60,8 +60,8 @@ namespace DataFlow.Web.Services
                 API_SERVER_URL = GetConfigurationByKey(Constants.API_SERVER_URL).Value,
                 API_SERVER_KEY = GetConfigurationByKey(Constants.API_SERVER_KEY).Value,
                 API_SERVER_SECRET = GetConfigurationByKey(Constants.API_SERVER_SECRET).Value,
-                INSTANCE_COMPANY_LOGO = GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO).Value,
-                INSTANCE_COMPANY_URL = GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL).Value,
+                INSTANCE_ORGANIZATION_LOGO = GetConfigurationByKey(Constants.INSTANCE_ORGANIZATION_LOGO).Value,
+                INSTANCE_ORGANIZATION_URL = GetConfigurationByKey(Constants.INSTANCE_ORGANIZATION_URL).Value,
                 INSTANCE_EDU_USE_TEXT = GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT).Value,
                 INSTANCE_ALLOW_USER_REGISTRATION = Convert.ToBoolean(GetConfigurationByKey(Constants.INSTANCE_ALLOW_USER_REGISTRATION).Value)
             };

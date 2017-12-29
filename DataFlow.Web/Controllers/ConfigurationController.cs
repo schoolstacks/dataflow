@@ -52,9 +52,9 @@ namespace DataFlow.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Index(DataFlow.Web.Models.ApiConfigurationValues vm)
         {
-            if (!string.IsNullOrWhiteSpace(vm.INSTANCE_COMPANY_LOGO) && !vm.INSTANCE_COMPANY_LOGO.HasImageExtension())
+            if (!string.IsNullOrWhiteSpace(vm.INSTANCE_ORGANIZATION_LOGO) && !vm.INSTANCE_ORGANIZATION_LOGO.HasImageExtension())
             {
-                ModelState.AddModelError("INSTANCE_COMPANY_LOGO", "Company logo must end with the following file extensions: jpg, gif, png, or svg.");
+                ModelState.AddModelError("INSTANCE_ORGANIZATION_LOGO", "Organization logo must end with the following file extensions: jpg, gif, png, or svg.");
             }
 
             if (!ModelState.IsValid)
@@ -65,16 +65,16 @@ namespace DataFlow.Web.Controllers
             var apiServerUrl = ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_URL);
             var apiServerKey = ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_KEY);
             var apiServerSecret = ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_SECRET);
-            var instanceCompanyLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_LOGO);
-            var instanceCompanyUrl = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_COMPANY_URL);
+            var instanceOrganizationLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_ORGANIZATION_LOGO);
+            var instanceOrganizationUrl = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_ORGANIZATION_URL);
             var instanceEduUseText = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT);
             var instanceAllowRegistrations = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_ALLOW_USER_REGISTRATION);
 
             apiServerUrl.Value = vm.API_SERVER_URL;
             apiServerKey.Value = vm.API_SERVER_KEY;
             apiServerSecret.Value = vm.API_SERVER_SECRET;
-            instanceCompanyLogo.Value = vm.INSTANCE_COMPANY_LOGO;
-            instanceCompanyUrl.Value = vm.INSTANCE_COMPANY_URL;
+            instanceOrganizationLogo.Value = vm.INSTANCE_ORGANIZATION_LOGO;
+            instanceOrganizationUrl.Value = vm.INSTANCE_ORGANIZATION_URL;
             instanceEduUseText.Value = vm.INSTANCE_EDU_USE_TEXT;
             instanceAllowRegistrations.Value = Convert.ToString(vm.INSTANCE_ALLOW_USER_REGISTRATION);
 
@@ -83,8 +83,8 @@ namespace DataFlow.Web.Controllers
                 apiServerUrl,
                 apiServerKey,
                 apiServerSecret,
-                instanceCompanyLogo,
-                instanceCompanyUrl,
+                instanceOrganizationLogo,
+                instanceOrganizationUrl,
                 instanceEduUseText,
                 instanceAllowRegistrations
             };

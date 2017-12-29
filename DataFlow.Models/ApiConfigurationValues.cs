@@ -17,12 +17,12 @@ namespace DataFlow.Models
         public string API_SERVER_SECRET { get; set; }
 
         [DataType(DataType.ImageUrl, ErrorMessage = "Please enter a valid URL that points to an image file.")]
-        [Display(Name = "Company Logo")]
-        public string INSTANCE_COMPANY_LOGO { get; set; }
+        [Display(Name = "Organization Logo")]
+        public string INSTANCE_ORGANIZATION_LOGO { get; set; }
 
         [DataType(DataType.Url, ErrorMessage = "Please enter a valid URL.")]
-        [Display(Name = "Company URL")]
-        public string INSTANCE_COMPANY_URL { get; set; }
+        [Display(Name = "Organization URL")]
+        public string INSTANCE_ORGANIZATION_URL { get; set; }
 
         [Display(Name = "Education Use Text")]
         public string INSTANCE_EDU_USE_TEXT { get; set; }

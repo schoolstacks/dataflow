@@ -1,6 +1,6 @@
 ﻿@model DataFlow.Web.Models.FormResult
 
-@if (Model.ShowInfoMessage)
+@if (Model != null && Model.ShowInfoMessage)
 {
     <div class="panel @(Model.IsSuccess ? "panel-success" : "panel-danger")">
         <div class="panel-heading">@(Model.IsSuccess ? "Success" : "Error")</div>

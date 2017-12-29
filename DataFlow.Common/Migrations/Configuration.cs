@@ -22,7 +22,7 @@ namespace DataFlow.Common.Migrations
                             new FileStatus() { Value = "UPLOADED" },
                             new FileStatus() { Value = "RETRY" });
 
-            context.EdfiDictionary.AddOrUpdate(
+            context.EdfiDictionary.AddOrUpdate(x=>
                 new EdfiDictionary() { GroupSet = "levelDescriptors", OriginalValue = "Kindergarten", DisplayValue = "Kindergarten", DisplayOrder = 1 },
                 new EdfiDictionary() { GroupSet = "levelDescriptors", OriginalValue = "First grade", DisplayValue = "1st Grade", DisplayOrder = 2 },
                 new EdfiDictionary() { GroupSet = "levelDescriptors", OriginalValue = "Second grade", DisplayValue = "2nd Grade", DisplayOrder = 3 },

@@ -19,7 +19,8 @@
             @Html.LabelFor(m => m.API_SERVER_URL, new { @class = "control-label" })
         </div>
         <div class="col-sm-10">
-            @Html.TextBoxFor(m => m.API_SERVER_URL, new { @class = "form-control", type = "url", placeholder = "API Server Base URL" })
+            @Html.TextBoxFor(m => m.API_SERVER_URL, new { @class = "form-control", type = "url", placeholder = "API Server Base URL (Example: https://[url]/api/v2.0/2017)" })
+            <span class="help-block">Example: https://[url]/api/v2.0/2017</span>
             @Html.ValidationMessageFor(m => m.API_SERVER_URL)
         </div>
     </div>
@@ -49,20 +50,20 @@
     <h4>Instance Information</h4>
     <div class="form-group">
         <div class="col-sm-2">
-            @Html.LabelFor(m => m.INSTANCE_COMPANY_LOGO, new { @class = "control-label" })
+            @Html.LabelFor(m => m.INSTANCE_ORGANIZATION_LOGO, new { @class = "control-label" })
         </div>
         <div class="col-sm-10">
-            @Html.TextBoxFor(m => m.INSTANCE_COMPANY_LOGO, new { @class = "form-control", type = "url", placeholder = "Company Logo" })
-            @Html.ValidationMessageFor(m => m.INSTANCE_COMPANY_LOGO)
+            @Html.TextBoxFor(m => m.INSTANCE_ORGANIZATION_LOGO, new { @class = "form-control", type = "url", placeholder = "Organization Logo" })
+            @Html.ValidationMessageFor(m => m.INSTANCE_ORGANIZATION_LOGO)
         </div>
     </div>
     <div class="form-group">
         <div class="col-sm-2">
-            @Html.LabelFor(m => m.INSTANCE_COMPANY_URL, new { @class = "control-label" })
+            @Html.LabelFor(m => m.INSTANCE_ORGANIZATION_URL, new { @class = "control-label" })
         </div>
         <div class="col-sm-10">
-            @Html.TextBoxFor(m => m.INSTANCE_COMPANY_URL, new { @class = "form-control", type = "url", placeholder = "Company URL" })
-            @Html.ValidationMessageFor(m => m.INSTANCE_COMPANY_URL)
+            @Html.TextBoxFor(m => m.INSTANCE_ORGANIZATION_URL, new { @class = "form-control", type = "url", placeholder = "Organization URL" })
+            @Html.ValidationMessageFor(m => m.INSTANCE_ORGANIZATION_URL)
         </div>
     </div>
     <div class="form-group">

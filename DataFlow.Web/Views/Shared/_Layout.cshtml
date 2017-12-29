@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using System.IdentityModel.Metadata
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -17,10 +18,12 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @if (!string.IsNullOrWhiteSpace(CompanyLogo))
+                @if (!string.IsNullOrWhiteSpace(OrganizationLogo))
                 {
-                    <a href="@Url.Action("Index","School")" target="_blank">
-                        <img src="@CompanyLogo" class="navbar-left" style="height: 45px;" />
+                    var logoUrl = !string.IsNullOrWhiteSpace(OrganizationUrl) ? OrganizationUrl : Url.Action("Index", "School");
+
+                    <a href="@logoUrl" target="_blank">
+                        <img src="@OrganizationLogo" class="navbar-left" style="height: 45px;" />
                     </a>
                 }
                 @Html.ActionLink("Data Flow Admin", "Index", "School", new { area = "" }, new { @class = "navbar-brand" })
