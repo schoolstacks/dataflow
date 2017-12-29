@@ -448,7 +448,7 @@ namespace DataFlow.Web.Controllers
             {
                 var agentTypes = new List<SelectListItem>();
                 agentTypes.Add(new SelectListItem { Text = "Select Type", Value = string.Empty });
-                agentTypes.AddRange(new[] { "Chrome","Manual", "SFTP", "FTPS" }.Select(x =>
+                agentTypes.AddRange(AgentHelper.Types.ToList().Select(x =>
                       new SelectListItem
                       {
                           Text = x,
