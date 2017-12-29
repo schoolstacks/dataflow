@@ -1,4 +1,5 @@
-﻿@model List<DataFlow.Models.Agent>
+﻿@using DataFlow.Web.Models
+@model List<DataFlow.Models.Agent>
 
 @{
     ViewBag.Title = "Agents";
@@ -6,6 +7,13 @@
 }
 
 <h2>@ViewBag.Title</h2>
+
+@if (TempData["FormResult"] is FormResult)
+{
+    var formResult = (FormResult)TempData["FormResult"];
+
+    @Html.Partial("_FormResultPartial", formResult)
+}
 
 <div style="padding-bottom: 10px;">
     @Html.ActionLink("Add Agent", "Add", null, new { @class = "btn btn-primary" })
@@ -22,17 +30,17 @@
         </tr>
     </thead>
     <tbody>
-    @foreach (var m in Model)
-    {
-        <tr>
-            <td>@m.Name</td>
-            <td>@m.AgentTypeCode</td>
-            <td data-type="number">@m.Files.Count</td>
-            <td data-type="date" data-format-string="yyyy-MM-dd hh:MM tt">@(m.LastExecuted?.ToString("yyyy-MM-dd hh:MM tt"))</td>
-            <td>@Html.ActionLink(Convert.ToString(m.Enabled), "ToggleAgentStatus", new { m.Id }, new{title="Toggle Status"})</td>
-            <td style="text-align: center;">@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
-        </tr>
-    }
+        @foreach (var m in Model)
+        {
+            <tr>
+                <td>@m.Name</td>
+                <td>@m.AgentTypeCode</td>
+                <td data-type="number">@m.Files.Count</td>
+                <td data-type="date" data-format-string="yyyy-MM-dd hh:MM tt">@(m.LastExecuted?.ToString("yyyy-MM-dd hh:MM tt"))</td>
+                <td>@Html.ActionLink(Convert.ToString(m.Enabled), "ToggleAgentStatus", new { m.Id }, new { title = "Toggle Status" })</td>
+                <td style="text-align: center;">@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
+            </tr>
+        }
     </tbody>
 </table>
 @using (Html.BeginForm("UploadFile", "Agent", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
@@ -60,9 +68,6 @@
         <div class="col-sm-offset-2 col-sm-10">
             <button id="btnUpload" type="submit" class="btn btn-primary">Upload</button>
         </div>
-    </div>
-    <div>
-        @TempData["FileStatus"]
     </div>
 }
 @section scripts

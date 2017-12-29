@@ -236,11 +236,8 @@ namespace DataFlow.Web.Controllers
 
             var savevm = MapperService.Map<AgentViewModel>(agent);
 
-
             LogService.Info(LogTemplates.InfoCrud("Agent", agent.Name, agent.Id,
                 isUpdate ? LogTemplates.EntityAction.Modified : LogTemplates.EntityAction.Added));
-
-
 
             return savevm;
         }
@@ -292,6 +289,8 @@ namespace DataFlow.Web.Controllers
 
             if (agentMap != null)
             {
+                LogService.Info($"Data Map {agentMap.DataMap.Name} was removed from {agentMap.Agent.Name}.");
+
                 dataFlowDbContext.DatamapAgents.Remove(agentMap);
                 await dataFlowDbContext.SaveChangesAsync();
             }
@@ -304,6 +303,9 @@ namespace DataFlow.Web.Controllers
 
             if (agentScedhule != null)
             {
+                var dayOfWeek = Enum.GetName(typeof(DayOfWeek), agentScedhule.Day);
+                LogService.Info($"Schedule that occured every {dayOfWeek} at {Convert.ToString(agentScedhule.Hour).PadLeft(2, '0')}:{Convert.ToString(agentScedhule.Minute).PadLeft(2, '0')} was removed from {agentScedhule.Agent.Name}.");
+
                 dataFlowDbContext.AgentSchedules.Remove(agentScedhule);
                 await dataFlowDbContext.SaveChangesAsync();
             }
@@ -314,7 +316,9 @@ namespace DataFlow.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UploadFile(HttpPostedFileBase File, string Agents)
         {
-            TempData["FileStatus"] = string.Empty;
+            TempData["FormResult"] = new FormResult() {IsSuccess = false, ShowInfoMessage = false, InfoMessage = string.Empty};
+
+            var formResult = new FormResult();
 
             try
             {
@@ -334,7 +338,6 @@ namespace DataFlow.Web.Controllers
 
                     if (!fileShare.Exists())
                     {
-                        TempData["FileStatus"] = "File share does not exist!";
                     }
                     else
                     {
@@ -350,15 +353,22 @@ namespace DataFlow.Web.Controllers
 
                         LogService.Info($"File {File.FileName} was uploaded to {agent.Name} (Id: {agent.Id}).");
 
-                        TempData["FileStatus"] = "File successfully uploaded: " + File.FileName;
+                        formResult.IsSuccess = true;
+                        formResult.ShowInfoMessage = true;
+                        formResult.InfoMessage = $"Your file, {File.FileName}, has been successfully uploaded to the following agent: {agent.Name}.";
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogService.Error("Error Uploading File", ex);
-                TempData["FileStatus"] = "Error: " + ex.Message;
+                LogService.Error("Error Manually Uploading File to Agent", ex);
+
+                formResult.IsSuccess = false;
+                formResult.ShowInfoMessage = true;
+                formResult.InfoMessage = $"There was an error while processing your upload. If you continue to encounter this error, please contact your supervisor.";
             }
+
+            TempData["FormResult"] = formResult;
 
             return RedirectToAction("Index");
         }
