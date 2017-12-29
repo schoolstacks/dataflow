@@ -28,7 +28,7 @@
             </thead>
             <tbody>
                 @foreach (var m in Model.Files)
-            {
+                {
                     <tr>
                         <td>@m.Agent.Name</td>
                         <td>@m.FileName</td>
@@ -43,7 +43,7 @@
         </table>
     </div>
     <div id="divLogIngestion" class="tab-pane fade">
-        <table id="tblIngestion" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true" data-paging="true" data-paging-size="20">
+        <table id="tblIngestion" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true" data-paging="true" data-paging-size="20" data-show-toggle="true" data-toggle-column="first">
             <thead>
                 <tr>
                     <th data-type="date" data-format-string="yyyy-MM-dd hh:MM tt">Date</th>
@@ -52,12 +52,12 @@
                     <th>Process</th>
                     <th>File Name</th>
                     <th>Result</th>
-                    <th>Message</th>
+                    <th data-breakpoints="all" data-sortable="false">Message</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var m in Model.LogIngestions)
-            {
+                {
                     <tr>
                         <td>@(m.Date.ToString("yyyy-MM-dd hh:MM tt"))</td>
                         <td>@m.Level</td>
@@ -72,7 +72,7 @@
         </table>
     </div>
     <div id="divLogApplication" class="tab-pane fade">
-        <table id="tblApplication" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true" data-paging="true" data-paging-size="20"  data-show-toggle="true"  data-toggle-column="first">
+        <table id="tblApplication" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true" data-paging="true" data-paging-size="20" data-show-toggle="true" data-toggle-column="first">
             <thead>
                 <tr>
                     <th data-type="date" data-format-string="yyyy-MM-dd hh:MM tt">Logged On</th>
@@ -85,7 +85,7 @@
             </thead>
             <tbody>
                 @foreach (var s in Model.NLogs)
-            {
+                {
                     <tr>
                         <td>@(s.Logged.ToString("yyyy-MM-dd hh:MM tt"))</td>
                         <td>@s.Level</td>
@@ -102,7 +102,7 @@
 @section scripts
 {
     <script type="text/javascript">
-        $(function($){
+        $(function ($) {
             $('#tblFiles').footable();
             $('#tblIngestion').footable();
             $('#tblApplication').footable();
