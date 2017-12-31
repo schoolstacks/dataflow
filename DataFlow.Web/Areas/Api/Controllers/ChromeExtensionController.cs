@@ -37,7 +37,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
 	{
 		""agent_id"": 2,
 		""action"": ""POST"",
-		""url"": ""http://moodle.schoolstacks.com/grade/report/history/index.php"",
+		""url"": ""http://moodle.schoolstacks.com/grade/report/history/index.php?id=2"",
 		""parameters"": [{
 				""itemid"": 0
 			},
