@@ -37,12 +37,12 @@ namespace DataFlow.Web.Areas.Api.Controllers
 	{
 		""agent_id"": 2,
 		""action"": ""POST"",
-		""url"": ""http://moodle.schoolstacks.com/grade/report/history/index.php?id=2"",
+		""url"": ""http://moodle.schoolstacks.com/export.php"",
 		""parameters"": [{
 				""itemid"": 0
 			},
 			{
-				""datefrom[day]"": ""1""
+				[{""mform_isexpanded_id_gradeitems"":""1""},{""checkbox_controller1"":""1""},{""mform_isexpanded_id_options"":""0""},{""id"":""3""},{""sesskey"":""4O0S9wVEf6""},{""_qf__grade_export_form"":""1""},{""itemids[8]"":""0""},{""itemids[8]"":""1""},{""itemids[9]"":""0""},{""itemids[9]"":""1""},{""itemids[10]"":""0""},{""itemids[10]"":""1""},{""itemids[11]"":""0""},{""itemids[11]"":""1""},{""itemids[12]"":""0""},{""itemids[12]"":""1""},{""itemids[13]"":""0""},{""itemids[13]"":""1""},{""itemids[14]"":""0""},{""itemids[14]"":""1""},{""itemids[15]"":""0""},{""itemids[15]"":""1""},{""itemids[16]"":""0""},{""itemids[16]"":""1""},{""itemids[17]"":""0""},{""itemids[17]"":""1""},{""itemids[18]"":""0""},{""itemids[18]"":""1""},{""itemids[7]"":""0""},{""itemids[7]"":""1""},{""export_feedback"":""0""},{""export_onlyactive"":""0""},{""export_onlyactive"":""1""},{""display[real]"":""0""},{""display[real]"":""1""},{""display[percentage]"":""0""},{""display[letter]"":""0""},{""decimals"":""2""},{""separator"":""comma""}]
 			}
 		],
 		""schedule"": [{
