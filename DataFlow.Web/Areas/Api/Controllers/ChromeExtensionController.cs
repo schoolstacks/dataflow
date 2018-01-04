@@ -1,6 +1,12 @@
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.IO;
+using DataFlow.Common.DAL;
+using DataFlow.Models;
+using System.Linq;
 
 namespace DataFlow.Web.Areas.Api.Controllers
 {
@@ -11,9 +17,46 @@ namespace DataFlow.Web.Areas.Api.Controllers
         [Route("api/register")]
         public HttpResponseMessage Register()
         {
+            System.Guid token;
+
+            try
+            {
+                string request = Request.Content.ReadAsStringAsync().Result;
+                JObject json = JObject.Parse(request);
+                System.Guid uuid = System.Guid.Parse(json["uuid"].ToString());
+
+                using (var ctx = new DataFlowDbContext())
+                {
+                    AgentChrome chrome = ctx.AgentChromes.FirstOrDefault(ac => ac.AgentUuid == uuid);
+
+                    if (chrome != null)
+                        token = chrome.AccessToken;
+                    else
+                    {
+                        chrome = new AgentChrome();
+                        chrome.AgentUuid = uuid;
+                        chrome.AccessToken = System.Guid.NewGuid();
+                        chrome.Created = System.DateTime.Now;
+                        ctx.AgentChromes.Add(chrome);
+                        ctx.SaveChanges();
+                        token = chrome.AccessToken;
+                        //TODO: Log success create
+                    }
+                }
+            }
+            catch (System.Exception)
+            {
+                //TODO:  Log error message
+
+                return new HttpResponseMessage()
+                {
+                    StatusCode = HttpStatusCode.InternalServerError
+                };
+            }
+            
             return new HttpResponseMessage()
             {
-                Content = new StringContent(@"{ ""token"": ""42287996-c177-4e58-815c-a9e390d2461f"" }", System.Text.Encoding.UTF8, "application/json"),
+                Content = new StringContent(@"{ ""token"": """ + token.ToString() + @"""}", System.Text.Encoding.UTF8, "application/json"),
                 StatusCode = HttpStatusCode.OK
             };
         }
