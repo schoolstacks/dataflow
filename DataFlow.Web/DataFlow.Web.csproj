@@ -322,6 +322,8 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\Api\ApiAreaRegistration.cs" />
     <Compile Include="Areas\Api\Controllers\ChromeExtensionController.cs" />
+    <Compile Include="Areas\Api\Models\AgentResponse.cs" />
+    <Compile Include="Areas\Api\Models\AgentScheduleResponse.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AgentController.cs" />
     <Compile Include="Controllers\AssessmentController.cs" />
@@ -498,7 +500,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Areas\Api\Models\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DataFlow.Common\DataFlow.Common.csproj">

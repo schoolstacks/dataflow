@@ -95,7 +95,8 @@ namespace DataFlow.Web.Controllers
             if (agent == null)
                 return RedirectToAction("Index");
 
-            agent.Password = Encryption.Decrypt(agent.Password, EncryptionKey);
+            if (agent.Password != null)
+                agent.Password = Encryption.Decrypt(agent.Password, EncryptionKey);
 
             ViewBag.DataMaps = GetDataMapList;
             ViewBag.AgentTypes = GetAgentTypes;
@@ -192,7 +193,8 @@ namespace DataFlow.Web.Controllers
             agent.AgentAction = vm.AgentAction;
             agent.Url = vm.Url;
             agent.Username = vm.Username;
-            agent.Password = Encryption.Encrypt(vm.Password, EncryptionKey);
+            if (vm.Password != null)
+                agent.Password = Encryption.Encrypt(vm.Password, EncryptionKey);
             agent.Directory = vm.Directory ?? GetManualAgentBaseDirectory(agent);
             agent.FilePattern = vm.FilePattern;
             agent.Enabled = vm.Enabled;

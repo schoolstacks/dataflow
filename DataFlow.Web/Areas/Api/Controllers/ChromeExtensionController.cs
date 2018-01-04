@@ -1,12 +1,16 @@
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Description;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using DataFlow.Common.DAL;
 using DataFlow.Models;
 using System.Linq;
+using System.Collections.Generic;
+using System.Data.Entity;
 
 namespace DataFlow.Web.Areas.Api.Controllers
 {
@@ -35,8 +39,8 @@ namespace DataFlow.Web.Areas.Api.Controllers
                     {
                         chrome = new AgentChrome();
                         chrome.AgentUuid = uuid;
-                        chrome.AccessToken = System.Guid.NewGuid();
-                        chrome.Created = System.DateTime.Now;
+                        chrome.AccessToken = Guid.NewGuid();
+                        chrome.Created = DateTime.Now;
                         ctx.AgentChromes.Add(chrome);
                         ctx.SaveChanges();
                         token = chrome.AccessToken;
@@ -44,7 +48,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
                     }
                 }
             }
-            catch (System.Exception)
+            catch (Exception ex)
             {
                 //TODO:  Log error message
 
@@ -63,42 +67,51 @@ namespace DataFlow.Web.Areas.Api.Controllers
 
         [HttpPost]
         [Route("api/agents")]
-        public HttpResponseMessage Agents()
+        public List<Models.AgentResponse> Agents()
         {
-            return new HttpResponseMessage()
+            List<Models.AgentResponse> response = new List<Models.AgentResponse>();
+
+            try
             {
-                Content = new StringContent(@"[{
-		""agent_id"": 1,
-		""action"": ""GET"",
-		""url"": ""https://school-stacks.acme.instructure.com/files/906/download?download_frd=1"",
-        ""loginUrl"": ""https://school-stacks.acme.instructure.com/login/canvas"",
-		""schedule"": [{
-			""day"": 0,
-			""hour"": 7,
-			""minute"": 0
-		}]
-	},
-	{
-		""agent_id"": 2,
-		""action"": ""POST"",
-		""url"": ""http://moodle.schoolstacks.com/export.php"",
-        ""loginUrl"": ""http://moodle.schoolstacks.com/login"",
-		""parameters"": 
-			[{""mform_isexpanded_id_gradeitems"":""1""},{""checkbox_controller1"":""1""},{""mform_isexpanded_id_options"":""0""},{""id"":""3""},{""sesskey"":""4O0S9wVEf6""},{""_qf__grade_export_form"":""1""},{""itemids[8]"":""0""},{""itemids[8]"":""1""},{""itemids[9]"":""0""},{""itemids[9]"":""1""},{""itemids[10]"":""0""},{""itemids[10]"":""1""},{""itemids[11]"":""0""},{""itemids[11]"":""1""},{""itemids[12]"":""0""},{""itemids[12]"":""1""},{""itemids[13]"":""0""},{""itemids[13]"":""1""},{""itemids[14]"":""0""},{""itemids[14]"":""1""},{""itemids[15]"":""0""},{""itemids[15]"":""1""},{""itemids[16]"":""0""},{""itemids[16]"":""1""},{""itemids[17]"":""0""},{""itemids[17]"":""1""},{""itemids[18]"":""0""},{""itemids[18]"":""1""},{""itemids[7]"":""0""},{""itemids[7]"":""1""},{""export_feedback"":""0""},{""export_onlyactive"":""0""},{""export_onlyactive"":""1""},{""display[real]"":""0""},{""display[real]"":""1""},{""display[percentage]"":""0""},{""display[letter]"":""0""},{""decimals"":""2""},{""separator"":""comma""}],
-		""schedule"": [{
-			""day"": 0,
-			""hour"": 8,
-			""minute"": 0
-		}, {
-			""day"": 1,
-			""hour"": 8,
-			""minute"": 0
-		}]
-	}
-]
-", System.Text.Encoding.UTF8, "application/json"),
-                StatusCode = HttpStatusCode.OK
-            };
+                string request = Request.Content.ReadAsStringAsync().Result;
+                JObject json = JObject.Parse(request);
+                System.Guid uuid = System.Guid.Parse(json["uuid"].ToString());
+                System.Guid token = System.Guid.Parse(json["token"].ToString());
+
+                using (var ctx = new DataFlowDbContext())
+                {
+                    AgentChrome chrome = ctx.AgentChromes.Where(ac => ac.AgentUuid == uuid && ac.AccessToken == token).FirstOrDefault();
+                    List<AgentAgentChrome> chromes = ctx.AgentAgentChromes.Where(aac => aac.AgentChromeId == chrome.Id).Include(aac => aac.Agent).Include("Agent.AgentSchedules").ToList();
+
+
+                    foreach (var chm in chromes)
+                    {
+                        Models.AgentResponse responseAgent = new Models.AgentResponse();
+                        responseAgent.AgentId = chm.AgentId;
+                        responseAgent.Action = chm.Agent.AgentAction;
+                        responseAgent.Url = chm.Agent.Url;
+                        responseAgent.LoginUrl = chm.Agent.LoginUrl;
+                        responseAgent.Schedule = new List<Models.AgentScheduleResponse>();
+
+                        foreach (var sch in chm.Agent.AgentSchedules)
+                        {
+                            Models.AgentScheduleResponse schedule = new Models.AgentScheduleResponse(sch.Day, sch.Hour, sch.Minute);
+                            responseAgent.Schedule.Add(schedule);
+                        }
+
+                        response.Add(responseAgent);
+                    }
+                    
+                }
+
+            } catch (System.Exception ex)
+            {
+                //TODO:  Log exception
+
+                throw new HttpResponseException(HttpStatusCode.InternalServerError);
+            }
+
+            return response;
         }
 
         [HttpPost]
