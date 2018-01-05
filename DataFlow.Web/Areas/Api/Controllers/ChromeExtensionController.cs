@@ -57,20 +57,15 @@ namespace DataFlow.Web.Areas.Api.Controllers
 
         [HttpPost]
         [Route("api/agents")]
-        public List<Models.AgentResponse> Agents()
+        public List<Models.AgentResponse> Agents([FromBody] Models.AgentRegistration registration)
         {
             List<Models.AgentResponse> response = new List<Models.AgentResponse>();
 
             try
             {
-                string request = Request.Content.ReadAsStringAsync().Result;
-                JObject json = JObject.Parse(request);
-                System.Guid uuid = System.Guid.Parse(json["uuid"].ToString());
-                System.Guid token = System.Guid.Parse(json["token"].ToString());
-
                 using (var ctx = new DataFlowDbContext())
                 {
-                    AgentChrome chrome = ctx.AgentChromes.Where(ac => ac.AgentUuid == uuid && ac.AccessToken == token).FirstOrDefault();
+                    AgentChrome chrome = ctx.AgentChromes.Where(ac => ac.AgentUuid == registration.uuid && ac.AccessToken == registration.token).FirstOrDefault();
                     List<AgentAgentChrome> chromes = ctx.AgentAgentChromes.Where(aac => aac.AgentChromeId == chrome.Id).Include(aac => aac.Agent).Include("Agent.AgentSchedules").ToList();
 
 
