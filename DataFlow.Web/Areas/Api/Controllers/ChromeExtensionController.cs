@@ -19,31 +19,25 @@ namespace DataFlow.Web.Areas.Api.Controllers
     {
         [HttpPost]
         [Route("api/register")]
-        public HttpResponseMessage Register()
+        public HttpResponseMessage Register([FromBody] Models.AgentRegistration registration)
         {
-            System.Guid token;
-
             try
             {
-                string request = Request.Content.ReadAsStringAsync().Result;
-                JObject json = JObject.Parse(request);
-                System.Guid uuid = System.Guid.Parse(json["uuid"].ToString());
-
                 using (var ctx = new DataFlowDbContext())
                 {
-                    AgentChrome chrome = ctx.AgentChromes.FirstOrDefault(ac => ac.AgentUuid == uuid);
+                    AgentChrome chrome = ctx.AgentChromes.FirstOrDefault(ac => ac.AgentUuid == registration.uuid);
 
                     if (chrome != null)
-                        token = chrome.AccessToken;
+                        registration.token = chrome.AccessToken;
                     else
                     {
                         chrome = new AgentChrome();
-                        chrome.AgentUuid = uuid;
+                        chrome.AgentUuid = registration.uuid;
                         chrome.AccessToken = Guid.NewGuid();
                         chrome.Created = DateTime.Now;
                         ctx.AgentChromes.Add(chrome);
                         ctx.SaveChanges();
-                        token = chrome.AccessToken;
+                        registration.token = chrome.AccessToken;
                         //TODO: Log success create
                     }
                 }
@@ -57,12 +51,8 @@ namespace DataFlow.Web.Areas.Api.Controllers
                     StatusCode = HttpStatusCode.InternalServerError
                 };
             }
-            
-            return new HttpResponseMessage()
-            {
-                Content = new StringContent(@"{ ""token"": """ + token.ToString() + @"""}", System.Text.Encoding.UTF8, "application/json"),
-                StatusCode = HttpStatusCode.OK
-            };
+
+            return Request.CreateResponse((HttpStatusCode)200, registration);
         }
 
         [HttpPost]
