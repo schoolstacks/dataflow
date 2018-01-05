@@ -7,12 +7,12 @@ namespace DataFlow.Web.Areas.Api.Models
 {
     public class AgentResponse
     {
-        public int AgentId { get; set; }
-        public string Action { get; set; }
-        public string Url { get; set; }
-        public string LoginUrl { get; set; }
-        public string Parameters { get; set; }
+        public int agent_id { get; set; }
+        public string action { get; set; }
+        public string url { get; set; }
+        public string loginUrl { get; set; }
+        public string parameters { get; set; }
 
-        public List<AgentScheduleResponse> Schedule { get; set; }
+        public List<AgentScheduleResponse> schedule { get; set; }
     }
 }

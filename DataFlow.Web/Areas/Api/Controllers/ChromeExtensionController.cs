@@ -2,15 +2,12 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using System.Web.Http.Description;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.IO;
 using DataFlow.Common.DAL;
 using DataFlow.Models;
 using System.Linq;
 using System.Collections.Generic;
 using System.Data.Entity;
+using DataFlow.Web.Areas.Api.Models;
 
 namespace DataFlow.Web.Areas.Api.Controllers
 {
@@ -19,7 +16,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
     {
         [HttpPost]
         [Route("api/register")]
-        public HttpResponseMessage Register([FromBody] Models.AgentRegistration registration)
+        public HttpResponseMessage Register([FromBody] AgentRegistration registration)
         {
             try
             {
@@ -57,9 +54,9 @@ namespace DataFlow.Web.Areas.Api.Controllers
 
         [HttpPost]
         [Route("api/agents")]
-        public List<Models.AgentResponse> Agents([FromBody] Models.AgentRegistration registration)
+        public List<AgentResponse> Agents([FromBody] AgentRegistration registration)
         {
-            List<Models.AgentResponse> response = new List<Models.AgentResponse>();
+            List<AgentResponse> response = new List<AgentResponse>();
 
             try
             {
@@ -71,17 +68,17 @@ namespace DataFlow.Web.Areas.Api.Controllers
 
                     foreach (var chm in chromes)
                     {
-                        Models.AgentResponse responseAgent = new Models.AgentResponse();
-                        responseAgent.AgentId = chm.AgentId;
-                        responseAgent.Action = chm.Agent.AgentAction;
-                        responseAgent.Url = chm.Agent.Url;
-                        responseAgent.LoginUrl = chm.Agent.LoginUrl;
-                        responseAgent.Schedule = new List<Models.AgentScheduleResponse>();
+                        AgentResponse responseAgent = new AgentResponse();
+                        responseAgent.agent_id = chm.AgentId;
+                        responseAgent.action = chm.Agent.AgentAction;
+                        responseAgent.url = chm.Agent.Url;
+                        responseAgent.loginUrl = chm.Agent.LoginUrl;
+                        responseAgent.schedule = new List<AgentScheduleResponse>();
 
                         foreach (var sch in chm.Agent.AgentSchedules)
                         {
-                            Models.AgentScheduleResponse schedule = new Models.AgentScheduleResponse(sch.Day, sch.Hour, sch.Minute);
-                            responseAgent.Schedule.Add(schedule);
+                            AgentScheduleResponse schedule = new AgentScheduleResponse(sch.Day, sch.Hour, sch.Minute);
+                            responseAgent.schedule.Add(schedule);
                         }
 
                         response.Add(responseAgent);
