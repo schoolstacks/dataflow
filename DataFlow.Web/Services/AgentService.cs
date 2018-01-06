@@ -33,16 +33,16 @@ namespace DataFlow.Web.Services
                 switch (ConfigurationManager.AppSettings["FileMode"])
                 {
                     case FileModeEnum.Local:
-                        return UploadLocal(file, agent);
+                        return UploadLocal(file.FileName, file.InputStream, agent);
                     case FileModeEnum.Azure:
-                        return UploadToAzure(file, agent);
+                        return UploadToAzure(file.FileName, file.InputStream, agent);
                 }
             }
 
             return new Tuple<bool, string>(false, "The agent provided was null.");
         }
 
-        private Tuple<bool, string> UploadToAzure(HttpPostedFileBase file, Agent agent)
+        private Tuple<bool, string> UploadToAzure(string fileName, System.IO.Stream fileStream, Agent agent)
         {
             try
             {
@@ -59,13 +59,13 @@ namespace DataFlow.Web.Services
                     var fileAgentDirectory = fileDirectoryRoot.GetDirectoryReference(agent.Queue.ToString());
 
                     fileAgentDirectory.CreateIfNotExists();
-                    var cloudFile = fileAgentDirectory.GetFileReference(file.FileName);
-                    cloudFile.UploadFromStream(file.InputStream);
-                    var recordCount = TotalLines(file.InputStream);
+                    var cloudFile = fileAgentDirectory.GetFileReference(fileName);
+                    cloudFile.UploadFromStream(fileStream);
+                    var recordCount = TotalLines(fileStream);
 
-                    LogFile(agent.Id, file.FileName, cloudFile.StorageUri.PrimaryUri.ToString(), FileStatusEnum.UPLOADED, recordCount);
+                    LogFile(agent.Id, fileName, cloudFile.StorageUri.PrimaryUri.ToString(), FileStatusEnum.UPLOADED, recordCount);
 
-                    var logMessage = $"File '{file.FileName}' was uploaded to '{cloudFile.StorageUri.PrimaryUri}' for Agent '{agent.Name}' (Id: {agent.Id}).";
+                    var logMessage = $"File '{fileName}' was uploaded to '{cloudFile.StorageUri.PrimaryUri}' for Agent '{agent.Name}' (Id: {agent.Id}).";
                     LogService.Info(logMessage);
                     return new Tuple<bool, string>(true, logMessage);
                 }
@@ -75,13 +75,13 @@ namespace DataFlow.Web.Services
             }
             catch (Exception ex)
             {
-                var logMessage = $"Error Uploading File '{file.FileName}' to Azure for Agent '{agent.Name}'.";
+                var logMessage = $"Error Uploading File '{fileName}' to Azure for Agent '{agent.Name}'.";
                 LogService.Error(logMessage, ex);
                 return new Tuple<bool, string>(false, logMessage);
             }
         }
 
-        private Tuple<bool, string> UploadLocal(HttpPostedFileBase file, Agent agent)
+        private Tuple<bool, string> UploadLocal(string fileName, System.IO.Stream fileStream, Agent agent)
         {
             try
             {
@@ -90,22 +90,29 @@ namespace DataFlow.Web.Services
                 if (!Directory.Exists(uploadPath))
                     Directory.CreateDirectory(uploadPath);
 
-                file.SaveAs(Path.Combine(uploadPath, file.FileName));
-                var recordCount = TotalLines(file.InputStream);
+                using (var file = System.IO.File.Create(Path.Combine(uploadPath, fileName)))
+                {
+                    fileStream.Seek(0, SeekOrigin.Begin);
+                    fileStream.CopyTo(file);
+                }
 
-                LogFile(agent.Id, file.FileName, uploadPath, FileStatusEnum.UPLOADED, recordCount);
-                var logMessage = $"File '{file.FileName}' was uploaded to '{uploadPath}' for Agent '{agent.Name}' (Id: {agent.Id}).";
+                var recordCount = TotalLines(fileStream);
+
+                LogFile(agent.Id, fileName, uploadPath, FileStatusEnum.UPLOADED, recordCount);
+                var logMessage = $"File '{fileStream}' was uploaded to '{uploadPath}' for Agent '{agent.Name}' (Id: {agent.Id}).";
                 LogService.Info(logMessage);
 
                 return new Tuple<bool, string>(true, logMessage);
             }
             catch (Exception ex)
             {
-                var logMessage = $"Error Uploading File '{file.FileName}' to '{agent.Directory}' for Agent '{agent.Name}'.";
+                var logMessage = $"Error Uploading File '{fileName}' to '{agent.Directory}' for Agent '{agent.Name}'.";
                 LogService.Error(logMessage, ex);
                 return new Tuple<bool, string>(false, logMessage);
             }
         }
+
+
 
         private void LogFile(int agentId, string fileName, string url, string status, int rows)
         {
