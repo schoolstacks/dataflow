@@ -5,6 +5,7 @@ using System.IO;
 using System.Web;
 using DataFlow.Common.DAL;
 using DataFlow.Common.Services;
+using DataFlow.Common.Enums;
 using DataFlow.Models;
 using Microsoft.WindowsAzure.Storage;
 using File = DataFlow.Models.File;
@@ -28,15 +29,12 @@ namespace DataFlow.Web.Services
         {
             if (agent != null)
             {
-                switch (agent.AgentTypeCode)
+                switch (ConfigurationManager.AppSettings["FileMode"])
                 {
-                    case Types.FTPS:
-                    case Types.SFTP:
-                        return UploadToAzure(file, agent);
-                    case Types.Manual:
+                    case FileModeEnum.Local:
                         return UploadLocal(file, agent);
-                    case Types.Chrome:
-                        return new Tuple<bool, string>(false, "Uploading for Chrome agents is not yet supported.");
+                    case FileModeEnum.Azure:
+                        return UploadToAzure(file, agent);
                 }
             }
 
@@ -64,7 +62,7 @@ namespace DataFlow.Web.Services
                     cloudFile.UploadFromStream(file.InputStream);
                     var recordCount = TotalLines(file.InputStream);
 
-                    LogFile(agent.Id, file.FileName, cloudFile.StorageUri.PrimaryUri.ToString(), "UPLOADED", recordCount);
+                    LogFile(agent.Id, file.FileName, cloudFile.StorageUri.PrimaryUri.ToString(), FileStatusEnum.UPLOADED, recordCount);
 
                     var logMessage = $"File '{file.FileName}' was uploaded to '{cloudFile.StorageUri.PrimaryUri}' for Agent '{agent.Name}' (Id: {agent.Id}).";
                     LogService.Info(logMessage);
@@ -92,7 +90,7 @@ namespace DataFlow.Web.Services
                 file.SaveAs(Path.Combine(agent.Directory, file.FileName));
                 var recordCount = TotalLines(file.InputStream);
 
-                LogFile(agent.Id, file.FileName, agent.Directory, "UPLOADED", recordCount);
+                LogFile(agent.Id, file.FileName, agent.Directory, FileStatusEnum.UPLOADED, recordCount);
                 var logMessage = $"File '{file.FileName}' was uploaded to '{agent.Directory}' for Agent '{agent.Name}' (Id: {agent.Id}).";
                 LogService.Info(logMessage);
 
@@ -130,17 +128,6 @@ namespace DataFlow.Web.Services
                 while (r.ReadLine() != null) { i++; }
                 return i;
             }
-        }
-
-        public class Types
-        {
-            //TODO - Consider how to resolve this dup
-            public const string Chrome = "Chrome";
-            public const string Manual = "Manual";
-            public const string SFTP = "SFTP";
-            public const string FTPS = "FTPS";
-
-            public static List<string> ToList() => new List<string>() { Chrome, Manual, SFTP, FTPS };
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.Mvc;
 using DataFlow.Common;
 using DataFlow.Common.DAL;
+using DataFlow.Common.Enums;
 using DataFlow.Common.ExtensionMethods;
 using DataFlow.Models;
 using DataFlow.Web.Helpers;
@@ -247,7 +248,7 @@ namespace DataFlow.Web.Controllers
 
         private string GetManualAgentBaseDirectory(Agent agent)
         {
-            if (agent.AgentTypeCode == AgentService.Types.Manual)
+            if (agent.AgentTypeCode == AgentTypeCodeEnum.Manual)
             {
                 if (string.IsNullOrWhiteSpace(agent.Directory))
                 {
@@ -283,8 +284,8 @@ namespace DataFlow.Web.Controllers
 
             switch (agent.AgentTypeCode)
             {
-                case AgentService.Types.FTPS:
-                case AgentService.Types.SFTP:
+                case AgentTypeCodeEnum.FTPS:
+                case AgentTypeCodeEnum.SFTP:
                     if (string.IsNullOrWhiteSpace(agent.Url))
                         msd.AddModelError("Url", "Please enter a url or connection string.");
 
@@ -300,7 +301,7 @@ namespace DataFlow.Web.Controllers
                     if (string.IsNullOrWhiteSpace(agent.FilePattern))
                         msd.AddModelError("FilePattern", "Please enter a file pattern.");
                     break;
-                case AgentService.Types.Chrome:
+                case AgentTypeCodeEnum.Chrome:
                     if (string.IsNullOrWhiteSpace(agent.AgentAction))
                         msd.AddModelError("AgentAction", "Please select an action.");
 
@@ -401,7 +402,7 @@ namespace DataFlow.Web.Controllers
             {
                 var agentTypes = new List<SelectListItem>();
                 agentTypes.Add(new SelectListItem { Text = "Select Type", Value = string.Empty });
-                agentTypes.AddRange(AgentService.Types.ToList().Select(x =>
+                agentTypes.AddRange(AgentTypeCodeEnum.ToList().Select(x =>
                       new SelectListItem
                       {
                           Text = x,
