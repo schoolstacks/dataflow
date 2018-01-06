@@ -199,7 +199,7 @@ namespace DataFlow.Web.Controllers
             agent.Directory = vm.Directory ?? GetManualAgentBaseDirectory(agent);
             agent.FilePattern = vm.FilePattern;
             agent.Enabled = vm.Enabled;
-            agent.Queue = vm.Queue;
+            agent.Queue = Guid.NewGuid();
             agent.Custom = vm.Custom;
 
 
