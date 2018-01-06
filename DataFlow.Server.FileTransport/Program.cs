@@ -14,6 +14,7 @@ using DataFlow.Common.DAL;
 using DataFlow.Common.ExtensionMethods;
 using DataFlow.Models;
 using DataFlow.Common.Enums;
+using DataFlow.Common.Helpers;
 
 namespace DataFlow.Server.FileTransport
 {
@@ -261,8 +262,8 @@ namespace DataFlow.Server.FileTransport
             try
             {
                 string shortFileName = file.Substring(file.LastIndexOf('/') + 1);
-                string localPath = _shareName + agent.Queue.ToString();
-                string localFilePath = localPath + @"\" + shortFileName;
+                string localPath = EnsureTrailingSlash(_shareName) + agent.Queue.ToString();
+                string localFilePath = EnsureTrailingSlash(localPath) + shortFileName;
                 Uri localFileUri = new Uri(localFilePath);
 
                 if (!System.IO.Directory.Exists(localPath))

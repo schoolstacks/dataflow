@@ -254,7 +254,7 @@ namespace DataFlow.Web.Controllers
                 {
                     var directoryPath = string.Empty;
 
-                    var baseDirectory = WebConfigAppSettingsService.GetSetting<string>("DefaultBaseDirectory");
+                    var baseDirectory = WebConfigAppSettingsService.GetSetting<string>("ShareName");
                     if (string.IsNullOrWhiteSpace(baseDirectory))
                         baseDirectory = Server.MapPath("~/App_Data");
 

@@ -6,6 +6,7 @@ using System.Web;
 using DataFlow.Common.DAL;
 using DataFlow.Common.Services;
 using DataFlow.Common.Enums;
+using DataFlow.Common.Helpers;
 using DataFlow.Models;
 using Microsoft.WindowsAzure.Storage;
 using File = DataFlow.Models.File;
@@ -84,14 +85,16 @@ namespace DataFlow.Web.Services
         {
             try
             {
-                if (!Directory.Exists(agent.Directory))
-                    Directory.CreateDirectory(agent.Directory);
+                string uploadPath = PathUtility.EnsureTrailingSlash(ConfigurationManager.AppSettings["ShareName"]);
+                uploadPath += PathUtility.EnsureTrailingSlash(agent.Queue.ToString());
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
 
-                file.SaveAs(Path.Combine(agent.Directory, file.FileName));
+                file.SaveAs(Path.Combine(uploadPath, file.FileName));
                 var recordCount = TotalLines(file.InputStream);
 
-                LogFile(agent.Id, file.FileName, agent.Directory, FileStatusEnum.UPLOADED, recordCount);
-                var logMessage = $"File '{file.FileName}' was uploaded to '{agent.Directory}' for Agent '{agent.Name}' (Id: {agent.Id}).";
+                LogFile(agent.Id, file.FileName, uploadPath, FileStatusEnum.UPLOADED, recordCount);
+                var logMessage = $"File '{file.FileName}' was uploaded to '{uploadPath}' for Agent '{agent.Name}' (Id: {agent.Id}).";
                 LogService.Info(logMessage);
 
                 return new Tuple<bool, string>(true, logMessage);
