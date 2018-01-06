@@ -322,7 +322,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\Api\ApiAreaRegistration.cs" />
     <Compile Include="Areas\Api\Controllers\ChromeExtensionController.cs" />
-    <Compile Include="Areas\Api\Models\AgentRegistration.cs" />
+    <Compile Include="Areas\Api\Models\AgentMessage.cs" />
     <Compile Include="Areas\Api\Models\AgentResponse.cs" />
     <Compile Include="Areas\Api\Models\AgentScheduleResponse.cs" />
     <Compile Include="Controllers\AccountController.cs" />
@@ -432,7 +432,9 @@
     <Content Include="Scripts\respond.matchmedia.addListener.js" />
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>

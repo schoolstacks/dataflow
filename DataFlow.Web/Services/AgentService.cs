@@ -134,6 +134,7 @@ namespace DataFlow.Web.Services
 
         public class Types
         {
+            //TODO - Consider how to resolve this dup
             public const string Chrome = "Chrome";
             public const string Manual = "Manual";
             public const string SFTP = "SFTP";

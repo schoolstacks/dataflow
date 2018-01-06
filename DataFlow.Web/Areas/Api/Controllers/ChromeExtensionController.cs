@@ -16,7 +16,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
     {
         [HttpPost]
         [Route("api/register")]
-        public HttpResponseMessage Register([FromBody] AgentRegistration registration)
+        public HttpResponseMessage Register([FromBody] AgentMessage registration)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
                     AgentChrome chrome = ctx.AgentChromes.FirstOrDefault(ac => ac.AgentUuid == registration.uuid);
 
                     if (chrome != null)
-                        registration.token = chrome.AccessToken;
+                        registration.token = chrome.AccessToken;  //TODO:  Error this out, one time registration only
                     else
                     {
                         chrome = new AgentChrome();
@@ -54,43 +54,43 @@ namespace DataFlow.Web.Areas.Api.Controllers
 
         [HttpPost]
         [Route("api/agents")]
-        public List<AgentResponse> Agents([FromBody] AgentRegistration registration)
+        public List<AgentResponse> Agents([FromBody] AgentMessage registration)
         {
             List<AgentResponse> response = new List<AgentResponse>();
 
-            try
+            Agent agent = GetAgent(registration.uuid, registration.token);
+
+            if (agent != null)
             {
-                using (var ctx = new DataFlowDbContext())
+                try
                 {
-                    AgentChrome chrome = ctx.AgentChromes.Where(ac => ac.AgentUuid == registration.uuid && ac.AccessToken == registration.token).FirstOrDefault();
-                    List<AgentAgentChrome> chromes = ctx.AgentAgentChromes.Where(aac => aac.AgentChromeId == chrome.Id).Include(aac => aac.Agent).Include("Agent.AgentSchedules").ToList();
-
-
-                    foreach (var chm in chromes)
+                    using (var ctx = new DataFlowDbContext())
                     {
-                        AgentResponse responseAgent = new AgentResponse();
-                        responseAgent.agent_id = chm.AgentId;
-                        responseAgent.action = chm.Agent.AgentAction;
-                        responseAgent.url = chm.Agent.Url;
-                        responseAgent.loginUrl = chm.Agent.LoginUrl;
-                        responseAgent.schedule = new List<AgentScheduleResponse>();
+                        List<AgentAgentChrome> chromes = ctx.AgentAgentChromes.Where(aac => aac.AgentChromeId == agent.Id).Include(aac => aac.Agent).Include("Agent.AgentSchedules").ToList();
 
-                        foreach (var sch in chm.Agent.AgentSchedules)
+                        foreach (var chm in chromes)
                         {
-                            AgentScheduleResponse schedule = new AgentScheduleResponse(sch.Day, sch.Hour, sch.Minute);
-                            responseAgent.schedule.Add(schedule);
+                            AgentResponse responseAgent = new AgentResponse();
+                            responseAgent.agent_id = agent.Id;
+                            responseAgent.action = agent.AgentAction;
+                            responseAgent.url = agent.Url;
+                            responseAgent.loginUrl = agent.LoginUrl;
+                            responseAgent.schedule = new List<AgentScheduleResponse>();
+
+                            foreach (var sch in chm.Agent.AgentSchedules)
+                            {
+                                AgentScheduleResponse schedule = new AgentScheduleResponse(sch.Day, sch.Hour, sch.Minute);
+                                responseAgent.schedule.Add(schedule);
+                            }
+
+                            response.Add(responseAgent);
                         }
-
-                        response.Add(responseAgent);
                     }
-                    
+                } catch (System.Exception ex)
+                {
+                    //TODO:  Log exception
+                    throw new HttpResponseException(HttpStatusCode.InternalServerError);
                 }
-
-            } catch (System.Exception ex)
-            {
-                //TODO:  Log exception
-
-                throw new HttpResponseException(HttpStatusCode.InternalServerError);
             }
 
             return response;
@@ -98,8 +98,12 @@ namespace DataFlow.Web.Areas.Api.Controllers
 
         [HttpPost]
         [Route("api/data")]
-        public HttpResponseMessage Data()
+        public HttpResponseMessage Data([FromBody] AgentMessage registration)
         {
+            Agent agent = GetAgent(registration.uuid, registration.token);
+
+
+
             return new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.OK
@@ -108,12 +112,26 @@ namespace DataFlow.Web.Areas.Api.Controllers
 
         [HttpPost]
         [Route("api/log")]
-        public HttpResponseMessage Log()
+        public HttpResponseMessage Log([FromBody] AgentMessage registration)
         {
+            Agent agent = GetAgent(registration.uuid, registration.token);
+
             return new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.OK
             };
+        }
+
+        public Agent GetAgent(Guid uuid, Guid token)
+        {
+            Agent returnAgent = null;
+
+            using (var ctx = new DataFlowDbContext())
+            {
+                AgentChrome chrome = ctx.AgentChromes.Where(ac => ac.AgentUuid == uuid && ac.AccessToken == token).FirstOrDefault();
+            }
+
+            return returnAgent;
         }
     }
 }

@@ -10,5 +10,7 @@ namespace DataFlow.Common.Enums
     {
         public const string SFTP = "SFTP";
         public const string FTPS = "FTPS";
+        public const string Chrome = "Chrome";
+        public const string Manual = "Manual";
     }
 }
