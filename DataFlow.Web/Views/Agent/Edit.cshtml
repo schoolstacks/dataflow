@@ -31,7 +31,6 @@
 
         function agentWork(agentType) {
             if (agentType === "Manual" || agentType === "Chrome") {
-                $("#divUrl").hide();
                 $("#divUsername").hide();
                 $("#divPassword").hide();
                 $("#divDirectory").hide();
@@ -42,14 +41,19 @@
                 if (agentType === "Chrome") {
                     $("#divAgentAction").show();
                     $("#divCustom").show();
+                    $("#divUrl").show();
+                    $("#divLoginUrl").show();
                 } else {
                     $("#divAgentAction").hide();
                     $("#divCustom").hide();
+                    $("#divUrl").hide();
+                    $("#divLoginUrl").hide();
                 }
             } else {
                 $("#divAgentAction").hide();
                 $("#divCustom").hide();
                 $("#divUrl").show();
+                $("#divLoginUrl").hide();
                 $("#divUsername").show();
                 $("#divPassword").show();
                 $("#divDirectory").show();

@@ -193,6 +193,7 @@ namespace DataFlow.Web.Controllers
             agent.AgentTypeCode = vm.AgentTypeCode;
             agent.AgentAction = vm.AgentAction;
             agent.Url = vm.Url;
+            agent.LoginUrl = vm.LoginUrl;
             agent.Username = vm.Username;
             if (vm.Password != null)
                 agent.Password = Encryption.Encrypt(vm.Password, EncryptionKey);
@@ -305,8 +306,6 @@ namespace DataFlow.Web.Controllers
                     if (string.IsNullOrWhiteSpace(agent.AgentAction))
                         msd.AddModelError("AgentAction", "Please select an action.");
 
-                    if (string.IsNullOrWhiteSpace(agent.Custom))
-                        msd.AddModelError("Custom", "Please enter the parameters.");
                     break;
             }
 
