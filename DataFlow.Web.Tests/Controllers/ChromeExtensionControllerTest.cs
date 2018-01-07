@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 using System.Net.Http;
 using System.Web.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DataFlow.Common;
 using DataFlow.Common.DAL;
+using DataFlow.Common.Helpers;
 using DataFlow.Models;
 using DataFlow.Web.Areas.Api.Controllers;
 using DataFlow.Web.Areas.Api.Models;
@@ -18,9 +16,11 @@ namespace DataFlow.Web.Tests.Controllers
     [TestClass]
     public class ChromeExtensionControllerTest
     {
-        static Guid agentGuid;
-        static Guid agentToken;
-        static int agentId;
+        static Guid _agentGuid;
+        static Guid _agentToken;
+        static int _agentId;
+        static int _agentAgentChromeId;
+        static int _agentChromeId;
 
         [ClassInitialize()]
         public static void ClassInit(TestContext context)
@@ -31,12 +31,13 @@ namespace DataFlow.Web.Tests.Controllers
                 agent.AgentTypeCode = Common.Enums.AgentTypeCodeEnum.Chrome;
                 agent.Name = "Unit Test Chrome Agent";
                 agent.Enabled = true;
+                agent.Queue = Guid.NewGuid();
                 agent.Created = DateTime.Now;
 
                 ctx.Agents.Add(agent);
                 ctx.SaveChanges();
 
-                agentId = agent.Id;
+                _agentId = agent.Id;
             }
         }
 
@@ -57,8 +58,22 @@ namespace DataFlow.Web.Tests.Controllers
             AgentMessage responseMessage = (AgentMessage)((ObjectContent<AgentMessage>)content).Value;
             Assert.IsNotNull(responseMessage.token);
             Assert.AreNotEqual(Guid.Parse("00000000-0000-0000-0000-000000000000"), responseMessage.token);
-            agentGuid = responseMessage.uuid;
-            agentToken = responseMessage.token;
+            _agentGuid = responseMessage.uuid;
+            _agentToken = responseMessage.token;
+
+            // If we've gotten this far, we've registered a new AgentChrome, let's associate it with the agent
+            using (var ctx = new DataFlowDbContext())
+            {
+                AgentChrome ac = ctx.AgentChromes.Where(chr => chr.AgentUuid == _agentGuid && chr.AccessToken == _agentToken).FirstOrDefault();
+                AgentAgentChrome aac = new AgentAgentChrome();
+                aac.AgentChromeId = ac.Id;
+                aac.AgentId = _agentId;
+                ctx.AgentAgentChromes.Add(aac);
+                ctx.SaveChanges();
+                _agentChromeId = ac.Id;
+                _agentAgentChromeId = aac.Id;
+            }
+            
         }
 
         [TestMethod]
@@ -68,11 +83,18 @@ namespace DataFlow.Web.Tests.Controllers
             cec.Request = new HttpRequestMessage();
             cec.Request.SetConfiguration(new HttpConfiguration());
 
-            AgentMessage message = new AgentMessage();
-            HttpResponseMessage response = cec.Register(message);
+            byte[] fileContents = System.IO.File.ReadAllBytes(@".\TestData\sample.csv");
+            Assert.IsNotNull(fileContents);
 
-            message.uuid = agentGuid;
-            message.token = agentToken;
+            AgentMessage message = new AgentMessage();
+            message.uuid = _agentGuid;
+            message.token = _agentToken;
+            message.filename = "sample.csv";
+            message.data = Convert.ToBase64String(fileContents);
+
+            HttpResponseMessage response = cec.Data(message);
+
+            Assert.IsTrue(response.IsSuccessStatusCode);
         }
 
         [ClassCleanup()]
@@ -80,10 +102,15 @@ namespace DataFlow.Web.Tests.Controllers
         {
             using (var ctx = new DataFlowDbContext())
             {
-                AgentChrome chrome = ctx.AgentChromes.Where(ac => ac.AgentUuid == agentGuid && ac.AccessToken == agentToken).FirstOrDefault();
+                AgentAgentChrome aac = ctx.AgentAgentChromes.Find(_agentAgentChromeId);
+                ctx.AgentAgentChromes.Remove(aac);
+
+                AgentChrome chrome = ctx.AgentChromes.Find(_agentChromeId);
                 ctx.AgentChromes.Remove(chrome);
 
-                Agent agent = ctx.Agents.Find(agentId);
+                Agent agent = ctx.Agents.Find(_agentId);
+                // Remove the directory with the agent temp file sample.csv
+                System.IO.Directory.Delete(PathUtility.EnsureTrailingSlash(ConfigurationManager.AppSettings["ShareName"]) + agent.Queue.ToString(), true);
                 ctx.Agents.Remove(agent);
 
                 ctx.SaveChanges();

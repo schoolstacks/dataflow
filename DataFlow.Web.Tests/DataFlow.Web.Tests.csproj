@@ -129,6 +129,9 @@
       <Link>connectionStrings.config</Link>
     </None>
     <None Include="packages.config" />
+    <None Include="TestData\sample.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

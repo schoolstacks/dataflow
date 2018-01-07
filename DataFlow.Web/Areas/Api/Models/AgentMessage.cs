@@ -9,6 +9,7 @@ namespace DataFlow.Web.Areas.Api.Models
     {
         public Guid uuid { get; set; }
         public Guid token { get; set; }
+        public string filename { get; set; }
         public string data { get; set; }
         public string message { get; set; }
     }

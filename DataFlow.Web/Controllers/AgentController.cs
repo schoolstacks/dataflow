@@ -359,7 +359,7 @@ namespace DataFlow.Web.Controllers
                     var agentId = Convert.ToInt32(Agents);
                     var agent = dataFlowDbContext.Agents.FirstOrDefault(x => x.Id == agentId);
 
-                    var uploadFile = agentService.UploadFile(File, agent);
+                    var uploadFile = agentService.UploadFile(File.FileName, File.InputStream, agent);
 
                     formResult.IsSuccess = uploadFile.Item1;
                     formResult.ShowInfoMessage = true;

@@ -23,19 +23,20 @@ namespace DataFlow.Web.Services
             this.dataFlowDbContext = dataFlowDbContext;
             this.LogService = logService;
 
-            LogService.Name = GetType().FullName;
+            if (LogService != null)
+                LogService.Name = GetType().FullName;
         }
 
-        public Tuple<bool,string> UploadFile(HttpPostedFileBase file, Agent agent)
+        public Tuple<bool,string> UploadFile(string fileName, System.IO.Stream fileStream, Agent agent)
         {
             if (agent != null)
             {
                 switch (ConfigurationManager.AppSettings["FileMode"])
                 {
                     case FileModeEnum.Local:
-                        return UploadLocal(file.FileName, file.InputStream, agent);
+                        return UploadLocal(fileName, fileStream, agent);
                     case FileModeEnum.Azure:
-                        return UploadToAzure(file.FileName, file.InputStream, agent);
+                        return UploadToAzure(fileName, fileStream, agent);
                 }
             }
 
@@ -100,7 +101,8 @@ namespace DataFlow.Web.Services
 
                 LogFile(agent.Id, fileName, uploadPath, FileStatusEnum.UPLOADED, recordCount);
                 var logMessage = $"File '{fileStream}' was uploaded to '{uploadPath}' for Agent '{agent.Name}' (Id: {agent.Id}).";
-                LogService.Info(logMessage);
+                if (LogService != null)
+                    LogService.Info(logMessage);
 
                 return new Tuple<bool, string>(true, logMessage);
             }

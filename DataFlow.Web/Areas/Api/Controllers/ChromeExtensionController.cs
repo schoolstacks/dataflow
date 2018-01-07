@@ -8,6 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Data.Entity;
 using DataFlow.Web.Areas.Api.Models;
+using DataFlow.Web.Services;
 
 namespace DataFlow.Web.Areas.Api.Controllers
 {
@@ -98,15 +99,38 @@ namespace DataFlow.Web.Areas.Api.Controllers
 
         [HttpPost]
         [Route("api/data")]
-        public HttpResponseMessage Data([FromBody] AgentMessage registration)
+        public HttpResponseMessage Data([FromBody] AgentMessage message)
         {
-            Agent agent = GetAgent(registration.uuid, registration.token);
+            HttpStatusCode statusCode = HttpStatusCode.InternalServerError;
+            try
+            {
+                using (var ctx = new DataFlowDbContext())
+                {
+                    Agent agent = GetAgent(message.uuid, message.token);
 
+                    if (agent != null && message.data != null && message.filename != null)
+                    {
+                        byte[] dataArray = Convert.FromBase64String(message.data);
 
+                        if (dataArray != null)
+                        {
+                            System.IO.MemoryStream stream = new System.IO.MemoryStream(dataArray);
+                            AgentService svc = new AgentService(ctx, null);
+                            Tuple<bool, string> result = svc.UploadFile(message.filename, stream, agent);
+                            if (result.Item1)
+                                statusCode = HttpStatusCode.OK;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //TODO: Log error message
+            }
 
             return new HttpResponseMessage()
             {
-                StatusCode = HttpStatusCode.OK
+                StatusCode = statusCode
             };
         }
 
@@ -129,6 +153,12 @@ namespace DataFlow.Web.Areas.Api.Controllers
             using (var ctx = new DataFlowDbContext())
             {
                 AgentChrome chrome = ctx.AgentChromes.Where(ac => ac.AgentUuid == uuid && ac.AccessToken == token).FirstOrDefault();
+                if (chrome != null)
+                {
+                    AgentAgentChrome aac = ctx.AgentAgentChromes.Where(aacc => aacc.AgentChromeId == chrome.Id).Include(aacc => aacc.Agent).FirstOrDefault();
+                    if (aac != null)
+                        returnAgent = aac.Agent;
+                }
             }
 
             return returnAgent;
