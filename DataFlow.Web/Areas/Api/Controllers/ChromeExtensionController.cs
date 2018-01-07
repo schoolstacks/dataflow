@@ -9,40 +9,49 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using DataFlow.Web.Areas.Api.Models;
 using DataFlow.Web.Services;
+using NLog;
 
 namespace DataFlow.Web.Areas.Api.Controllers
 {
     [AllowAnonymous]
     public class ChromeExtensionController : ApiController
     {
+        private static Logger _logger = LogManager.GetCurrentClassLogger();
+
         [HttpPost]
         [Route("api/register")]
-        public HttpResponseMessage Register([FromBody] AgentMessage registration)
+        public HttpResponseMessage Register([FromBody] AgentMessage message)
         {
             try
             {
                 using (var ctx = new DataFlowDbContext())
                 {
-                    AgentChrome chrome = ctx.AgentChromes.FirstOrDefault(ac => ac.AgentUuid == registration.uuid);
+                    AgentChrome chrome = ctx.AgentChromes.FirstOrDefault(ac => ac.AgentUuid == message.uuid);
 
                     if (chrome != null)
-                        registration.token = chrome.AccessToken;  //TODO:  Error this out, one time registration only
+                    {
+                        _logger.Error(String.Format("Duplicate Chrome Agent registration requested for uuid = {0}", message.uuid));
+                        return new HttpResponseMessage()
+                        {
+                            StatusCode = HttpStatusCode.BadRequest
+                    };
+                    }
                     else
                     {
                         chrome = new AgentChrome();
-                        chrome.AgentUuid = registration.uuid;
+                        chrome.AgentUuid = message.uuid;
                         chrome.AccessToken = Guid.NewGuid();
                         chrome.Created = DateTime.Now;
                         ctx.AgentChromes.Add(chrome);
                         ctx.SaveChanges();
-                        registration.token = chrome.AccessToken;
-                        //TODO: Log success create
+                        message.token = chrome.AccessToken;
+                        _logger.Info(String.Format("Registered new Chrome Agent with uuid = {0}", message.uuid));
                     }
                 }
             }
             catch (Exception ex)
             {
-                //TODO:  Log error message
+                _logger.Error(ex, "Unexpected error in Register");
 
                 return new HttpResponseMessage()
                 {
@@ -50,16 +59,16 @@ namespace DataFlow.Web.Areas.Api.Controllers
                 };
             }
 
-            return Request.CreateResponse((HttpStatusCode)200, registration);
+            return Request.CreateResponse((HttpStatusCode)200, message);
         }
 
         [HttpPost]
         [Route("api/agents")]
-        public List<AgentResponse> Agents([FromBody] AgentMessage registration)
+        public List<AgentResponse> Agents([FromBody] AgentMessage message)
         {
             List<AgentResponse> response = new List<AgentResponse>();
 
-            Agent agent = GetAgent(registration.uuid, registration.token);
+            Agent agent = GetAgent(message.uuid, message.token);
 
             if (agent != null)
             {
@@ -89,7 +98,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
                     }
                 } catch (System.Exception ex)
                 {
-                    //TODO:  Log exception
+                    _logger.Error(ex, "Unexpected error in Agents");
                     throw new HttpResponseException(HttpStatusCode.InternalServerError);
                 }
             }
@@ -116,6 +125,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
                         {
                             System.IO.MemoryStream stream = new System.IO.MemoryStream(dataArray);
                             AgentService svc = new AgentService(ctx, null);
+                            
                             Tuple<bool, string> result = svc.UploadFile(message.filename, stream, agent);
                             if (result.Item1)
                                 statusCode = HttpStatusCode.OK;
@@ -125,7 +135,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
             }
             catch (Exception ex)
             {
-                //TODO: Log error message
+                _logger.Error(ex, "Unexpected error in Data");
             }
 
             return new HttpResponseMessage()
@@ -136,9 +146,13 @@ namespace DataFlow.Web.Areas.Api.Controllers
 
         [HttpPost]
         [Route("api/log")]
-        public HttpResponseMessage Log([FromBody] AgentMessage registration)
+        public HttpResponseMessage Log([FromBody] AgentMessage message)
         {
-            Agent agent = GetAgent(registration.uuid, registration.token);
+            Agent agent = GetAgent(message.uuid, message.token);
+            if (agent != null)
+            {
+                _logger.Info(String.Format("Agent UUID={0} logs: {1}", message.uuid, message.message));
+            }
 
             return new HttpResponseMessage()
             {
