@@ -91,6 +91,7 @@ namespace DataFlow.Web.Controllers
                 .Include(x => x.AgentSchedules)
                 .Include(x => x.DataMapAgents)
                 .Include(x => x.DataMapAgents.Select(y => y.DataMap))
+                .Include(x => x.AgentAgentChromes.Select(y => y.AgentChrome))
                 .FirstOrDefault(x => x.Id == id);
 
             if (agent == null)
@@ -102,6 +103,7 @@ namespace DataFlow.Web.Controllers
             ViewBag.DataMaps = GetDataMapList;
             ViewBag.AgentTypes = GetAgentTypes;
             ViewBag.AgentActions = GetAgentActions;
+            ViewBag.AgentChromes = GetAgentChromes;
 
             var vm = MapperService.Map<AgentViewModel>(agent);
 
@@ -135,7 +137,7 @@ namespace DataFlow.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Add(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
+        public ActionResult Add(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string ddlAgentChromes, string dataMapAgentNextOrder,
             string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
         {
             var validate = Validate(vm);
@@ -149,14 +151,14 @@ namespace DataFlow.Web.Controllers
                 return View(vm);
             }
 
-            var agent = SaveAgent(vm, btnAddMap, ddlDataMaps, dataMapAgentNextOrder, btnAddSchedule, ddlDay, ddlHour, ddlMinute);
+            var agent = SaveAgent(vm, btnAddMap, ddlDataMaps, ddlAgentChromes, dataMapAgentNextOrder, btnAddSchedule, ddlDay, ddlHour, ddlMinute);
 
             return RedirectToAction("Edit", new { agent.Id, success = true });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
+        public ActionResult Edit(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string ddlAgentChromes, string dataMapAgentNextOrder, 
             string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
         {
             var validate = Validate(vm);
@@ -167,16 +169,17 @@ namespace DataFlow.Web.Controllers
                 ViewBag.DataMaps = GetDataMapList;
                 ViewBag.AgentTypes = GetAgentTypes;
                 ViewBag.AgentActions = GetAgentActions;
+                ViewBag.AgentChromes = GetAgentChromes;
                 
                 return View(vm);
             }
 
-            var agent = SaveAgent(vm, btnAddMap, ddlDataMaps, dataMapAgentNextOrder, btnAddSchedule, ddlDay, ddlHour, ddlMinute);
+            var agent = SaveAgent(vm, btnAddMap, ddlDataMaps, ddlAgentChromes, dataMapAgentNextOrder, btnAddSchedule, ddlDay, ddlHour, ddlMinute);
 
             return RedirectToAction("Edit", new { agent.Id, success = true });
         }
 
-        private AgentViewModel SaveAgent(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
+        private AgentViewModel SaveAgent(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string ddlAgentChromes, string dataMapAgentNextOrder, 
             string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
         {
             var isUpdate = false;
@@ -207,6 +210,17 @@ namespace DataFlow.Web.Controllers
             if (!isUpdate)
             {
                 agent.Created = DateTime.Now;
+            }
+
+            if (ddlAgentChromes != null && int.TryParse(ddlAgentChromes, out var agentChromeId))
+            {
+                agent.AgentAgentChromes = new List<AgentAgentChrome>
+                {
+                    new AgentAgentChrome
+                    {
+                        AgentChromeId = agentChromeId
+                    }
+                };
             }
 
             if (btnAddMap != null && int.TryParse(ddlDataMaps, out var dataMapId))
@@ -439,6 +453,23 @@ namespace DataFlow.Web.Controllers
                     new SelectListItem
                     {
                         Text = x.Name,
+                        Value = x.Id.ToString()
+                    }));
+
+                return entityList;
+            }
+        }
+
+        private List<SelectListItem> GetAgentChromes
+        {
+            get
+            {
+                var entityList = new List<SelectListItem>();
+                entityList.Add(new SelectListItem { Text = "Select Chrome Agent", Value = string.Empty });
+                entityList.AddRange(dataFlowDbContext.AgentChromes.Select(x =>
+                    new SelectListItem
+                    {
+                        Text = x.AgentUuid.ToString(),
                         Value = x.Id.ToString()
                     }));
 

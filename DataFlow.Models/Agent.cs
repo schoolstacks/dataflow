@@ -13,6 +13,7 @@ namespace DataFlow.Models
             AgentSchedules = new HashSet<AgentSchedule>();
             Files = new HashSet<File>();
             LogIngestions = new HashSet<LogIngestion>();
+            AgentAgentChromes = new HashSet<AgentAgentChrome>();
         }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -57,5 +58,6 @@ namespace DataFlow.Models
         public ICollection<AgentSchedule> AgentSchedules { get; set; }
         public ICollection<File> Files { get; set; }
         public ICollection<LogIngestion> LogIngestions { get; set; }
+        public ICollection<AgentAgentChrome> AgentAgentChromes { get; set; }
     }
 }

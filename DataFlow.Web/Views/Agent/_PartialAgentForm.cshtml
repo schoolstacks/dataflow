@@ -104,6 +104,39 @@
     </div>
 </div>
 
+<div id="divAgentChrome">
+    <h4>Chrome Agents</h4>
+
+    <table id="tblAgentChromes" class="table table-striped table-hover table-bordered table-responsive">
+        <thead>
+            <tr>
+                <td>UUID</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in Model.AgentAgentChromes)
+            {
+                <tr>
+                    <td>@m.AgentChrome.AgentUuid</td>
+                    <td style="text-align: center;">@Html.ActionLink("Delete", "DeleteAgentChrome", new { agentId = Model.Id, id = m.Id })</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="form-group row">
+        <div class="col-xs-2">
+            @Html.Label("Add Chrome Agent", new { @class = "control-label", @for = "ddlAgentChromes" })
+        </div>
+        <div class="col-xs-6">
+            @Html.DropDownList("ddlAgentChromes", (IEnumerable<SelectListItem>)ViewBag.AgentChromes, new { @class = "form-control" })
+        </div>
+        <div class="col-xs-2">
+            <button id="btnAddChrome" name="btnAddChrome" type="submit" class="btn btn-default">Add Chrome Agent</button>
+        </div>
+    </div>
+</div>
+
 <h4>Data Maps</h4>
 <table id="tblAgentDataMaps" class="table table-striped table-hover table-bordered table-responsive">
     <thead>
@@ -125,109 +158,109 @@
     </tbody>
 </table>
 
-<div class="form-group row">
-    <div class="col-xs-2">
-        @Html.Label("Add Data Map", new { @class = "control-label", @for = "ddlDataMaps" })
-    </div>
-    <div class="col-xs-6">
-        @Html.DropDownList("ddlDataMaps", (IEnumerable<SelectListItem>)ViewBag.DataMaps, new { @class = "form-control" })
-    </div>
-    <div class="col-xs-2">
-        @{
-            var lastProcessOrder = 0;
-
-            if (Model.DataMapAgents.Any())
-            {
-                lastProcessOrder = Model.DataMapAgents.Max(x => x.ProcessingOrder);
-            }
-        }
-
-        @Html.Hidden("dataMapAgentNextOrder", lastProcessOrder)
-        <button id="btnAddMap" name="btnAddMap" type="submit" class="btn btn-default">Add Map</button>
-    </div>
-</div>
-
-<div id="divAgentSchedule">
-    <h4>Schedule</h4>
-    <table id="tblAgentSchedule" class="table table-striped table-hover table-bordered table-responsive">
-        <thead>
-            <tr>
-                <td>Day</td>
-                <td>Hour</td>
-                <td>Minute</td>
-                <td></td>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var m in Model.AgentSchedules)
-            {
-                <tr>
-                    <td>@Enum.GetName(typeof(DayOfWeek), m.Day)</td>
-                    <td>@(Convert.ToString(m.Hour).PadLeft(2, '0'))</td>
-                    <td>@(Convert.ToString(m.Minute).PadLeft(2, '0'))</td>
-                    <td style="text-align: center;">@Html.ActionLink("Delete", "DeleteSchedule", new { agentId = Model.Id, id = m.Id })</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
     <div class="form-group row">
         <div class="col-xs-2">
-            @Html.Label("Add Schedule", new { @class = "control-label", @for = "ddlDay" })
+            @Html.Label("Add Data Map", new { @class = "control-label", @for = "ddlDataMaps" })
+        </div>
+        <div class="col-xs-6">
+            @Html.DropDownList("ddlDataMaps", (IEnumerable<SelectListItem>)ViewBag.DataMaps, new { @class = "form-control" })
         </div>
         <div class="col-xs-2">
-            <select id="ddlDay" name="ddlDay" class="form-control">
-                <option value="">Select Day</option>
-                @foreach (var i in Enumerable.Range(0, 7))
-                {
-                    <option value="@i">@Enum.GetName(typeof(DayOfWeek), i)</option>
-                }
-            </select>
-        </div>
-        <div class="col-xs-2">
-            <select id="ddlHour" name="ddlHour" class="form-control">
-                <option value="">Select Hour</option>
-                @foreach (var i in Enumerable.Range(0, 24))
-                {
-                    <option value="@i">@i</option>
-                }
-            </select>
-        </div>
-        <div class="col-xs-2">
-            <select id="ddlMinute" name="ddlMinute" class="form-control">
-                <option value="">Select Minute</option>
-                @foreach (var i in Enumerable.Range(0, 60))
-                {
-                    <option value="@i">@i</option>
-                }
-            </select>
-        </div>
-        <div class="col-xs-2">
-            <button id="btnAddSchedule" name="btnAddSchedule" type="submit" class="btn btn-default">Add Schedule</button>
-        </div>
-    </div>
-</div>
-<div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
-        @Html.HiddenFor(m => m.Id)
-        @Html.HiddenFor(m => m.Queue)
-        <button id="btnSubmit" type="submit" class="btn btn-primary">Save Agent</button>
-    </div>
-</div>
-<div id="divAgentTest" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Agent Test Results</h4>
-            </div>
-            <div id="divAgentTestResults" class="modal-body">
+            @{
+                var lastProcessOrder = 0;
 
+                if (Model.DataMapAgents.Any())
+                {
+                    lastProcessOrder = Model.DataMapAgents.Max(x => x.ProcessingOrder);
+                }
+            }
+
+            @Html.Hidden("dataMapAgentNextOrder", lastProcessOrder)
+            <button id="btnAddMap" name="btnAddMap" type="submit" class="btn btn-default">Add Map</button>
+        </div>
+    </div>
+
+    <div id="divAgentSchedule">
+        <h4>Schedule</h4>
+        <table id="tblAgentSchedule" class="table table-striped table-hover table-bordered table-responsive">
+            <thead>
+                <tr>
+                    <td>Day</td>
+                    <td>Hour</td>
+                    <td>Minute</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in Model.AgentSchedules)
+            {
+                    <tr>
+                        <td>@Enum.GetName(typeof(DayOfWeek), m.Day)</td>
+                        <td>@(Convert.ToString(m.Hour).PadLeft(2, '0'))</td>
+                        <td>@(Convert.ToString(m.Minute).PadLeft(2, '0'))</td>
+                        <td style="text-align: center;">@Html.ActionLink("Delete", "DeleteSchedule", new { agentId = Model.Id, id = m.Id })</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="form-group row">
+            <div class="col-xs-2">
+                @Html.Label("Add Schedule", new { @class = "control-label", @for = "ddlDay" })
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <div class="col-xs-2">
+                <select id="ddlDay" name="ddlDay" class="form-control">
+                    <option value="">Select Day</option>
+                    @foreach (var i in Enumerable.Range(0, 7))
+                    {
+                        <option value="@i">@Enum.GetName(typeof(DayOfWeek), i)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-xs-2">
+                <select id="ddlHour" name="ddlHour" class="form-control">
+                    <option value="">Select Hour</option>
+                    @foreach (var i in Enumerable.Range(0, 24))
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+            </div>
+            <div class="col-xs-2">
+                <select id="ddlMinute" name="ddlMinute" class="form-control">
+                    <option value="">Select Minute</option>
+                    @foreach (var i in Enumerable.Range(0, 60))
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+            </div>
+            <div class="col-xs-2">
+                <button id="btnAddSchedule" name="btnAddSchedule" type="submit" class="btn btn-default">Add Schedule</button>
             </div>
         </div>
-
     </div>
-</div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            @Html.HiddenFor(m => m.Id)
+            @Html.HiddenFor(m => m.Queue)
+            <button id="btnSubmit" type="submit" class="btn btn-primary">Save Agent</button>
+        </div>
+    </div>
+    <div id="divAgentTest" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Agent Test Results</h4>
+                </div>
+                <div id="divAgentTestResults" class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>

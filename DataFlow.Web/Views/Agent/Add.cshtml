@@ -29,26 +29,28 @@
             agentWork(agentType);
         });
 
-        function agentWork(agentType)
-        {
+        function agentWork(agentType) {
             if (agentType === "Manual" || agentType === "Chrome") {
                 $("#divUsername").hide();
                 $("#divPassword").hide();
                 $("#divDirectory").hide();
                 $("#divFilePattern").hide();
                 $("#divAgentTestButton").hide();
-                $("#divAgentSchedule").hide();
 
                 if (agentType === "Chrome") {
                     $("#divAgentAction").show();
                     $("#divCustom").show();
                     $("#divUrl").show();
                     $("#divLoginUrl").show();
+                    $("#divAgentSchedule").show();
+                    $("#divAgentChrome").show();
                 } else {
                     $("#divAgentAction").hide();
                     $("#divCustom").hide();
                     $("#divUrl").hide();
                     $("#divLoginUrl").hide();
+                    $("#divAgentSchedule").hide();
+                    $("#divAgentChrome").hide();
                 }
             } else {
                 $("#divAgentAction").hide();
@@ -61,6 +63,7 @@
                 $("#divFilePattern").show();
                 $("#divAgentTestButton").show();
                 $("#divAgentSchedule").show();
+                $("#divAgentChrome").hide();
             }
         }
 
