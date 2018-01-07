@@ -54,6 +54,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DataFlow.Common\DataFlow.Common.csproj">
+      <Project>{17fc1af4-3efe-4851-82af-7c5d48eef17b}</Project>
+      <Name>DataFlow.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DataFlow.Models\DataFlow.Models.csproj">
       <Project>{54c8616a-eccd-4ad5-a88b-a2266350bf0d}</Project>
       <Name>DataFlow.Models</Name>

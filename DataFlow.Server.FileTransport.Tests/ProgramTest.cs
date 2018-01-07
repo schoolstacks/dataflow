@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DataFlow.Models;
+using DataFlow.Common.Helpers;
 
 namespace DataFlow.Server.FileTransport.Tests
 {
@@ -62,6 +63,17 @@ namespace DataFlow.Server.FileTransport.Tests
 
             mockNow = DateTime.Parse("12/10/2017 08:00am"); // This is a Sunday
             Assert.IsFalse(FileTransport.Program.ShouldExecuteOnSchedule(mockAgent, mockNow));
+        }
+
+        [TestMethod]
+        public void EnsureTrailingSlash()
+        {
+            string testPath = @"C:\Temp";
+            string result = PathUtility.EnsureTrailingSlash(testPath);
+            Assert.AreEqual(@"C:\Temp\", result);
+
+            testPath = @"C:\Temp\";
+            Assert.AreEqual(@"C:\Temp\", result);
         }
     }
 }

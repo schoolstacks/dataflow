@@ -5,6 +5,8 @@ using System.IO;
 using System.Web;
 using DataFlow.Common.DAL;
 using DataFlow.Common.Services;
+using DataFlow.Common.Enums;
+using DataFlow.Common.Helpers;
 using DataFlow.Models;
 using Microsoft.WindowsAzure.Storage;
 using File = DataFlow.Models.File;
@@ -21,29 +23,27 @@ namespace DataFlow.Web.Services
             this.dataFlowDbContext = dataFlowDbContext;
             this.LogService = logService;
 
-            LogService.Name = GetType().FullName;
+            if (LogService != null)
+                LogService.Name = GetType().FullName;
         }
 
-        public Tuple<bool,string> UploadFile(HttpPostedFileBase file, Agent agent)
+        public Tuple<bool,string> UploadFile(string fileName, System.IO.Stream fileStream, Agent agent)
         {
             if (agent != null)
             {
-                switch (agent.AgentTypeCode)
+                switch (ConfigurationManager.AppSettings["FileMode"])
                 {
-                    case Types.FTPS:
-                    case Types.SFTP:
-                        return UploadToAzure(file, agent);
-                    case Types.Manual:
-                        return UploadLocal(file, agent);
-                    case Types.Chrome:
-                        return new Tuple<bool, string>(false, "Uploading for Chrome agents is not yet supported.");
+                    case FileModeEnum.Local:
+                        return UploadLocal(fileName, fileStream, agent);
+                    case FileModeEnum.Azure:
+                        return UploadToAzure(fileName, fileStream, agent);
                 }
             }
 
             return new Tuple<bool, string>(false, "The agent provided was null.");
         }
 
-        private Tuple<bool, string> UploadToAzure(HttpPostedFileBase file, Agent agent)
+        private Tuple<bool, string> UploadToAzure(string fileName, System.IO.Stream fileStream, Agent agent)
         {
             try
             {
@@ -60,13 +60,13 @@ namespace DataFlow.Web.Services
                     var fileAgentDirectory = fileDirectoryRoot.GetDirectoryReference(agent.Queue.ToString());
 
                     fileAgentDirectory.CreateIfNotExists();
-                    var cloudFile = fileAgentDirectory.GetFileReference(file.FileName);
-                    cloudFile.UploadFromStream(file.InputStream);
-                    var recordCount = TotalLines(file.InputStream);
+                    var cloudFile = fileAgentDirectory.GetFileReference(fileName);
+                    cloudFile.UploadFromStream(fileStream);
+                    var recordCount = TotalLines(fileStream);
 
-                    LogFile(agent.Id, file.FileName, cloudFile.StorageUri.PrimaryUri.ToString(), "UPLOADED", recordCount);
+                    LogFile(agent.Id, fileName, cloudFile.StorageUri.PrimaryUri.ToString(), FileStatusEnum.UPLOADED, recordCount);
 
-                    var logMessage = $"File '{file.FileName}' was uploaded to '{cloudFile.StorageUri.PrimaryUri}' for Agent '{agent.Name}' (Id: {agent.Id}).";
+                    var logMessage = $"File '{fileName}' was uploaded to '{cloudFile.StorageUri.PrimaryUri}' for Agent '{agent.Name}' (Id: {agent.Id}).";
                     LogService.Info(logMessage);
                     return new Tuple<bool, string>(true, logMessage);
                 }
@@ -76,35 +76,45 @@ namespace DataFlow.Web.Services
             }
             catch (Exception ex)
             {
-                var logMessage = $"Error Uploading File '{file.FileName}' to Azure for Agent '{agent.Name}'.";
+                var logMessage = $"Error Uploading File '{fileName}' to Azure for Agent '{agent.Name}'.";
                 LogService.Error(logMessage, ex);
                 return new Tuple<bool, string>(false, logMessage);
             }
         }
 
-        private Tuple<bool, string> UploadLocal(HttpPostedFileBase file, Agent agent)
+        private Tuple<bool, string> UploadLocal(string fileName, System.IO.Stream fileStream, Agent agent)
         {
             try
             {
-                if (!Directory.Exists(agent.Directory))
-                    Directory.CreateDirectory(agent.Directory);
+                string uploadPath = PathUtility.EnsureTrailingSlash(ConfigurationManager.AppSettings["ShareName"]);
+                uploadPath += PathUtility.EnsureTrailingSlash(agent.Queue.ToString());
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
 
-                file.SaveAs(Path.Combine(agent.Directory, file.FileName));
-                var recordCount = TotalLines(file.InputStream);
+                using (var file = System.IO.File.Create(Path.Combine(uploadPath, fileName)))
+                {
+                    fileStream.Seek(0, SeekOrigin.Begin);
+                    fileStream.CopyTo(file);
+                }
 
-                LogFile(agent.Id, file.FileName, agent.Directory, "UPLOADED", recordCount);
-                var logMessage = $"File '{file.FileName}' was uploaded to '{agent.Directory}' for Agent '{agent.Name}' (Id: {agent.Id}).";
-                LogService.Info(logMessage);
+                var recordCount = TotalLines(fileStream);
+
+                LogFile(agent.Id, fileName, uploadPath, FileStatusEnum.UPLOADED, recordCount);
+                var logMessage = $"File '{fileStream}' was uploaded to '{uploadPath}' for Agent '{agent.Name}' (Id: {agent.Id}).";
+                if (LogService != null)
+                    LogService.Info(logMessage);
 
                 return new Tuple<bool, string>(true, logMessage);
             }
             catch (Exception ex)
             {
-                var logMessage = $"Error Uploading File '{file.FileName}' to '{agent.Directory}' for Agent '{agent.Name}'.";
+                var logMessage = $"Error Uploading File '{fileName}' to '{agent.Directory}' for Agent '{agent.Name}'.";
                 LogService.Error(logMessage, ex);
                 return new Tuple<bool, string>(false, logMessage);
             }
         }
+
+
 
         private void LogFile(int agentId, string fileName, string url, string status, int rows)
         {
@@ -130,16 +140,6 @@ namespace DataFlow.Web.Services
                 while (r.ReadLine() != null) { i++; }
                 return i;
             }
-        }
-
-        public class Types
-        {
-            public const string Chrome = "Chrome";
-            public const string Manual = "Manual";
-            public const string SFTP = "SFTP";
-            public const string FTPS = "FTPS";
-
-            public static List<string> ToList() => new List<string>() { Chrome, Manual, SFTP, FTPS };
         }
     }
 }

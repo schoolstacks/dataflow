@@ -43,6 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agent.cs" />
+    <Compile Include="AgentAgentChrome.cs" />
+    <Compile Include="AgentChrome.cs" />
     <Compile Include="AgentSchedule.cs" />
     <Compile Include="ApiConfigurationValues.cs" />
     <Compile Include="AspNetRole.cs" />

@@ -20,6 +20,9 @@ namespace DataFlow.Common.DAL
 
         public IDbSet<Agent> Agents { get; set; }
         public IDbSet<AgentSchedule> AgentSchedules { get; set; }
+        public IDbSet<AgentChrome> AgentChromes { get; set; }
+        public IDbSet<AgentAgentChrome> AgentAgentChromes { get; set; }
+
         public IDbSet<AspNetRole> AspNetRoles { get; set; }
         public IDbSet<AspNetUserClaim> AspNetUserClaims { get; set; }
         public IDbSet<AspNetUserLogin> AspNetUserLogins { get; set; }

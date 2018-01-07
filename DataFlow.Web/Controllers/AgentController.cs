@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.Mvc;
 using DataFlow.Common;
 using DataFlow.Common.DAL;
+using DataFlow.Common.Enums;
 using DataFlow.Common.ExtensionMethods;
 using DataFlow.Models;
 using DataFlow.Web.Helpers;
@@ -90,16 +91,19 @@ namespace DataFlow.Web.Controllers
                 .Include(x => x.AgentSchedules)
                 .Include(x => x.DataMapAgents)
                 .Include(x => x.DataMapAgents.Select(y => y.DataMap))
+                .Include(x => x.AgentAgentChromes.Select(y => y.AgentChrome))
                 .FirstOrDefault(x => x.Id == id);
 
             if (agent == null)
                 return RedirectToAction("Index");
 
-            agent.Password = Encryption.Decrypt(agent.Password, EncryptionKey);
+            if (agent.Password != null)
+                agent.Password = Encryption.Decrypt(agent.Password, EncryptionKey);
 
             ViewBag.DataMaps = GetDataMapList;
             ViewBag.AgentTypes = GetAgentTypes;
             ViewBag.AgentActions = GetAgentActions;
+            ViewBag.AgentChromes = GetAgentChromes;
 
             var vm = MapperService.Map<AgentViewModel>(agent);
 
@@ -133,7 +137,7 @@ namespace DataFlow.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Add(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
+        public ActionResult Add(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string ddlAgentChromes, string dataMapAgentNextOrder,
             string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
         {
             var validate = Validate(vm);
@@ -147,14 +151,14 @@ namespace DataFlow.Web.Controllers
                 return View(vm);
             }
 
-            var agent = SaveAgent(vm, btnAddMap, ddlDataMaps, dataMapAgentNextOrder, btnAddSchedule, ddlDay, ddlHour, ddlMinute);
+            var agent = SaveAgent(vm, btnAddMap, ddlDataMaps, ddlAgentChromes, dataMapAgentNextOrder, btnAddSchedule, ddlDay, ddlHour, ddlMinute);
 
             return RedirectToAction("Edit", new { agent.Id, success = true });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
+        public ActionResult Edit(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string ddlAgentChromes, string dataMapAgentNextOrder, 
             string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
         {
             var validate = Validate(vm);
@@ -165,16 +169,17 @@ namespace DataFlow.Web.Controllers
                 ViewBag.DataMaps = GetDataMapList;
                 ViewBag.AgentTypes = GetAgentTypes;
                 ViewBag.AgentActions = GetAgentActions;
+                ViewBag.AgentChromes = GetAgentChromes;
                 
                 return View(vm);
             }
 
-            var agent = SaveAgent(vm, btnAddMap, ddlDataMaps, dataMapAgentNextOrder, btnAddSchedule, ddlDay, ddlHour, ddlMinute);
+            var agent = SaveAgent(vm, btnAddMap, ddlDataMaps, ddlAgentChromes, dataMapAgentNextOrder, btnAddSchedule, ddlDay, ddlHour, ddlMinute);
 
             return RedirectToAction("Edit", new { agent.Id, success = true });
         }
 
-        private AgentViewModel SaveAgent(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string dataMapAgentNextOrder,
+        private AgentViewModel SaveAgent(AgentViewModel vm, string btnAddMap, string ddlDataMaps, string ddlAgentChromes, string dataMapAgentNextOrder, 
             string btnAddSchedule, string ddlDay, string ddlHour, string ddlMinute)
         {
             var isUpdate = false;
@@ -191,18 +196,31 @@ namespace DataFlow.Web.Controllers
             agent.AgentTypeCode = vm.AgentTypeCode;
             agent.AgentAction = vm.AgentAction;
             agent.Url = vm.Url;
+            agent.LoginUrl = vm.LoginUrl;
             agent.Username = vm.Username;
-            agent.Password = Encryption.Encrypt(vm.Password, EncryptionKey);
+            if (vm.Password != null)
+                agent.Password = Encryption.Encrypt(vm.Password, EncryptionKey);
             agent.Directory = vm.Directory ?? GetManualAgentBaseDirectory(agent);
             agent.FilePattern = vm.FilePattern;
             agent.Enabled = vm.Enabled;
-            agent.Queue = vm.Queue;
+            agent.Queue = Guid.NewGuid();
             agent.Custom = vm.Custom;
 
 
             if (!isUpdate)
             {
                 agent.Created = DateTime.Now;
+            }
+
+            if (ddlAgentChromes != null && int.TryParse(ddlAgentChromes, out var agentChromeId))
+            {
+                agent.AgentAgentChromes = new List<AgentAgentChrome>
+                {
+                    new AgentAgentChrome
+                    {
+                        AgentChromeId = agentChromeId
+                    }
+                };
             }
 
             if (btnAddMap != null && int.TryParse(ddlDataMaps, out var dataMapId))
@@ -245,13 +263,13 @@ namespace DataFlow.Web.Controllers
 
         private string GetManualAgentBaseDirectory(Agent agent)
         {
-            if (agent.AgentTypeCode == AgentService.Types.Manual)
+            if (agent.AgentTypeCode == AgentTypeCodeEnum.Manual)
             {
                 if (string.IsNullOrWhiteSpace(agent.Directory))
                 {
                     var directoryPath = string.Empty;
 
-                    var baseDirectory = WebConfigAppSettingsService.GetSetting<string>("DefaultBaseDirectory");
+                    var baseDirectory = WebConfigAppSettingsService.GetSetting<string>("ShareName");
                     if (string.IsNullOrWhiteSpace(baseDirectory))
                         baseDirectory = Server.MapPath("~/App_Data");
 
@@ -281,8 +299,8 @@ namespace DataFlow.Web.Controllers
 
             switch (agent.AgentTypeCode)
             {
-                case AgentService.Types.FTPS:
-                case AgentService.Types.SFTP:
+                case AgentTypeCodeEnum.FTPS:
+                case AgentTypeCodeEnum.SFTP:
                     if (string.IsNullOrWhiteSpace(agent.Url))
                         msd.AddModelError("Url", "Please enter a url or connection string.");
 
@@ -298,12 +316,10 @@ namespace DataFlow.Web.Controllers
                     if (string.IsNullOrWhiteSpace(agent.FilePattern))
                         msd.AddModelError("FilePattern", "Please enter a file pattern.");
                     break;
-                case AgentService.Types.Chrome:
+                case AgentTypeCodeEnum.Chrome:
                     if (string.IsNullOrWhiteSpace(agent.AgentAction))
                         msd.AddModelError("AgentAction", "Please select an action.");
 
-                    if (string.IsNullOrWhiteSpace(agent.Custom))
-                        msd.AddModelError("Custom", "Please enter the parameters.");
                     break;
             }
 
@@ -357,7 +373,7 @@ namespace DataFlow.Web.Controllers
                     var agentId = Convert.ToInt32(Agents);
                     var agent = dataFlowDbContext.Agents.FirstOrDefault(x => x.Id == agentId);
 
-                    var uploadFile = agentService.UploadFile(File, agent);
+                    var uploadFile = agentService.UploadFile(File.FileName, File.InputStream, agent);
 
                     formResult.IsSuccess = uploadFile.Item1;
                     formResult.ShowInfoMessage = true;
@@ -399,7 +415,7 @@ namespace DataFlow.Web.Controllers
             {
                 var agentTypes = new List<SelectListItem>();
                 agentTypes.Add(new SelectListItem { Text = "Select Type", Value = string.Empty });
-                agentTypes.AddRange(AgentService.Types.ToList().Select(x =>
+                agentTypes.AddRange(AgentTypeCodeEnum.ToList().Select(x =>
                       new SelectListItem
                       {
                           Text = x,
@@ -437,6 +453,23 @@ namespace DataFlow.Web.Controllers
                     new SelectListItem
                     {
                         Text = x.Name,
+                        Value = x.Id.ToString()
+                    }));
+
+                return entityList;
+            }
+        }
+
+        private List<SelectListItem> GetAgentChromes
+        {
+            get
+            {
+                var entityList = new List<SelectListItem>();
+                entityList.Add(new SelectListItem { Text = "Select Chrome Agent", Value = string.Empty });
+                entityList.AddRange(dataFlowDbContext.AgentChromes.Select(x =>
+                    new SelectListItem
+                    {
+                        Text = x.AgentUuid.ToString(),
                         Value = x.Id.ToString()
                     }));
 
