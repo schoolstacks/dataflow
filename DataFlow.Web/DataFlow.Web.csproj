@@ -419,6 +419,7 @@
     </Content>
     <None Include="Properties\PublishProfiles\dataflow-deploy01 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\dataflow-deploy01 - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\dataflow-xm4 - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-3.2.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.2.1.js" />
     <Content Include="Scripts\jquery-3.2.1.min.js" />

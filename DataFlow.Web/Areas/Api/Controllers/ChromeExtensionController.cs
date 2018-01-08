@@ -68,26 +68,26 @@ namespace DataFlow.Web.Areas.Api.Controllers
         {
             List<AgentResponse> response = new List<AgentResponse>();
 
-            Agent agent = GetAgent(message.uuid, message.token);
-
-            if (agent != null)
+            try
             {
-                try
+                using (var ctx = new DataFlowDbContext())
                 {
-                    using (var ctx = new DataFlowDbContext())
+                    AgentChrome agentChrome = ctx.AgentChromes.Where(ac => ac.AgentUuid == message.uuid && ac.AccessToken == message.token).FirstOrDefault();
+                    if (agentChrome != null)
                     {
-                        List<AgentAgentChrome> chromes = ctx.AgentAgentChromes.Where(aac => aac.AgentChromeId == agent.Id).Include(aac => aac.Agent).Include("Agent.AgentSchedules").ToList();
+                        List<AgentAgentChrome> agentAgentChromes = ctx.AgentAgentChromes.Where(aacc => aacc.AgentChromeId == agentChrome.Id).Include(aacc => aacc.Agent.AgentSchedules).ToList();
 
-                        foreach (var chm in chromes)
+                        foreach (var agentAgentChrome in agentAgentChromes)
                         {
                             AgentResponse responseAgent = new AgentResponse();
-                            responseAgent.agent_id = agent.Id;
-                            responseAgent.action = agent.AgentAction;
-                            responseAgent.url = agent.Url;
-                            responseAgent.loginUrl = agent.LoginUrl;
+                            responseAgent.agent_id = agentAgentChrome.Agent.Id;
+                            responseAgent.action = agentAgentChrome.Agent.AgentAction;
+                            responseAgent.parameters = agentAgentChrome.Agent.Custom;
+                            responseAgent.url = agentAgentChrome.Agent.Url;
+                            responseAgent.loginUrl = agentAgentChrome.Agent.LoginUrl;
                             responseAgent.schedule = new List<AgentScheduleResponse>();
 
-                            foreach (var sch in chm.Agent.AgentSchedules)
+                            foreach (var sch in agentAgentChrome.Agent.AgentSchedules)
                             {
                                 AgentScheduleResponse schedule = new AgentScheduleResponse(sch.Day, sch.Hour, sch.Minute);
                                 responseAgent.schedule.Add(schedule);
@@ -96,11 +96,12 @@ namespace DataFlow.Web.Areas.Api.Controllers
                             response.Add(responseAgent);
                         }
                     }
-                } catch (System.Exception ex)
-                {
-                    _logger.Error(ex, "Unexpected error in Agents");
-                    throw new HttpResponseException(HttpStatusCode.InternalServerError);
                 }
+            }
+            catch (System.Exception ex)
+            {
+                _logger.Error(ex, "Unexpected error in Agents");
+                throw new HttpResponseException(HttpStatusCode.InternalServerError);
             }
 
             return response;
@@ -115,7 +116,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
             {
                 using (var ctx = new DataFlowDbContext())
                 {
-                    Agent agent = GetAgent(message.uuid, message.token);
+                    Agent agent = GetAgent(message.uuid, message.token, message.agent_id);
 
                     if (agent != null && message.data != null && message.filename != null)
                     {
@@ -148,10 +149,10 @@ namespace DataFlow.Web.Areas.Api.Controllers
         [Route("api/log")]
         public HttpResponseMessage Log([FromBody] AgentMessage message)
         {
-            Agent agent = GetAgent(message.uuid, message.token);
+            Agent agent = GetAgent(message.uuid, message.token, message.agent_id);
             if (agent != null)
             {
-                _logger.Info(String.Format("Agent UUID={0} logs: {1}", message.uuid, message.message));
+                _logger.Info(String.Format("Agent UUID={0} for agent_id: {1},  logs: {2}", message.uuid, message.agent_id, message.message));
             }
 
             return new HttpResponseMessage()
@@ -160,7 +161,8 @@ namespace DataFlow.Web.Areas.Api.Controllers
             };
         }
 
-        public Agent GetAgent(Guid uuid, Guid token)
+        // This method validates the uuid and token is related to the agent, if so, return the agent object
+        public Agent GetAgent(Guid uuid, Guid token, int agent_id)
         {
             Agent returnAgent = null;
 
@@ -168,9 +170,9 @@ namespace DataFlow.Web.Areas.Api.Controllers
             {
                 AgentChrome chrome = ctx.AgentChromes.Where(ac => ac.AgentUuid == uuid && ac.AccessToken == token).FirstOrDefault();
                 if (chrome != null)
-                {
-                    AgentAgentChrome aac = ctx.AgentAgentChromes.Where(aacc => aacc.AgentChromeId == chrome.Id).Include(aacc => aacc.Agent).FirstOrDefault();
-                    if (aac != null)
+                { 
+                    var aac = ctx.AgentAgentChromes.Where(aacc => aacc.AgentChromeId == chrome.Id && aacc.AgentId == agent_id).Include(aacc => aacc.Agent.AgentSchedules).FirstOrDefault();
+                    if (aac != null && aac.Agent != null)
                         returnAgent = aac.Agent;
                 }
             }
