@@ -26,6 +26,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		appSettings.config = appSettings.config
 		connectionStrings.config = connectionStrings.config
 		LICENSE.md = LICENSE.md
+		NLog.config = NLog.config
 		README.md = README.md
 	EndProjectSection
 EndProject
