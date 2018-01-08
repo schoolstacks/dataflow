@@ -8,6 +8,7 @@ namespace DataFlow.Web.Areas.Api.Models
     public class AgentResponse
     {
         public int agent_id { get; set; }
+        public string name { get; set; }
         public string action { get; set; }
         public string url { get; set; }
         public string loginUrl { get; set; }

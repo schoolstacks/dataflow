@@ -9,6 +9,7 @@ using DataFlow.Common.Helpers;
 using DataFlow.Models;
 using DataFlow.Web.Areas.Api.Controllers;
 using DataFlow.Web.Areas.Api.Models;
+using System.Collections.Generic;
 
 
 namespace DataFlow.Web.Tests.Controllers
@@ -30,6 +31,8 @@ namespace DataFlow.Web.Tests.Controllers
                 Agent agent = new Agent();
                 agent.AgentTypeCode = Common.Enums.AgentTypeCodeEnum.Chrome;
                 agent.Name = "Unit Test Chrome Agent";
+                agent.Url = "http://localhost";
+                agent.LoginUrl = "http://localhost/login.php";
                 agent.Enabled = true;
                 agent.Queue = Guid.NewGuid();
                 agent.Created = DateTime.Now;
@@ -74,6 +77,25 @@ namespace DataFlow.Web.Tests.Controllers
                 _agentAgentChromeId = aac.Id;
             }
             
+        }
+
+        [TestMethod]
+        public void GetAgents()
+        {
+            ChromeExtensionController cec = new ChromeExtensionController();
+            cec.Request = new HttpRequestMessage();
+            cec.Request.SetConfiguration(new HttpConfiguration());
+
+            AgentMessage message = new AgentMessage();
+            message.uuid = _agentGuid;
+            message.token = _agentToken; 
+
+            List<AgentResponse> response = cec.Agents(message);
+            Assert.IsNotNull(response);
+            Assert.AreEqual(1, response.Count);
+            Assert.AreEqual("Unit Test Chrome Agent", response[0].name);
+            Assert.AreEqual("http://localhost", response[0].url);
+            Assert.AreEqual("http://localhost/login.php", response[0].loginUrl);
         }
 
         [TestMethod]

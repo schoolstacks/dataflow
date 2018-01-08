@@ -81,6 +81,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
                         {
                             AgentResponse responseAgent = new AgentResponse();
                             responseAgent.agent_id = agentAgentChrome.Agent.Id;
+                            responseAgent.name = agentAgentChrome.Agent.Name;
                             responseAgent.action = agentAgentChrome.Agent.AgentAction;
                             responseAgent.parameters = agentAgentChrome.Agent.Custom;
                             responseAgent.url = agentAgentChrome.Agent.Url;
