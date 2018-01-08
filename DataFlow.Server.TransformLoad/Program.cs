@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using CsvHelper;
 using System.Net.Http;
-using log4net.Core;
+using NLog;
 using System.Configuration;
 using System.Diagnostics;
 using DataFlow.Common.DAL;
@@ -24,7 +24,7 @@ namespace DataFlow.Server.TransformLoad
 {
     internal class Program
     {
-        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly Logger _log = LogManager.GetCurrentClassLogger();
         private static List<DataMap> DataMapsList { get; set; } = null;
         private static List<Lookup> MappingLookups { get; set; } = null;
 
@@ -57,23 +57,21 @@ namespace DataFlow.Server.TransformLoad
                     MaxDegreeOfParallelism = GetNumberOfSimultaneousTasks(),
                     TaskScheduler = TaskScheduler.Default
                 };
-                var config = log4net.Config.XmlConfigurator.Configure();
                 System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
                 watch.Start();
                 await StartProcessing();
                 watch.Stop();
 
-                Log(log4net.Core.Level.Info, "Time Elapsed: {0}", watch.Elapsed.ToString());
-                Log(log4net.Core.Level.Info, "Press any key to continue");
+                _log.Info("Time Elapsed: {0}", watch.Elapsed.ToString());
+                _log.Info("Press any key to continue");
             }
             catch (AggregateException ex)
             {
                 Console.WriteLine("Process Exception: " + ex.ToString());
-                Log(log4net.Core.Level.Info, "AggregateException Exception");
-                Log(log4net.Core.Level.Info, ex.ToString());
+                _log.Error(ex, "AggregateException Exception");
                 foreach (var singleInnerException in ex.InnerExceptions)
                 {
-                    Log(log4net.Core.Level.Info, singleInnerException.ToString());
+                    _log.Error(singleInnerException);
                 }
             }
             finally
@@ -102,7 +100,7 @@ namespace DataFlow.Server.TransformLoad
 
                 foreach (Models.File singleFile in files)
                 {
-                    Log(log4net.Core.Level.Info, "Processing file: {0}. URL: {1}", singleFile.FileName, singleFile.Url);
+                    _log.Info("Processing file: {0}. URL: {1}", singleFile.FileName, singleFile.Url);
                     try
                     {
                         singleFile.Status = FileStatusEnum.TRANSFORMING;
@@ -112,14 +110,14 @@ namespace DataFlow.Server.TransformLoad
                     }
                     catch (AggregateException aggrEx)
                     {
-                        Log(log4net.Core.Level.Info, "Error awaiting ProcessDataMapAgent: {0}", aggrEx.ToString());
+                        _log.Error(aggrEx, "Error awaiting ProcessDataMapAgent");
                     }
                     catch (Exception ex)
                     {
-                        Log(log4net.Core.Level.Info, "Error processing file: {0}. Message: {1}", singleFile.Url, ex.ToString());
+                        _log.Error(ex, "Error processing file: {0}", singleFile.Url);
                     }
 
-                    Log(log4net.Core.Level.Info, "Finished Processing file: {0}. URL: {1}", singleFile.FileName, singleFile.Url);
+                    _log.Info("Finished Processing file: {0}. URL: {1}", singleFile.FileName, singleFile.Url);
                 }
             }
         }
@@ -153,7 +151,7 @@ namespace DataFlow.Server.TransformLoad
             string clientSecret = GetApiClientSecret(ctx);
             string authCode = await RetrieveAuthorizationCode(authorizeUrl, clientId: clientId);
             string accessToken = await RetrieveAccessToken(accessTokenUrl, clientId, clientSecret, authCode);
-            Log(log4net.Core.Level.Info, "Start of Api Insertion: {0} records", ApiData.Count);
+            _log.Info("Start of Api Insertion: {0} records", ApiData.Count);
             await ProcessApiData(ctx, accessToken);
             foreach (var singleErrorFile in lstErroredFiles)
             {
@@ -173,7 +171,7 @@ namespace DataFlow.Server.TransformLoad
                 ctx.BootstrapData.Include(e => e.Entity).Where(p => p.ProcessedDate.HasValue == false || (p.UpdateDate.HasValue && p.UpdateDate > p.ProcessedDate)).OrderBy(p => p.ProcessingOrder).ToList();
             foreach (var singlePayload in bootStrapPayloads)
             {
-                Log(Level.Info, "Inserting bootstrap data for ID: {0}", singlePayload.Id);
+                _log.Info("Inserting bootstrap data for ID: {0}", singlePayload.Id);
                 var entity = singlePayload.Entity;
                 var metadata = entity.Metadata;
                 string endpointUrl = RetrieveEndpointUrlFromMetadata(metadata, ctx);
@@ -233,7 +231,7 @@ namespace DataFlow.Server.TransformLoad
         {
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            Log(log4net.Core.Level.Info, "Processing ApiData.");
+            _log.Info("Processing ApiData.");
             var sortedAndGroupApiData = ApiData.OrderBy(x => x.ProcessingOrder).GroupBy(p => p.Key.Name);
             int fileTotalRecords = ApiData.Count();
             foreach (var singleApiDataEntity in sortedAndGroupApiData)
@@ -280,7 +278,7 @@ namespace DataFlow.Server.TransformLoad
                 {
                     using (DataFlowDbContext ctx = new DataFlowDbContext())
                     {
-                        Log(log4net.Core.Level.Info, "Inserting Data For File {0}", singleApiData.FileEntity.Url);
+                        _log.Info("Inserting Data For File {0}", singleApiData.FileEntity.Url);
                         if (String.IsNullOrWhiteSpace(singleApiData.Key.Metadata))
                         {
                             lock (lstIngestionMessagesLock)
@@ -331,17 +329,17 @@ namespace DataFlow.Server.TransformLoad
                             }
                             catch (AggregateException aggrEx)
                             {
-                                Log(log4net.Core.Level.Info, "Error invoking httpClient.PostAsync. AggrEx: " + aggrEx.ToString());
+                                _log.Error(aggrEx, "Error invoking httpClient.PostAsync.");
                             }
                             catch (Exception ex)
                             {
-                                Log(log4net.Core.Level.Info, "Error invoking httpClient.PostAsync. Ex: " + ex.ToString());
+                                _log.Info(ex, "Error invoking httpClient.PostAsync.");
                             }
                             //TODO: Research why response was null, which exception happened?
                             if (response != null)
                                 await ProcessResponse(singleApiData, endpointUrl, strId, strIdName, response, fileTotalRecords);
                             else
-                                Log(log4net.Core.Level.Info, "WARNING!!! response = await httpClient.PostAsync(endpointUrl, strContent) returned null or an exception happened");
+                                _log.Info("WARNING!!! response = await httpClient.PostAsync(endpointUrl, strContent) returned null or an exception happened");
                         }
                         lock (lstIngestionMessagesLock)
                         {
@@ -358,7 +356,7 @@ namespace DataFlow.Server.TransformLoad
                                 }
                                 catch (Exception ex)
                                 {
-                                    Log(log4net.Core.Level.Info, ex.ToString());
+                                    _log.Error(ex, "Unexpected error in CreatePostSingleApiDataAction()");
                                 }
                             }
                         }
@@ -366,11 +364,11 @@ namespace DataFlow.Server.TransformLoad
                 }
                 catch (AggregateException aggrEx)
                 {
-                    Log(log4net.Core.Level.Info, "Error on method for posting single Api Data. AggrEx: {0}", aggrEx.ToString());
+                    _log.Error(aggrEx, "Error on method for posting single Api Data.");
                 }
                 catch (Exception ex)
                 {
-                    Log(log4net.Core.Level.Info, "Error on method for posting single Api Data. Ex: {0}", ex.ToString());
+                    _log.Error(ex, "Error on method for posting single Api Data.");
                 }
             });
             return taskPostSingleApiData;
@@ -382,7 +380,7 @@ namespace DataFlow.Server.TransformLoad
             switch (response.StatusCode)
             {
                 case System.Net.HttpStatusCode.OK:
-                    Log(log4net.Core.Level.Info, "Data Exists on endpoint: {0}", endpointUrl);
+                    _log.Info("Data Exists on endpoint: {0}", endpointUrl);
                     lock (lstIngestionMessagesLock)
                     {
                         lstIngestionMessages.Add(new LogIngestion()
@@ -401,7 +399,7 @@ namespace DataFlow.Server.TransformLoad
                     }
                     break;
                 case System.Net.HttpStatusCode.Created:
-                    Log(log4net.Core.Level.Info, "Data Inserted on endpoint: {0}", endpointUrl);
+                    _log.Info("Data Inserted on endpoint: {0}", endpointUrl);
                     lock (lstIngestionMessagesLock)
                     {
                         InsertedIds.Add(new KeyValuePair<string, string>(strIdName, strId));
@@ -422,7 +420,7 @@ namespace DataFlow.Server.TransformLoad
                     break;
                 default:
                     string strError = await response.Content.ReadAsStringAsync();
-                    Log(log4net.Core.Level.Info, "Data Error on Insert on endpoint: {0}, Row Number: {1}, Status: {2}, Error: {3}", endpointUrl, singleApiData.RowNumber, response.StatusCode, strError);
+                    _log.Info("Data Error on Insert on endpoint: {0}, Row Number: {1}, Status: {2}, Error: {3}", endpointUrl, singleApiData.RowNumber, response.StatusCode, strError);
                     lock (lstIngestionMessagesLock)
                     {
                         var singleIngestionError =
@@ -589,8 +587,7 @@ namespace DataFlow.Server.TransformLoad
                 lstParameters.Add(new KeyValuePair<string, string>("Client_id", clientId));
                 lstParameters.Add(new KeyValuePair<string, string>("Response_type", "code"));
                 FormUrlEncodedContent contentParams = new FormUrlEncodedContent(lstParameters);
-                Log(log4net.Core.Level.Info,
-                    "Retrieving auth code from {0}", authorizeUrl);
+                _log.Info("Retrieving auth code from {0}", authorizeUrl);
                 var result = await httpClient.PostAsync(authorizeUrl, contentParams);
                 switch (result.StatusCode)
                 {
@@ -629,7 +626,7 @@ namespace DataFlow.Server.TransformLoad
                 fileEntity.Status = FileStatusEnum.LOADING;
                 ctx.SaveChanges();
                 await PostTransformedData(ctx);
-                Log(log4net.Core.Level.Info, "Reduced Api Calls by Hashing. Total:{0}. File:{1}", ProcessedData.Count, file.Uri);
+                _log.Info("Reduced Api Calls by Hashing. Total:{0}. File:{1}", ProcessedData.Count, file.Uri);
                 ApiData.Clear();
                 ProcessedData.Clear();
                 InsertedIds.Clear();
@@ -638,7 +635,7 @@ namespace DataFlow.Server.TransformLoad
             }
             catch (Exception ex)
             {
-                Log(log4net.Core.Level.Error, "Error on PostTransformedData: {0}: ", ex.ToString());
+                _log.Info("Error on PostTransformedData: {0}: ", ex.ToString());
                 lock (lstErroredFilesLock)
                 {
                     if (!lstErroredFiles.Contains(fileEntity))
@@ -687,7 +684,7 @@ namespace DataFlow.Server.TransformLoad
                 rowNum++;
                 foreach (var singleDataMapAgent in orderedDataMapAgents)
                 {
-                    Log(log4net.Core.Level.Info, "Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Row #: {4}",
+                    _log.Info("Processing Data Map Agent: {0}. Agent: {1}. Data Map: {2}. Entity: {3}. Row #: {4}",
                         singleDataMapAgent.DataMap.Id, singleDataMapAgent.AgentId, singleDataMapAgent.DataMapId, singleDataMapAgent.DataMap.Entity.Name,
                         rowNum);
                     var entity = singleDataMapAgent.DataMap.Entity;
@@ -806,7 +803,7 @@ namespace DataFlow.Server.TransformLoad
                     case JTokenType.Property:
                         break;
                     default:
-                        Log(log4net.Core.Level.Info, "Token type: {0}", token.Type);
+                        _log.Info("Token type: {0}", token.Type);
                         break;
                 }
             }
@@ -828,7 +825,7 @@ namespace DataFlow.Server.TransformLoad
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            Log(log4net.Core.Level.Info, "An unhandled exception has occurred: " + ((Exception)e.ExceptionObject).ToString());
+            _log.Info("An unhandled exception has occurred: " + ((Exception)e.ExceptionObject).ToString());
         }
 
         private static void TransformCSVRow(JToken originalMap, ref JToken outputData, Dictionary<string, string> reader,
@@ -1158,29 +1155,6 @@ namespace DataFlow.Server.TransformLoad
             if (matchingRecord != null)
                 result = matchingRecord.Value;
             return result;
-        }
-
-        private static void Log(log4net.Core.Level level, string message, params object[] args)
-        {
-            string messageToLog = string.Empty;
-            try
-            {
-                if (args != null && args.Count() > 0)
-                {
-                    messageToLog = string.Format(message, args);
-                }
-
-                if (level.Value == log4net.Core.Level.Error.Value)
-                    _log.Error(messageToLog);
-                else if (level.Value == log4net.Core.Level.Info.Value)
-                    _log.Info(messageToLog);
-                else
-                    _log.Debug(messageToLog);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error logging: " + ex.ToString());
-            }
         }
     }
 
