@@ -89,6 +89,7 @@ namespace DataFlow.Web.Tests.Controllers
             AgentMessage message = new AgentMessage();
             message.uuid = _agentGuid;
             message.token = _agentToken;
+            message.agent_id = _agentId;
             message.filename = "sample.csv";
             message.data = Convert.ToBase64String(fileContents);
 
