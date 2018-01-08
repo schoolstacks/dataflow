@@ -15,12 +15,13 @@ using DataFlow.Common.ExtensionMethods;
 using DataFlow.Models;
 using DataFlow.Common.Enums;
 using DataFlow.Common.Helpers;
+using NLog;
 
 namespace DataFlow.Server.FileTransport
 {
     public class Program
     {
-        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly Logger _log = LogManager.GetCurrentClassLogger();
 
         private static readonly string _connectionString = ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString;
         private static readonly string _azureFileConnectionString = ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString;
@@ -42,15 +43,15 @@ namespace DataFlow.Server.FileTransport
 
                     foreach (var agent in agents)
                     {
-                        _log.Info("Processing agent name: " + agent.Name);
+                        _log.Info("Processing agent name: {0}", agent.Name);
 
                         List<string> fileList = GetFileList(agent);
 
-                        _log.Info("Items to process:" + fileList.Count.ToString());
+                        _log.Info("Items to process: {0}", fileList.Count);
 
                         foreach (string file in fileList)
                         {
-                            _log.Info("Processing: " + file);
+                            _log.Info("Processing file: {0}", file);
                             // Check the file log to see if the file already exists, if not, upload to file storage
                             if (!DoesFileExistInLog(agent.Id, file))
                                 TransferFileToStorage(agent, file);
@@ -93,7 +94,7 @@ namespace DataFlow.Server.FileTransport
 
             try
             {
-                _log.Info("Connecting to host: " + ftpsagent.Url);
+                _log.Info("Connecting to host: {0}", ftpsagent.Url);
                 FtpClient client = new FtpClient(ftpsagent.Url, ftpsagent.Username, Encryption.Decrypt(ftpsagent.Password, _encryptionKey));
                 client.EncryptionMode = FtpEncryptionMode.Implicit; // Only implicit FTPS on port 990
                 client.ValidateCertificate += new FtpSslValidation(OnValidateFTPSCertificate);
@@ -109,7 +110,7 @@ namespace DataFlow.Server.FileTransport
             }
             catch (Exception ex)
             {
-                _log.Error("Unexpected exception in GetFileListFromFTPS(): ", ex);
+                _log.Error(ex, "Unexpected exception in GetFileListFromFTPS()");
             }
 
             return list;
@@ -118,9 +119,7 @@ namespace DataFlow.Server.FileTransport
         private static void OnValidateFTPSCertificate(FtpClient control, FtpSslValidationEventArgs e)
         {
             if (_allowTestCertificates.ToLower() == "true") // Allow test certs only if allowed in app.config
-            {
                 e.Accept = true;
-            }
         }
 
         private static List<string> GetFileListFromSFTP(Agent sftpagent)
@@ -129,10 +128,10 @@ namespace DataFlow.Server.FileTransport
 
             try
             {
-                _log.Info("Connecting to host: " + sftpagent.Url);
+                _log.Info("Connecting to host: {0}", sftpagent.Url);
                 SftpClient client = new SftpClient(sftpagent.Url, sftpagent.Username, Encryption.Decrypt(sftpagent.Password, _encryptionKey));
                 client.Connect();
-                _log.Info("Connected, server version: " + client.ConnectionInfo.ServerVersion);
+                _log.Info("Connected, server version: {0}", client.ConnectionInfo.ServerVersion);
 
                 IEnumerable<SftpFile> fileList = client.ListDirectory(sftpagent.Directory);
                 foreach (SftpFile file in fileList)
@@ -145,7 +144,7 @@ namespace DataFlow.Server.FileTransport
             }
             catch (Exception ex)
             {
-                _log.Error("Unexpected exception in GetFileListFromSFTP(): ", ex);
+                _log.Error(ex, "Unexpected exception in GetFileListFromSFTP()");
             }
 
             return list;
@@ -165,7 +164,7 @@ namespace DataFlow.Server.FileTransport
                 if (fileCount == 0) { fileFound = false; } else { fileFound = true; }
             }
 
-            _log.Info("DoesFileExistInLog: " + file + " is: " + fileFound.ToString());
+            _log.Info("DoesFileExistInLog: {0} is: {1}", file, fileFound.ToString());
 
             return fileFound;
         }
@@ -232,7 +231,7 @@ namespace DataFlow.Server.FileTransport
             CloudFileShare fileShare = fileClient.GetShareReference(_shareName);
 
             if (!fileShare.Exists())
-                _log.Error("Azure file share does not exist as expected.  Connection string: " + _azureFileConnectionString);
+                _log.Error("Azure file share does not exist as expected.  Connection string: {0}", _azureFileConnectionString);
             else
             {
                 try
@@ -247,11 +246,11 @@ namespace DataFlow.Server.FileTransport
                     int recordCount = TotalLines(stream);
 
                     LogFile(agent.Id, file, cloudFile.StorageUri.PrimaryUri.ToString(), FileStatusEnum.UPLOADED, recordCount);
-                    _log.Info("Successfully transfered file " + shortFileName + " to " + cloudFile.StorageUri.PrimaryUri.ToString() + " by agent ID: " + agent.Id.ToString());
+                    _log.Info("Successfully transfered file {0} to {1} by agent ID: {2}", shortFileName, cloudFile.StorageUri.PrimaryUri.ToString(), agent.Id.ToString());
                 }
                 catch (Exception ex)
                 {
-                    _log.Error("Unexpected error in TransferFileToAzure for file: " + file + " on site: " + agent.Url, ex);
+                    _log.Error(ex, "Unexpected error in TransferFileToAzure for file: {0} on site: ", agent.Url);
                     LogFile(agent.Id, file, "", FileStatusEnum.ERROR_UPLOADED, 0);
                 }
             }
@@ -278,11 +277,11 @@ namespace DataFlow.Server.FileTransport
                 int recordCount = TotalLines(stream);
 
                 LogFile(agent.Id, file, localFileUri.AbsoluteUri, FileStatusEnum.UPLOADED, recordCount);
-                _log.Info("Successfully transfered file " + shortFileName + " to " + localFileUri.AbsoluteUri + " by agent ID: " + agent.Id.ToString());
+                _log.Info("Successfully transfered file {0} to {1} by agent ID: {2}", shortFileName, localFileUri.AbsoluteUri, agent.Id);
             }
             catch (Exception ex)
             {
-                _log.Error("Unexpected error in TransferFileToLocal for file: " + file + " on site: " + agent.Url, ex);
+                _log.Error(ex, "Unexpected error in TransferFileToLocal for file: {0} on site: {1}", file, agent.Url);
                 LogFile(agent.Id, file, "", FileStatusEnum.ERROR_UPLOADED, 0);
             }
 
