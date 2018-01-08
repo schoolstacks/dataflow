@@ -190,7 +190,10 @@ namespace DataFlow.Web.Controllers
             var entitySelected = dataFlowDbContext.Entities.FirstOrDefault(x => x.Id == vm.MapToEntity);
             if (!string.IsNullOrWhiteSpace(entitySelected?.Url))
             {
-                var entityJson = edFiMetadataProcessor.GetJsonFromUrl(entitySelected.Url);
+                string apiUrl = base.ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_URL).Value;
+                apiUrl = DataFlow.Common.Helpers.UrlUtility.GetUntilOrEmpty(apiUrl.Trim(), "/api/"); //get just the base URL
+
+                var entityJson = edFiMetadataProcessor.GetJsonFromUrl(apiUrl, entitySelected.Url);
                 var apiFields = edFiMetadataProcessor.GetFieldListFromJson(entityJson, entitySelected.Name)
                     .Where(x => x.Required || GetAdditionalFields(entitySelected.Name).Contains(x.Name))
                     .ToList();

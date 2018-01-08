@@ -8,6 +8,8 @@ using DataFlow.Models;
 using Humanizer;
 using Newtonsoft.Json.Linq;
 using NLog;
+using DataFlow.Web.Helpers;
+
 
 namespace DataFlow.Web.Services
 {
@@ -25,11 +27,11 @@ namespace DataFlow.Web.Services
             return JObject.Parse(System.IO.File.ReadAllText(fileName));
         }
 
-        public JObject GetJsonFromUrl(string url)
+        public JObject GetJsonFromUrl(string apiUrl, string url)
         {
             using (var client = new WebClient())
             {
-                var s = client.DownloadString(url);
+                var s = client.DownloadString(apiUrl + url);
                 return JObject.Parse(s);
             }
         }
