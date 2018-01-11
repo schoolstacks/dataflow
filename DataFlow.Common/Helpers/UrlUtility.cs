@@ -15,12 +15,15 @@ namespace DataFlow.Common.Helpers
                 int charLocation = text.IndexOf(stopAt, StringComparison.Ordinal);
 
                 if (charLocation > 0)
-                {
                     return text.Substring(0, charLocation);
-                }
             }
 
             return string.Empty;
+        }
+
+        public static string ConvertLocalPathToUri(string localPath)
+        {
+            return new System.Uri(localPath).AbsoluteUri;
         }
     }
 }
