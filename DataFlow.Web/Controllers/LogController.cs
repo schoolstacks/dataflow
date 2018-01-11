@@ -5,6 +5,7 @@ using DataFlow.Common.DAL;
 using DataFlow.Web.Helpers;
 using DataFlow.Web.Models;
 using DataFlow.Web.Services;
+using DataFlow.Common.Enums;
 
 namespace DataFlow.Web.Controllers
 {
@@ -28,5 +29,17 @@ namespace DataFlow.Web.Controllers
 
             return View(vm);
         }
+
+        public ActionResult Retry(int id)
+        {
+            using (var ctx = new DataFlowDbContext())
+            {
+                var file = ctx.Files.Find(id);
+                file.Status = FileStatusEnum.RETRY;
+                ctx.SaveChanges();
+            }
+            return RedirectToAction("Index");
+        }
+
     }
 }

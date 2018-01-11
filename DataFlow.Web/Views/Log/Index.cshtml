@@ -14,6 +14,10 @@
 </ul>
 <div class="tab-content">
     <div id="divFiles" class="tab-pane fade in active">
+        @using ( Html.BeginForm() )
+        {
+
+        }
         <table id="tblFiles" class="table table-striped table-hover table-bordered table-responsive" data-sorting="true" data-filtering="true" data-paging="true" data-paging-size="20">
             <thead>
                 <tr>
@@ -23,6 +27,7 @@
                     <th data-type="number">Rows</th>
                     <th data-type="date" data-format-string="yyyy-MM-ddTHH:mm:ss">Created Date</th>
                     <th data-type="date" data-format-string="yyyy-MM-ddTHH:mm:ss">Updated Date</th>
+                    <th>Retry</th>
                     <th data-breakpoints="all" data-sortable="false">Message</th>
                 </tr>
             </thead>
@@ -36,6 +41,7 @@
                     <td>@m.Rows.GetValueOrDefault(0)</td>
                     <td data-sort-value="@(m.CreateDate?.ToString("s"))">@(m.CreateDate?.ToString("yyyy-MM-dd hh:MM tt"))</td>
                     <td data-sort-value="@(m.CreateDate?.ToString("s"))">@(m.UpdateDate?.ToString("yyyy-MM-dd hh:MM tt"))</td>
+                    <td>@Html.ActionLink("Retry", "Retry", new { m.Id } , new { @class = "btn btn-primary" })</td>
                     <td>@m.Message</td>
                 </tr>
                 }
