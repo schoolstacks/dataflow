@@ -104,6 +104,7 @@ namespace DataFlow.Server.TransformLoad
                     try
                     {
                         singleFile.Status = FileStatusEnum.TRANSFORMING;
+                        singleFile.UpdateDate = DateTime.Now;
                         ctx.SaveChanges();
                         IFile file = GenerateIFile(singleFile);
                         await ProcessDataMapAgent(singleFile.Agent.DataMapAgents, file: file, fileEntity: singleFile, ctx: ctx);
@@ -156,11 +157,13 @@ namespace DataFlow.Server.TransformLoad
             foreach (var singleErrorFile in lstErroredFiles)
             {
                 singleErrorFile.Status = FileStatusEnum.ERROR_TRANSFORM;
+                singleErrorFile.UpdateDate = DateTime.Now;
             }
             var transformedFiles = ApiData.Where(p => lstErroredFiles.Contains(p.FileEntity) == false).Select(p => p.FileEntity).ToList();
             foreach (var singleTransformedFile in transformedFiles.Distinct())
             {
                 singleTransformedFile.Status = FileStatusEnum.LOADED;
+                singleTransformedFile.UpdateDate = DateTime.Now;
             }
             ctx.SaveChanges();
         }
@@ -285,7 +288,7 @@ namespace DataFlow.Server.TransformLoad
                             {
                                 lstIngestionMessages.Add(new LogIngestion()
                                 {
-                                    Date = DateTime.UtcNow,
+                                    Date = DateTime.Now,
                                     //Filename = singleApiData.Key
                                     Result = "ERROR",
                                     Message = string.Format("Entity has no Metadata. Entity ID: {0}", singleApiData.Key.Id),
@@ -385,7 +388,7 @@ namespace DataFlow.Server.TransformLoad
                     {
                         lstIngestionMessages.Add(new LogIngestion()
                         {
-                            Date = DateTime.UtcNow,
+                            Date = DateTime.Now,
                             //Filename = singleApiData.Key
                             Result = "SUCCESS",
                             Message = string.Format("Record Exists:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nData:\r\n{2}", singleApiData.RowNumber, endpointUrl, singleApiData.Value.ToString()),
@@ -405,7 +408,7 @@ namespace DataFlow.Server.TransformLoad
                         InsertedIds.Add(new KeyValuePair<string, string>(strIdName, strId));
                         lstIngestionMessages.Add(new LogIngestion()
                         {
-                            Date = DateTime.UtcNow,
+                            Date = DateTime.Now,
                             //Filename = singleApiData.Key
                             Result = "SUCCESS",
                             Message = string.Format("Record Created:\r\nRow Number: {0}\r\nEndPoint Url: {1}\r\nAgent ID:{2}\r\nFile Name:{3}\r\nData:\r\n{4}", singleApiData.RowNumber, endpointUrl, singleApiData.FileEntity.AgentId, singleApiData.FileEntity.FileName, singleApiData.Value.ToString()),
@@ -426,7 +429,7 @@ namespace DataFlow.Server.TransformLoad
                         var singleIngestionError =
                             new LogIngestion()
                             {
-                                Date = DateTime.UtcNow,
+                                Date = DateTime.Now,
                                 //Filename = singleApiData.Key
                                 Result = "ERROR",
                                 Message = string.Format("Message: {0}. Row Number: {1} EndPoint Url: {2}\r\nAgent ID:{3}\r\nFile Name:{4}\r\nData:\r\n{5}", strError, singleApiData.RowNumber, endpointUrl, singleApiData.FileEntity.AgentId, singleApiData.FileEntity.FileName, singleApiData.Value.ToString()),
@@ -624,6 +627,7 @@ namespace DataFlow.Server.TransformLoad
             try
             {
                 fileEntity.Status = FileStatusEnum.LOADING;
+                fileEntity.UpdateDate = DateTime.Now;
                 ctx.SaveChanges();
                 await PostTransformedData(ctx);
                 _log.Info("Reduced Api Calls by Hashing. Total:{0}. File:{1}", ProcessedData.Count, file.Uri);
