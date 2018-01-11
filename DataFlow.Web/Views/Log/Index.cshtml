@@ -39,8 +39,8 @@
                     <td>@m.FileName</td>
                     <td>@m.Status</td>
                     <td>@m.Rows.GetValueOrDefault(0)</td>
-                    <td data-sort-value="@(m.CreateDate?.ToString("s"))">@(m.CreateDate?.ToString("yyyy-MM-dd hh:MM tt"))</td>
-                    <td data-sort-value="@(m.CreateDate?.ToString("s"))">@(m.UpdateDate?.ToString("yyyy-MM-dd hh:MM tt"))</td>
+                    <td data-sort-value="@(m.CreateDate?.ToString("s"))">@(m.CreateDate?.ToString("yyyy-MM-dd hh:mm tt"))</td>
+                    <td data-sort-value="@(m.CreateDate?.ToString("s"))">@(m.UpdateDate?.ToString("yyyy-MM-dd hh:mm tt"))</td>
                     <td>@Html.ActionLink("Retry", "Retry", new { m.Id } , new { @class = "btn btn-primary" })</td>
                     <td>@m.Message</td>
                 </tr>
@@ -65,7 +65,7 @@
                 @foreach (var m in Model.LogIngestions)
                 {
                     <tr>
-                        <td data-sort-value="@(m.Date.ToString("s"))">@(m.Date.ToString("yyyy-MM-dd hh:MM tt"))</td>
+                        <td data-sort-value="@(m.Date.ToString("s"))">@(m.Date.ToString("yyyy-MM-dd hh:mm tt"))</td>
                         <td>@m.Level</td>
                         <td>@m.Operation</td>
                         <td>@m.Process</td>
@@ -93,7 +93,7 @@
                 @foreach (var s in Model.NLogs)
                 {
                     <tr>
-                        <td data-sort-value="@(s.Logged.ToString("s"))">@(s.Logged.ToString("yyyy-MM-dd hh:MM tt"))</td>
+                        <td data-sort-value="@(s.Logged.ToString("s"))">@(s.Logged.ToString("yyyy-MM-dd hh:mm tt"))</td>
                         <td>@s.Level</td>
                         <td>@s.Message</td>
                         <td>@s.UserName</td>

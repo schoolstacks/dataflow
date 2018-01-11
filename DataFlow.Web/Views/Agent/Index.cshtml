@@ -36,7 +36,7 @@
                 <td>@m.Name</td>
                 <td>@m.AgentTypeCode</td>
                 <td data-type="number">@m.Files.Count</td>
-                <td  data-sort-value="@(m.LastExecuted?.ToString("s"))">@(m.LastExecuted?.ToString("yyyy-MM-dd hh:MM tt"))</td>
+                <td  data-sort-value="@(m.LastExecuted?.ToString("s"))">@(m.LastExecuted?.ToString("yyyy-MM-dd hh:mm tt"))</td>
                 <td>@Html.ActionLink(Convert.ToString(m.Enabled), "ToggleAgentStatus", new { m.Id }, new { title = "Toggle Status" })</td>
                 <td style="text-align: center;">@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
             </tr>

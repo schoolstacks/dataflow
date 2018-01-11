@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 using DataFlow.Common.DAL;
@@ -36,6 +37,7 @@ namespace DataFlow.Web.Controllers
             {
                 var file = ctx.Files.Find(id);
                 file.Status = FileStatusEnum.RETRY;
+                file.UpdateDate = DateTime.Now;
                 ctx.SaveChanges();
             }
             return RedirectToAction("Index");
