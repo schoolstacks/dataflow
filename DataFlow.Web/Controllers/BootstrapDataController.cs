@@ -51,7 +51,7 @@ namespace DataFlow.Web.Controllers
             var bootstrapData = dataFlowDbContext.BootstrapData.FirstOrDefault(x => x.Id == id);
             if (bootstrapData != null)
             {
-                LogService.Info(LogTemplates.InfoCrud("BootstrapData", bootstrapData.Entity.Name, bootstrapData.Id, LogTemplates.EntityAction.Deleted));
+                LogService.Info(LogTemplates.InfoCrud("BootstrapData", bootstrapData.EntityId.ToString(), bootstrapData.Id, LogTemplates.EntityAction.Deleted));
 
                 var startFrom = bootstrapData.ProcessingOrder;
 
@@ -125,7 +125,7 @@ namespace DataFlow.Web.Controllers
             dataFlowDbContext.BootstrapData.AddOrUpdate(bootstrapData);
             dataFlowDbContext.SaveChanges();
 
-            LogService.Info(LogTemplates.InfoCrud("BootstrapData", bootstrapData.Entity.Name, bootstrapData.Id, LogTemplates.EntityAction.Deleted));
+            LogService.Info(LogTemplates.InfoCrud("BootstrapData", bootstrapData.EntityId.ToString(), bootstrapData.Id, LogTemplates.EntityAction.Added));
 
             ReorderBootstrapData(bootstrapData.ProcessingOrder, bootstrapData.Id, false, isUpdate && processedOrderChanged);
 
