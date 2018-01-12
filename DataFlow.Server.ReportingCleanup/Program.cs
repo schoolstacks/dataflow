@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DataFlow.Models;
 using DataFlow.Common.DAL;
+using DataFlow.Common.Enums;
 using NLog;
 using FluentEmail;
 using System.Data.Entity;
@@ -15,7 +16,6 @@ namespace DataFlow.Server.ReportingCleanup
     class Program
     {
         public const string JANITOR_REPORT_LAST = "JANITOR_REPORT_LAST";
-        public const string DELETED = "DELETED";
         private static readonly Logger _log = LogManager.GetCurrentClassLogger();
 
         static void Main(string[] args)
@@ -37,7 +37,7 @@ namespace DataFlow.Server.ReportingCleanup
                     if (daysToKeepFiles != null && daysToKeepFiles != "0" && int.TryParse(daysToKeepFiles, out days))
                     {
                         DateTime deleteFileDate = DateTime.Now.AddDays(-days);
-                        List<File> deletedFiles = ctx.Files.Where(f => f.CreateDate <= deleteFileDate && f.Status != DELETED).ToList();
+                        List<File> deletedFiles = ctx.Files.Where(f => f.CreateDate <= deleteFileDate && f.Status != FileStatusEnum.DELETED).ToList();
                         emailMessage.DeleteDays = days;
                         emailMessage.DeletedFiles = deletedFiles;
                         foreach (var file in deletedFiles)
@@ -46,7 +46,7 @@ namespace DataFlow.Server.ReportingCleanup
                             {
                                 string fullFilePath = new System.Uri(file.Url).LocalPath;
                                 System.IO.File.Delete(fullFilePath);
-                                file.Status = DELETED;
+                                file.Status = FileStatusEnum.DELETED;
                             }
                             catch (Exception deleteEx)
                             {
@@ -66,7 +66,7 @@ namespace DataFlow.Server.ReportingCleanup
 
                     lastRan.Value = DateTime.Now.ToString();
 
-                    List<File> files = ctx.Files.Where(f => (f.CreateDate >= filterDate || f.UpdateDate >= filterDate) && f.Status != DELETED).Include(f => f.Agent).ToList();
+                    List<File> files = ctx.Files.Where(f => (f.CreateDate >= filterDate || f.UpdateDate >= filterDate) && f.Status != FileStatusEnum.DELETED).Include(f => f.Agent).ToList();
 
                     List<AspNetUser> users = ctx.AspNetUsers.ToList();
                     MailAddressCollection emails = new MailAddressCollection();

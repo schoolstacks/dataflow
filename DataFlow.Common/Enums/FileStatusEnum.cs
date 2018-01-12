@@ -16,5 +16,6 @@ namespace DataFlow.Common.Enums
         public const string ERROR_LOADING = "ERROR_LOADING";
         public const string LOADED = "LOADED";
         public const string RETRY = "RETRY";
+        public const string DELETED = "DELETED";
     }
 }
