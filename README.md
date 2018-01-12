@@ -64,7 +64,7 @@ Data Flow in Azure mode will use a common configuration as defined in Applicatio
 
 #### 4.) Download the Data Flow source code
 
-Download the `release` folder/branch and place it into selected location on your machine with Visual Studio 2015.
+Download the `master` folder/branch and place it into selected location on your machine with Visual Studio 2015.
 
 #### 5.) Publish the Data Flow project to the Microsoft Azure App Service
 
