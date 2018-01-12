@@ -32,6 +32,8 @@ namespace DataFlow.Server.TransformLoad
         private static int numberOfSimultaneousTasks = GetNumberOfSimultaneousTasks();
         private static ParallelOptions parallelOptions = null;
 
+        private static Dictionary<int, ProcessCounter> _processCounter = new Dictionary<int, ProcessCounter>();
+
         #region Parallel/Multi-Threading variables
         private static Object ApiDataLock = new Object();
         private static List<KeyValuePair<string, string>> InsertedIds { get; set; } = new List<KeyValuePair<string, string>>();
@@ -154,15 +156,19 @@ namespace DataFlow.Server.TransformLoad
             string accessToken = await RetrieveAccessToken(accessTokenUrl, clientId, clientSecret, authCode);
             _log.Info("Start of Api Insertion: {0} records", ApiData.Count);
             await ProcessApiData(ctx, accessToken);
+
+            System.Threading.Thread.Sleep(20000);  //TODO - The await call has other business to finish, double check and ensure everything is finished before saving status
             foreach (var singleErrorFile in lstErroredFiles)
             {
                 singleErrorFile.Status = FileStatusEnum.ERROR_TRANSFORM;
+                singleErrorFile.Message = String.Format("File has {0} rows, API calls processed:  Success: {1}, Exists: {2}, Error: {3}", singleErrorFile.Rows, _processCounter[singleErrorFile.Id].Success, _processCounter[singleErrorFile.Id].Exists, _processCounter[singleErrorFile.Id].Error);
                 singleErrorFile.UpdateDate = DateTime.Now;
             }
             var transformedFiles = ApiData.Where(p => lstErroredFiles.Contains(p.FileEntity) == false).Select(p => p.FileEntity).ToList();
             foreach (var singleTransformedFile in transformedFiles.Distinct())
             {
                 singleTransformedFile.Status = FileStatusEnum.LOADED;
+                singleTransformedFile.Message = String.Format("File has {0} rows, API calls processed:  Success: {1}, Exists: {2}, Error: {3}", singleTransformedFile.Rows, _processCounter[singleTransformedFile.Id].Success, _processCounter[singleTransformedFile.Id].Exists, _processCounter[singleTransformedFile.Id].Error);
                 singleTransformedFile.UpdateDate = DateTime.Now;
             }
             ctx.SaveChanges();
@@ -304,7 +310,7 @@ namespace DataFlow.Server.TransformLoad
                                 if (!lstErroredFiles.Contains(singleApiData.FileEntity))
                                     lstErroredFiles.Add(singleApiData.FileEntity);
                             }
-                            throw new Exception("Cannot read metadata for Ed-FI API endpoints, please run Configuration in the Admin Panel to update.");  // we will not process if we cannot read metadata
+                            throw new Exception("Cannot read metadata for Ed-Fi API endpoints, please run Configuration in the Admin Panel to update.");  // we will not process if we cannot read metadata
                         }
                         string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata, ctx);
                         if (!IsNewOrModified(singleApiData, endpointUrl))
@@ -400,6 +406,7 @@ namespace DataFlow.Server.TransformLoad
                             AgentId  = singleApiData.FileEntity.AgentId,
                             RecordCount = fileTotalRecords
                         });
+                        _processCounter[singleApiData.FileEntity.Id].Exists++;
                     }
                     break;
                 case System.Net.HttpStatusCode.Created:
@@ -420,6 +427,7 @@ namespace DataFlow.Server.TransformLoad
                             AgentId = singleApiData.FileEntity.AgentId,
                             RecordCount = fileTotalRecords
                         });
+                        _processCounter[singleApiData.FileEntity.Id].Success++;
                     }
                     break;
                 default:
@@ -442,6 +450,7 @@ namespace DataFlow.Server.TransformLoad
                                 RecordCount = fileTotalRecords
                             };
                         lstIngestionMessages.Add(singleIngestionError);
+                        _processCounter[singleApiData.FileEntity.Id].Error++;
                     }
                     break;
             }
@@ -665,6 +674,7 @@ namespace DataFlow.Server.TransformLoad
             {
                 using (CsvHelper.CsvReader reader = new CsvHelper.CsvReader(strReader))
                 {
+                    _processCounter.Add(fileEntity.Id, new ProcessCounter());
                     ReadAndTransformFile(dataMapAgents, fileEntity, reader);
                 }
             }
@@ -814,8 +824,7 @@ namespace DataFlow.Server.TransformLoad
             }
             catch (Exception ex)
             {
-                _log.Error("Error in RemoveRequiredProperty: ", ex);
-                //Log(log4net.Core.Level.Error, "Error in RemoveRequiredProperty: ", ex);
+                _log.Error(ex, "Error in RemoveRequiredProperty");
             }
         }
 
@@ -1170,5 +1179,17 @@ namespace DataFlow.Server.TransformLoad
         public int ProcessingOrder { get; set; }
         public int RowNumber { get; set; }
         public JToken Value { get; set; }
+    }
+
+    public class ProcessCounter
+    {
+        public ProcessCounter()
+        {
+            Success = 0; Exists = 0; Error = 0;
+        }
+        public int Success { get; set; }
+        public int Exists { get; set; }
+        public int Error { get; set; }
+
     }
 }
