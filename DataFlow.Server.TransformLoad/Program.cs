@@ -286,7 +286,7 @@ namespace DataFlow.Server.TransformLoad
                         {
                             lock (lstIngestionMessagesLock)
                             {
-                                lstIngestionMessages.Add(new LogIngestion()
+                                ctx.LogIngestions.Add(new LogIngestion()
                                 {
                                     Date = DateTime.Now,
                                     //Filename = singleApiData.Key
@@ -297,13 +297,14 @@ namespace DataFlow.Server.TransformLoad
                                     Process = "transform-api-load-janitor",
                                     FileName = singleApiData.FileEntity.FileName
                                 });
+                                ctx.SaveChanges();
                             }
                             lock (lstErroredFilesLock)
                             {
                                 if (!lstErroredFiles.Contains(singleApiData.FileEntity))
                                     lstErroredFiles.Add(singleApiData.FileEntity);
                             }
-                            return; // we will not process if we cannot read metadata
+                            throw new Exception("Cannot read metadata for Ed-FI API endpoints, please run Configuration in the Admin Panel to update.");  // we will not process if we cannot read metadata
                         }
                         string endpointUrl = RetrieveEndpointUrlFromMetadata(singleApiData.Key.Metadata, ctx);
                         if (!IsNewOrModified(singleApiData, endpointUrl))
@@ -755,11 +756,11 @@ namespace DataFlow.Server.TransformLoad
                                 {
                                     List<JToken> removeList = new List<JToken>();
 
-                                    foreach (JObject subProp in prop.Value)
+                                    foreach (var subProp in prop.Value)
                                     {
                                         bool required = false;
 
-                                        if (subProp["_required"] != null)
+                                        if (subProp.Contains("_required"))
                                         {
                                             required = true;
 
@@ -784,7 +785,7 @@ namespace DataFlow.Server.TransformLoad
 
                                         if (required)
                                         {
-                                            subProp.Property("_required").Remove();
+                                            ((JObject)subProp).Property("_required").Remove();
                                         }
                                     }
 
