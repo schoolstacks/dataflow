@@ -59,8 +59,10 @@ namespace DataFlow.Server.ReportingCleanup
                     // Send email message
                     DateTime filterDate = DateTime.MinValue;
                     Configuration lastRan = ctx.Configurations.Where(c => c.Key == JANITOR_REPORT_LAST).FirstOrDefault();
-                    if (lastRan == null)
+                    if (lastRan == null) { 
                         lastRan = new Configuration() { Key = JANITOR_REPORT_LAST };
+                        ctx.Configurations.Add(lastRan);
+                    }
                     else
                         filterDate = DateTime.Parse(lastRan.Value);
 
@@ -76,7 +78,6 @@ namespace DataFlow.Server.ReportingCleanup
                     }
 
                     emailMessage.Files = files;
-
 
                     if (emailMessage.Files != null || emailMessage.DeletedFiles != null)
                     {
