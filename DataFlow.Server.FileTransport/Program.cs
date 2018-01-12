@@ -313,7 +313,7 @@ namespace DataFlow.Server.FileTransport
                 fileLog.Url = URL;
                 fileLog.Rows = rows;
                 fileLog.Status = status;
-                fileLog.CreateDate = DateTime.UtcNow;
+                fileLog.CreateDate = DateTime.Now;
                 ctx.Files.Add(fileLog);
                 ctx.SaveChanges();
             }

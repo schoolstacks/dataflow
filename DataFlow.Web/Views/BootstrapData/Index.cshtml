@@ -15,7 +15,7 @@
         <tr>
             <th>Entity</th>
             <th>Processing Order</th>
-            <th data-type="date" data-format-string="yyyy-MM-dd hh:MM tt">Processed Data</th>
+            <th data-type="date" data-format-string="yyyy-MM-dd hh:mm tt">Processed Data</th>
             <th data-sortable="false" data-filterable="false"></th>
             <th data-sortable="false" data-filterable="false"></th>
         </tr>
@@ -26,7 +26,7 @@
         <tr>
             <td>@m.Entity.Name</td>
             <td>@m.ProcessingOrder</td>
-            <td data-type="date" data-format-string="yyyy-MM-dd hh:MM tt">@(m.ProcessedDate?.ToString("yyyy-MM-dd hh:MM tt"))</td>
+            <td data-type="date" data-format-string="yyyy-MM-dd hh:mm tt">@(m.ProcessedDate?.ToString("yyyy-MM-dd hh:mm tt"))</td>
             <td>@Html.ActionLink("Edit", "Edit", new { m.Id })</td>
             <td>@Html.ActionLink("Delete", "Delete", new { m.Id })</td>
         </tr>

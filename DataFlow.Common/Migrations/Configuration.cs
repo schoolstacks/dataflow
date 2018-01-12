@@ -20,7 +20,8 @@ namespace DataFlow.Common.Migrations
                 new FileStatus() {Value = "LOADING"},
                 new FileStatus() {Value = "TRANSFORMING"},
                 new FileStatus() {Value = "UPLOADED"},
-                new FileStatus() {Value = "RETRY"}
+                new FileStatus() {Value = "RETRY"},
+                new FileStatus() {Value = "DELETED"}
             );
 
             context.EdfiDictionary.AddOrUpdate(x => new { x.GroupSet, x.OriginalValue, x.DisplayValue, x.DisplayOrder },

@@ -90,8 +90,9 @@ namespace DataFlow.Web.Services
                 uploadPath += PathUtility.EnsureTrailingSlash(agent.Queue.ToString());
                 if (!Directory.Exists(uploadPath))
                     Directory.CreateDirectory(uploadPath);
+                string fullFilePath = Path.Combine(uploadPath, fileName);
 
-                using (var file = System.IO.File.Create(Path.Combine(uploadPath, fileName)))
+                using (var file = System.IO.File.Create(fullFilePath))
                 {
                     fileStream.Seek(0, SeekOrigin.Begin);
                     fileStream.CopyTo(file);
@@ -99,8 +100,8 @@ namespace DataFlow.Web.Services
 
                 var recordCount = TotalLines(fileStream);
 
-                LogFile(agent.Id, fileName, uploadPath, FileStatusEnum.UPLOADED, recordCount);
-                var logMessage = $"File '{fileStream}' was uploaded to '{uploadPath}' for Agent '{agent.Name}' (Id: {agent.Id}).";
+                LogFile(agent.Id, fileName, UrlUtility.ConvertLocalPathToUri(fullFilePath), FileStatusEnum.UPLOADED, recordCount);
+                var logMessage = $"File '{fileName}' was uploaded to '{uploadPath}' for Agent '{agent.Name}' (Id: {agent.Id}).";
                 if (LogService != null)
                     LogService.Info(logMessage);
 
@@ -134,6 +135,7 @@ namespace DataFlow.Web.Services
 
         private int TotalLines(Stream stream)
         {
+            stream.Seek(0, SeekOrigin.Begin);
             using (StreamReader r = new StreamReader(stream))
             {
                 int i = 0;

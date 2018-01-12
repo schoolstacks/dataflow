@@ -75,5 +75,13 @@ namespace DataFlow.Server.FileTransport.Tests
             testPath = @"C:\Temp\";
             Assert.AreEqual(@"C:\Temp\", result);
         }
+
+        [TestMethod]
+        public void ConvertPathToUri()
+        {
+            string testPath = @"C:\Temp\filename12345.log";
+            string result = DataFlow.Common.Helpers.UrlUtility.ConvertLocalPathToUri(testPath);
+            Assert.AreEqual("file:///C:/Temp/filename12345.log", result);
+        }
     }
 }
