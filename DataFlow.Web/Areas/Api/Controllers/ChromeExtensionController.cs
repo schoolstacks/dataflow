@@ -76,7 +76,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
                     AgentChrome agentChrome = ctx.AgentChromes.Where(ac => ac.AgentUuid == message.uuid && ac.AccessToken == message.token).FirstOrDefault();
                     if (agentChrome != null)
                     {
-                        List<AgentAgentChrome> agentAgentChromes = ctx.AgentAgentChromes.Where(aacc => aacc.AgentChromeId == agentChrome.Id).Include(aacc => aacc.Agent.AgentSchedules).ToList();
+                        List<AgentAgentChrome> agentAgentChromes = ctx.AgentAgentChromes.Where(aacc => aacc.AgentChromeId == agentChrome.Id && aacc.Agent.Enabled == true).Include(aacc => aacc.Agent.AgentSchedules).ToList();
 
                         foreach (var agentAgentChrome in agentAgentChromes)
                         {
