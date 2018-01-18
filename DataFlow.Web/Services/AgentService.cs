@@ -66,8 +66,9 @@ namespace DataFlow.Web.Services
 
                     LogFile(agent.Id, fileName, cloudFile.StorageUri.PrimaryUri.ToString(), FileStatusEnum.UPLOADED, recordCount);
 
-                    var logMessage = $"File '{fileName}' was uploaded to '{cloudFile.StorageUri.PrimaryUri}' for Agent '{agent.Name}' (Id: {agent.Id}).";
-                    LogService.Info(logMessage);
+                    var logMessage = $"File '{fileName}' was uploaded to '{cloudFile.StorageUri.PrimaryUri.ToString()}' for Agent '{agent.Name}' (Id: {agent.Id}).";
+                    if (LogService != null)
+                        LogService.Info(logMessage);
                     return new Tuple<bool, string>(true, logMessage);
                 }
 

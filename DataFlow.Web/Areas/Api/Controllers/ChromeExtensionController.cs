@@ -17,6 +17,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
     public class ChromeExtensionController : ApiController
     {
         private static Logger _logger = LogManager.GetCurrentClassLogger();
+        DataFlow.Common.Services.NLogService _loggerService = new Common.Services.NLogService(_logger);
 
         [HttpPost]
         [Route("api/register")]
@@ -126,7 +127,7 @@ namespace DataFlow.Web.Areas.Api.Controllers
                         if (dataArray != null)
                         {
                             System.IO.MemoryStream stream = new System.IO.MemoryStream(dataArray);
-                            AgentService svc = new AgentService(ctx, null);
+                            AgentService svc = new AgentService(ctx, _loggerService);
                             
                             Tuple<bool, string> result = svc.UploadFile(message.filename, stream, agent);
                             if (result.Item1)
