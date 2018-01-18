@@ -48,7 +48,7 @@ namespace DataFlow.Web.Services
             try
             {
                 var azureFileConnectionString = ConfigurationManager.ConnectionStrings["storageConnection"].ConnectionString;
-                var shareName = ConfigurationManager.AppSettings["azureShareName"];
+                var shareName = ConfigurationManager.AppSettings["ShareName"];
 
                 var storageAccount = CloudStorageAccount.Parse(azureFileConnectionString);
                 var fileClient = storageAccount.CreateCloudFileClient();
