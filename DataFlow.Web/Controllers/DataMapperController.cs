@@ -34,13 +34,15 @@ namespace DataFlow.Web.Controllers
         {
             var vm = InitializeViewModel();
 
-            if (int.TryParse(Request.QueryString["entityId"], out var entityId))
+            int entityId;
+            if (int.TryParse(Request.QueryString["entityId"], out entityId))
             {
                 vm.MapToEntity = entityId;
                 vm = GetEntityFields(vm);
             }
 
-            if (int.TryParse(Request.QueryString["mapId"], out var mapId))
+            int mapId;
+            if (int.TryParse(Request.QueryString["mapId"], out mapId))
             {
                 var dataMap = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == mapId);
 
@@ -150,7 +152,8 @@ namespace DataFlow.Web.Controllers
         [HttpPost]
         public ActionResult AddModelFields(FormCollection formCollection)
         {
-            if (!int.TryParse(formCollection["MapToEntity"], out var entityId))
+            int entityId;
+            if (!int.TryParse(formCollection["MapToEntity"], out entityId))
                 throw new ArgumentException("Please select an entity to map to");
 
             var vm = InitializeViewModel(formCollection["MapName"], entityId, formCollection["CsvColumnHeaders"].Split(',').ToList());
