@@ -59,30 +59,20 @@ namespace DataFlow.Web.Controllers
                 }
             }
 
-            if (TempData["CsvColumnHeaders"] is string csvColumnHeaders)
-            {
-                vm.CsvColumnHeaders = csvColumnHeaders.Split(',').ToList();
-            }
+            if (TempData["CsvColumnHeaders"] is string)
+                vm.CsvColumnHeaders = ((string)TempData["CsvColumnHeaders"]).Split(',').ToList();
 
-            if (TempData["CsvDataPreview"] is DataTable csvDataTable)
-            {
-                vm.CsvPreviewDataTable = csvDataTable;
-            }
+            if (TempData["CsvDataPreview"] is DataTable)
+                vm.CsvPreviewDataTable = (DataTable)TempData["CsvDataPreview"];
 
-            if (TempData["IsSuccess"] is bool isSuccess)
-            {
-                vm.IsSuccess = isSuccess;
-            }
+            if (TempData["IsSuccess"] is bool)
+                vm.IsSuccess = (bool)TempData["IsSuccess"];
 
-            if (TempData["ShowInfoMessage"] is bool showInfoMessage)
-            {
-                vm.ShowInfoMessage = showInfoMessage;
-            }
+            if (TempData["ShowInfoMessage"] is bool)
+                vm.ShowInfoMessage = (bool)TempData["ShowInfoMessage"];
 
-            if (TempData["InfoMessage"] is string infoMessage)
-            {
-                vm.InfoMessage = infoMessage;
-            }
+            if (TempData["InfoMessage"] is string)
+                vm.InfoMessage = (string)TempData["InfoMessage"];
 
             return View(vm);
         }
