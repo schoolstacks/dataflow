@@ -28,12 +28,6 @@ $(document).ready(function(){
 					uuid: res.uuid,
 					token: token
 				}
-				//debug
-				configuration_settings = {
-					url: 'https://dataflow-xm4.azurewebsites.net/',
-					uuid: '61714bf2-613a-4357-b805-39e3e0f66416',
-					token: '0b867cd4-7df6-40dc-8366-3ad136c7d794'
-				}
 				chrome.storage.local.set({'configuration': JSON.stringify(configuration_settings)});
 				chrome.runtime.sendMessage({getAgents: true}, function(){
 					location.reload();
