@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Configuration</title>
+		<link rel="stylesheet" type="text/css" href="../css/conf.css" />
+		<script src="../js/jquery-2.1.4.min.js"></script>
+		<script src="../js/conf.js"></script>
+	</head>
+	<body>
+		<div id="conf-cont">
+			<form id="conf_form">
+				<div>
+					<label>URL : </label>
+					<input type="url" required="true" name="url" id="url" style="font-size: 20px;min-width: 370px;width: calc(100% - 120px);" autocomplete="off" />
+				</div>
+				<div id="uuid-cont">
+					<label>UUID : </label>
+					<span id="uuid"></span>
+				</div>
+				<div id="token-cont">
+					<label>TOKEN : </label>
+					<span id="token"></span>
+				</div>
+				<div>
+					<input type="submit" id="saveBtn" value="Save" />
+				</div>
+			</form>
+		</div>
+		<div>
+			<table id="schedule_table" hidden>
+				<tr>
+					<th width="20%">Name</th>
+					<th width="40%" class="chars_50">URL</th>
+					<th width="30%">Next Schedule</th>
+					<th width="10%"></th>
+				</tr>
+			</table>
+		</div>
+		<div id="loading"></div>
+	</body>
+</html>

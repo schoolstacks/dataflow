@@ -1,0 +1,10 @@
+@keyframes spinner_rotate{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+#conf-cont{font-size: 18px;max-width: 40%;padding: 0 30%;min-width:370px;}
+#uuid-cont, #token-cont{display:none;}
+#conf_form > div > *:nth-child(1){width:100px;display:inline-block;}
+#schedule_table{font-size: 18px;width: 100%;padding: 0 10%;float: left;text-align: left;margin-top: 60px;}
+.chars_50{width:300px;text-overflow:ellipsis;overflow:hidden;white-space:pre;display: inline-block;}
+button{padding:4px;}
+#notification_alert{position:fixed;top:30px;right:30px;background: #7f7;font-size:17px;padding:20px;border: 1px solid #00b300;}
+#saveBtn{font-size: 20px;margin-top: 20px;}
+#loading{width: 64px;height: 64px;background: url(../images/loading.svg) no-repeat;top:calc(50% - 32px);left:calc(50% - 32px);position: fixed;display:none;}
