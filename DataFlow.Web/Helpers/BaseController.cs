@@ -23,7 +23,8 @@ namespace DataFlow.Web.Helpers
             this.WebConfigAppSettingsService = baseServices.WebConfigAppSettingsService;
             this.MapperService = baseServices.MapperService;
 
-            this.LogService.Name = GetType().FullName;
+            if (LogService != null)
+                this.LogService.Name = GetType().FullName;
 
             ViewBag.OrganizationLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_ORGANIZATION_LOGO).Value;
             ViewBag.OrganizationUrl = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_ORGANIZATION_URL).Value;

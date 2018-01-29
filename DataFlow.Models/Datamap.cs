@@ -21,6 +21,7 @@ namespace DataFlow.Models
         public int EntityId { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please enter the JSON Map.")]
         public string Map { get; set; }
+        public bool Manual { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
 

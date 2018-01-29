@@ -57,10 +57,13 @@ namespace DataFlow.Web.Helpers
                         {
                             var mapper = new DataMapper { Name = jp.Name };
                             var val = jp.Value;
-                            if (val is JObject && val["data-type"] != null)
-                                mapper.DataMapperProperty = jp.Value.ToObject<DataMapperProperty>(serializer);
-                            else
-                                mapper.SubDataMappers = jp.Value.ToObject<List<DataMapper>>(serializer);
+                            if (val is JObject)
+                            {
+                                if (val["data-type"] != null)
+                                    mapper.DataMapperProperty = jp.Value.ToObject<DataMapperProperty>(serializer);
+                                else
+                                    mapper.SubDataMappers = jp.Value.ToObject<List<DataMapper>>(serializer);
+                            }
                             return mapper;
                         })
                         .ToList();
