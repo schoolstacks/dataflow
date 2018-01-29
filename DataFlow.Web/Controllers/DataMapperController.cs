@@ -51,13 +51,20 @@ namespace DataFlow.Web.Controllers
                     vm.DataMapId = dataMap.Id;
                     vm.MapName = dataMap.Name;
                     vm.MapToEntity = dataMap.EntityId;
-                    vm = GetEntityFields(vm);
+                    vm.Manual = dataMap.Manual;
 
                     dataMap.Map = dataMap.Map.Replace("lookup_table", "lookup-table");
-                    var dataMappers = JsonConvert.DeserializeObject<List<DataMapper>>(dataMap.Map, DataMapper.JsonSerializerSettings);
-                    vm.JsonMap = JsonConvert.SerializeObject(dataMappers, DataMapper.JsonSerializerSettings);
 
-                    vm.Fields = DataMapperBuilder.BuildPropertyUniqueKey(dataMappers);
+                    if (dataMap.Manual)
+                    {
+                        vm.JsonMap = dataMap.Map;
+                    } else
+                    {
+                        vm = GetEntityFields(vm);
+                        var dataMappers = JsonConvert.DeserializeObject<List<DataMapper>>(dataMap.Map, DataMapper.JsonSerializerSettings);
+                        vm.JsonMap = JsonConvert.SerializeObject(dataMappers, DataMapper.JsonSerializerSettings);
+                        vm.Fields = DataMapperBuilder.BuildPropertyUniqueKey(dataMappers);
+                    }
                 }
             }
 
@@ -109,6 +116,7 @@ namespace DataFlow.Web.Controllers
 
                 map.Name = vm.MapName;
                 map.EntityId = vm.MapToEntity.Value;
+                map.Manual = vm.Manual;
                 map.Map = vm.JsonMap;
                 map.CreateDate = isUpdate ? map.CreateDate : DateTime.Now;
                 map.UpdateDate = DateTime.Now;
