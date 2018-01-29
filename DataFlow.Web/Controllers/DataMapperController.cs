@@ -34,13 +34,15 @@ namespace DataFlow.Web.Controllers
         {
             var vm = InitializeViewModel();
 
-            if (int.TryParse(Request.QueryString["entityId"], out var entityId))
+            int entityId;
+            if (int.TryParse(Request.QueryString["entityId"], out entityId))
             {
                 vm.MapToEntity = entityId;
                 vm = GetEntityFields(vm);
             }
 
-            if (int.TryParse(Request.QueryString["mapId"], out var mapId))
+            int mapId;
+            if (int.TryParse(Request.QueryString["mapId"], out mapId))
             {
                 var dataMap = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == mapId);
 
@@ -49,40 +51,37 @@ namespace DataFlow.Web.Controllers
                     vm.DataMapId = dataMap.Id;
                     vm.MapName = dataMap.Name;
                     vm.MapToEntity = dataMap.EntityId;
-                    vm = GetEntityFields(vm);
+                    vm.Manual = dataMap.Manual;
 
                     dataMap.Map = dataMap.Map.Replace("lookup_table", "lookup-table");
-                    var dataMappers = JsonConvert.DeserializeObject<List<DataMapper>>(dataMap.Map, DataMapper.JsonSerializerSettings);
-                    vm.JsonMap = JsonConvert.SerializeObject(dataMappers, DataMapper.JsonSerializerSettings);
 
-                    vm.Fields = DataMapperBuilder.BuildPropertyUniqueKey(dataMappers);
+                    if (dataMap.Manual)
+                    {
+                        vm.JsonMap = dataMap.Map;
+                    } else
+                    {
+                        vm = GetEntityFields(vm);
+                        var dataMappers = JsonConvert.DeserializeObject<List<DataMapper>>(dataMap.Map, DataMapper.JsonSerializerSettings);
+                        vm.JsonMap = JsonConvert.SerializeObject(dataMappers, DataMapper.JsonSerializerSettings);
+                        vm.Fields = DataMapperBuilder.BuildPropertyUniqueKey(dataMappers);
+                    }
                 }
             }
 
-            if (TempData["CsvColumnHeaders"] is string csvColumnHeaders)
-            {
-                vm.CsvColumnHeaders = csvColumnHeaders.Split(',').ToList();
-            }
+            if (TempData["CsvColumnHeaders"] is string)
+                vm.CsvColumnHeaders = ((string)TempData["CsvColumnHeaders"]).Split(',').ToList();
 
-            if (TempData["CsvDataPreview"] is DataTable csvDataTable)
-            {
-                vm.CsvPreviewDataTable = csvDataTable;
-            }
+            if (TempData["CsvDataPreview"] is DataTable)
+                vm.CsvPreviewDataTable = (DataTable)TempData["CsvDataPreview"];
 
-            if (TempData["IsSuccess"] is bool isSuccess)
-            {
-                vm.IsSuccess = isSuccess;
-            }
+            if (TempData["IsSuccess"] is bool)
+                vm.IsSuccess = (bool)TempData["IsSuccess"];
 
-            if (TempData["ShowInfoMessage"] is bool showInfoMessage)
-            {
-                vm.ShowInfoMessage = showInfoMessage;
-            }
+            if (TempData["ShowInfoMessage"] is bool)
+                vm.ShowInfoMessage = (bool)TempData["ShowInfoMessage"];
 
-            if (TempData["InfoMessage"] is string infoMessage)
-            {
-                vm.InfoMessage = infoMessage;
-            }
+            if (TempData["InfoMessage"] is string)
+                vm.InfoMessage = (string)TempData["InfoMessage"];
 
             return View(vm);
         }
@@ -117,6 +116,7 @@ namespace DataFlow.Web.Controllers
 
                 map.Name = vm.MapName;
                 map.EntityId = vm.MapToEntity.Value;
+                map.Manual = vm.Manual;
                 map.Map = vm.JsonMap;
                 map.CreateDate = isUpdate ? map.CreateDate : DateTime.Now;
                 map.UpdateDate = DateTime.Now;
@@ -160,7 +160,8 @@ namespace DataFlow.Web.Controllers
         [HttpPost]
         public ActionResult AddModelFields(FormCollection formCollection)
         {
-            if (!int.TryParse(formCollection["MapToEntity"], out var entityId))
+            int entityId;
+            if (!int.TryParse(formCollection["MapToEntity"], out entityId))
                 throw new ArgumentException("Please select an entity to map to");
 
             var vm = InitializeViewModel(formCollection["MapName"], entityId, formCollection["CsvColumnHeaders"].Split(',').ToList());

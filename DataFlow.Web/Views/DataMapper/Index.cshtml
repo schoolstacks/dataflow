@@ -112,7 +112,15 @@
             @Html.ValidationMessageFor(m => m.MapToEntity)
         </div>
     </div>
-    <div>
+    <div class="form-group">
+        <div class="col-sm-2">
+            @Html.LabelFor(m => m.Manual, new { @class = "control-label" })
+        </div>
+        <div class="col-sm-4">
+            @Html.CheckBoxFor(m => m.Manual, new { @checked = "checked" })
+        </div>
+    </div>
+    <div id="divCSVFields">
         @Html.Label("CSV Fields")
     </div>
     <div id="divModelFields" style="padding: 10px;">
@@ -141,6 +149,21 @@
     <script type="text/javascript">
         $(function() {
             $("#divModelFields").find("div").eq(0).removeClass("property-border");
+        });
+
+        // for existing entries
+        if ($("#Manual").is(':checked')) {
+            $("#JsonMapRow").show();
+            $("#divModelFields").hide();
+            $("#divCSVFields").hide();
+            $("#view_button").hide();
+        }
+
+        $("#Manual").change(function () {
+            $("#JsonMapRow").toggle();
+            $("#divModelFields").toggle();
+            $("#divCSVFields").toggle();
+            $("#view_button").toggle();
         });
 
         $("#MapToEntity").change(function () {

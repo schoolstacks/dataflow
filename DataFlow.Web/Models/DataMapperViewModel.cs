@@ -25,6 +25,8 @@ namespace DataFlow.Web.Models
         [Display(Name = "Map to Entity")]
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please select an entity to map to.")]
         public int? MapToEntity { get; set; }
+        [Display(Name = "Manual Mapping?")]
+        public bool Manual { get; set; }
         public List<DataMapper> Fields { get; set; }
         public List<string> CsvColumnHeaders { get; set; }
         public DataTable CsvPreviewDataTable { get; set; }
