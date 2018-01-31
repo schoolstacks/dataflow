@@ -8,8 +8,6 @@ Please note: This prototype has had a limited amount of testing, please review a
 
 The Chrome extension can be installed by using the "Load unpacked extension..." button found in the Chrome More Tools > Extensions menu.  For production usage, one would go through the steps to package and publish in the Chrome Web Store (see: https://support.google.com/chrome_webstore/answer/1047776?hl=en), which would allow for user download and/or automated configuration to Chromebooks.
 
-[placeholder one] 
-
 ![Data Flow Chrome Extension installation](https://dl.dropboxusercontent.com/s/mamhcos5k6iuysk/dataflow-chrome-1.png?dl=0)
 
 Once installed, the Data Flow configuration will appear and require the URL of the Data Flow Admin Panel.
