@@ -1,4 +1,4 @@
-const DOMAIN_URL = 'https://dataflow-xm4.azurewebsites.net/api/';
+const DOMAIN_URL = '';
 const ONE_MIN = 60000;
 var scheduler = false;
 var agents = [];
@@ -7,7 +7,6 @@ var mimeTypes = {
     'text/plain' : 'txt',
     'text/csv' : 'csv'
 }
-// curGUID = '61714bf2-613a-4357-b805-39e3e0f66416';
 /*Chrome Extension APIs*/
 chrome.runtime.onMessageExternal.addListener(function(message, sender, sendResponse){
     
