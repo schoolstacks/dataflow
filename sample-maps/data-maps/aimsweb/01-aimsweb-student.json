@@ -1,0 +1,34 @@
+{
+    "studentUniqueId": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "StudentID"
+    },
+	"firstName": {
+	    "data-type": "string",
+        "source": "column",
+        "source-column": "StudentFirstName",
+        "default": "FirstName"     
+	},
+	"lastSurname": {
+	    "data-type": "string",
+        "source": "column",
+        "source-column": "StudentLastName",
+        "default": "LastName"
+	},
+  "sexType": {
+    "data-type": "string",
+    "source": "static",
+    "value": "Not Selected"
+  },
+	"birthDate": {
+	    "data-type": "date-time",
+        "source": "static",
+        "value": "1900-01-01"
+	},
+	"hispanicLatinoEthnicity": {
+	    "data-type": "boolean",
+        "source": "static",
+        "value": "false"
+	}
+}

@@ -1,0 +1,509 @@
+[
+    {
+        "title": "STAR Reading",
+        "assessedGradeLevelDescriptor": "Kindergarten",
+        "academicSubjectDescriptor": "Reading",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Reading"
+            }
+        ]
+    },
+    {
+        "title": "STAR Reading",
+        "assessedGradeLevelDescriptor": "First grade",
+        "academicSubjectDescriptor": "Reading",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Reading"
+            }
+        ]
+    },
+    {
+        "title": "STAR Reading",
+        "assessedGradeLevelDescriptor": "Second grade",
+        "academicSubjectDescriptor": "Reading",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Reading"
+            }
+        ]
+    },
+    {
+        "title": "STAR Reading",
+        "assessedGradeLevelDescriptor": "Third grade",
+        "academicSubjectDescriptor": "Reading",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Reading"
+            }
+        ]
+    },
+    {
+        "title": "STAR Reading",
+        "assessedGradeLevelDescriptor": "Fourth grade",
+        "academicSubjectDescriptor": "Reading",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Reading"
+            }
+        ]
+    },
+    {
+        "title": "STAR Reading",
+        "assessedGradeLevelDescriptor": "Fifth grade",
+        "academicSubjectDescriptor": "Reading",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Reading"
+            }
+        ]
+    },
+    {
+        "title": "STAR Reading",
+        "assessedGradeLevelDescriptor": "Sixth grade",
+        "academicSubjectDescriptor": "Reading",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Reading"
+            }
+        ]
+    },
+    {
+        "title": "STAR Reading",
+        "assessedGradeLevelDescriptor": "Seventh grade",
+        "academicSubjectDescriptor": "Reading",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Reading"
+            }
+        ]
+    },
+    {
+        "title": "STAR Reading",
+        "assessedGradeLevelDescriptor": "Eighth grade",
+        "academicSubjectDescriptor": "Reading",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Reading"
+            }
+        ]
+    },
+    {
+        "title": "STAR Reading",
+        "assessedGradeLevelDescriptor": "Ninth grade",
+        "academicSubjectDescriptor": "Reading",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Reading"
+            }
+        ]
+    },
+    {
+        "title": "STAR Reading",
+        "assessedGradeLevelDescriptor": "Tenth grade",
+        "academicSubjectDescriptor": "Reading",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Reading"
+            }
+        ]
+    },
+    {
+        "title": "STAR Reading",
+        "assessedGradeLevelDescriptor": "Eleventh grade",
+        "academicSubjectDescriptor": "Reading",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Reading"
+            }
+        ]
+    },
+    {
+        "title": "STAR Reading",
+        "assessedGradeLevelDescriptor": "Twelfth grade",
+        "academicSubjectDescriptor": "Reading",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Reading"
+            }
+        ]
+    },
+    {
+        "title": "STAR Math",
+        "assessedGradeLevelDescriptor": "Kindergarten",
+        "academicSubjectDescriptor": "Mathematics",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Math"
+            }
+        ]
+    },
+    {
+        "title": "STAR Math",
+        "assessedGradeLevelDescriptor": "First grade",
+        "academicSubjectDescriptor": "Mathematics",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Math"
+            }
+        ]
+    },
+    {
+        "title": "STAR Math",
+        "assessedGradeLevelDescriptor": "Second grade",
+        "academicSubjectDescriptor": "Mathematics",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Math"
+            }
+        ]
+    },
+    {
+        "title": "STAR Math",
+        "assessedGradeLevelDescriptor": "Third grade",
+        "academicSubjectDescriptor": "Mathematics",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Math"
+            }
+        ]
+    },
+    {
+        "title": "STAR Math",
+        "assessedGradeLevelDescriptor": "Fourth grade",
+        "academicSubjectDescriptor": "Mathematics",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Math"
+            }
+        ]
+    },
+    {
+        "title": "STAR Math",
+        "assessedGradeLevelDescriptor": "Fifth grade",
+        "academicSubjectDescriptor": "Mathematics",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Math"
+            }
+        ]
+    },
+    {
+        "title": "STAR Math",
+        "assessedGradeLevelDescriptor": "Sixth grade",
+        "academicSubjectDescriptor": "Mathematics",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Math"
+            }
+        ]
+    },
+    {
+        "title": "STAR Math",
+        "assessedGradeLevelDescriptor": "Seventh grade",
+        "academicSubjectDescriptor": "Mathematics",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Math"
+            }
+        ]
+    },
+    {
+        "title": "STAR Math",
+        "assessedGradeLevelDescriptor": "Eighth grade",
+        "academicSubjectDescriptor": "Mathematics",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Math"
+            }
+        ]
+    },
+    {
+        "title": "STAR Math",
+        "assessedGradeLevelDescriptor": "Ninth grade",
+        "academicSubjectDescriptor": "Mathematics",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Math"
+            }
+        ]
+    },
+    {
+        "title": "STAR Math",
+        "assessedGradeLevelDescriptor": "Tenth grade",
+        "academicSubjectDescriptor": "Mathematics",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Math"
+            }
+        ]
+    },
+    {
+        "title": "STAR Math",
+        "assessedGradeLevelDescriptor": "Eleventh grade",
+        "academicSubjectDescriptor": "Mathematics",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Math"
+            }
+        ]
+    },
+    {
+        "title": "STAR Math",
+        "assessedGradeLevelDescriptor": "Twelfth grade",
+        "academicSubjectDescriptor": "Mathematics",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Math"
+            }
+        ]
+    },
+    {
+        "title": "STAR Early Literacy",
+        "assessedGradeLevelDescriptor": "Kindergarten",
+        "academicSubjectDescriptor": "English Language Arts",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Early Literacy"
+            }
+        ]
+    },
+    {
+        "title": "STAR Early Literacy",
+        "assessedGradeLevelDescriptor": "First grade",
+        "academicSubjectDescriptor": "English Language Arts",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Early Literacy"
+            }
+        ]
+    },
+    {
+        "title": "STAR Early Literacy",
+        "assessedGradeLevelDescriptor": "Second grade",
+        "academicSubjectDescriptor": "English Language Arts",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Early Literacy"
+            }
+        ]
+    },
+    {
+        "title": "STAR Early Literacy",
+        "assessedGradeLevelDescriptor": "Third grade",
+        "academicSubjectDescriptor": "English Language Arts",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Early Literacy"
+            }
+        ]
+    },
+    {
+        "title": "STAR Early Literacy",
+        "assessedGradeLevelDescriptor": "Fourth grade",
+        "academicSubjectDescriptor": "English Language Arts",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Early Literacy"
+            }
+        ]
+    },
+    {
+        "title": "STAR Early Literacy",
+        "assessedGradeLevelDescriptor": "Fifth grade",
+        "academicSubjectDescriptor": "English Language Arts",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Early Literacy"
+            }
+        ]
+    },
+    {
+        "title": "STAR Early Literacy",
+        "assessedGradeLevelDescriptor": "Sixth grade",
+        "academicSubjectDescriptor": "English Language Arts",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Early Literacy"
+            }
+        ]
+    },
+    {
+        "title": "STAR Early Literacy",
+        "assessedGradeLevelDescriptor": "Seventh grade",
+        "academicSubjectDescriptor": "English Language Arts",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Early Literacy"
+            }
+        ]
+    },
+    {
+        "title": "STAR Early Literacy",
+        "assessedGradeLevelDescriptor": "Eighth grade",
+        "academicSubjectDescriptor": "English Language Arts",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Early Literacy"
+            }
+        ]
+    },
+    {
+        "title": "STAR Early Literacy",
+        "assessedGradeLevelDescriptor": "Ninth grade",
+        "academicSubjectDescriptor": "English Language Arts",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Early Literacy"
+            }
+        ]
+    },
+    {
+        "title": "STAR Early Literacy",
+        "assessedGradeLevelDescriptor": "Tenth grade",
+        "academicSubjectDescriptor": "English Language Arts",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Early Literacy"
+            }
+        ]
+    },
+    {
+        "title": "STAR Early Literacy",
+        "assessedGradeLevelDescriptor": "Eleventh grade",
+        "academicSubjectDescriptor": "English Language Arts",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Early Literacy"
+            }
+        ]
+    },
+    {
+        "title": "STAR Early Literacy",
+        "assessedGradeLevelDescriptor": "Twelfth grade",
+        "academicSubjectDescriptor": "English Language Arts",
+        "version": 1,
+        "namespace": "http://ed-fi.org",
+        "identificationCodes": [
+            {
+                "assessmentIdentificationSystemDescriptor": "Test Contractor",
+                "identificationCode": "STAR Early Literacy"
+            }
+        ]
+    }        
+]

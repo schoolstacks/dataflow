@@ -1,0 +1,28 @@
+{
+    "schoolReference": {
+      "schoolId": {
+        "data-type": "integer",
+        "source": "static",
+        "value": "123456789"
+      }
+    },
+    "studentReference": {
+      "studentUniqueId": {
+        "data-type": "string",
+        "source": "column",
+        "source-column": "ID"
+      }
+    },
+    "entryDate": {
+      "data-type": "date-time",
+      "source": "column",
+      "source-column": "Enrollment Date"
+    },
+    "entryGradeLevelDescriptor": {
+      "data-type": "string",
+      "source": "lookup-table",
+      "source-table": "mclass-grade",
+      "source-column": "Grade",
+      "default": "Twelfth grade"
+    }
+  }
