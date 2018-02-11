@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -9,6 +10,9 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using DataFlow.Web.Models;
 using DataFlow.Web.Services;
+using DataFlow.Common.Services;
+using System.Configuration;
+using CacheManager.Core;
 
 namespace DataFlow.Web.Controllers
 {
@@ -18,10 +22,30 @@ namespace DataFlow.Web.Controllers
         private readonly DataFlowDbContext dataFlowDbContext;
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private ConfigurationService _configService;
 
         public AccountController(DataFlowDbContext dataFlowDbContext, IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
+        }
+
+        public AccountController()
+        {
+            this.dataFlowDbContext = new DataFlowDbContext();
+            var appName = ConfigurationManager.AppSettings["AppName"] ?? string.Empty;
+
+            var cacheConfig = ConfigurationBuilder.BuildConfiguration(appName, settings =>
+            {
+                settings.WithUpdateMode(CacheUpdateMode.None)
+                    .WithSystemRuntimeCacheHandle(appName)
+                    .EnableStatistics()
+                    .EnablePerformanceCounters()
+                    .WithExpiration(ExpirationMode.Sliding, TimeSpan.FromHours(2));
+            });
+            var cacheFactory = CacheFactory.FromConfiguration<string>(appName, cacheConfig);
+
+            CacheService cacheService = new CacheService(cacheConfig, cacheFactory);
+            _configService = new ConfigurationService(this.dataFlowDbContext, cacheService);
         }
 
         public AccountController(DataFlowDbContext dataFlowDbContext, ApplicationUserManager userManager, ApplicationSignInManager signInManager, IBaseServices baseService) : base(baseService)
@@ -66,7 +90,7 @@ namespace DataFlow.Web.Controllers
             }
 
             ViewBag.ReturnUrl = returnUrl;
-            ViewBag.AllowUserRegistrations = ConfigurationService.AllowUserRegistrations();
+            ViewBag.AllowUserRegistrations = _configService.AllowUserRegistrations();
             return View();
         }
 
@@ -79,7 +103,7 @@ namespace DataFlow.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.AllowUserRegistrations = ConfigurationService.AllowUserRegistrations();
+                ViewBag.AllowUserRegistrations = _configService.AllowUserRegistrations();
                 return View(model);
             }
 

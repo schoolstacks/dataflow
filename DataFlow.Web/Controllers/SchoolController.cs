@@ -14,12 +14,20 @@ namespace DataFlow.Web.Controllers
 {
     public class SchoolController : BaseController
     {
-        private readonly DataFlowDbContext dataFlowDbContext;
         private readonly EdFiService edFiService;
+
+        public SchoolController(IBaseServices baseService) : base(baseService)
+        {
+            
+        }
+
+        public SchoolController()
+        {
+            this.edFiService = new EdFiService(this.DataFlowDbContext, this.ConfigurationService);
+        }
 
         public SchoolController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService, IBaseServices baseService) : base(baseService)
         {
-            this.dataFlowDbContext = dataFlowDbContext;
             this.edFiService = edFiService;
         }
 
@@ -227,7 +235,7 @@ namespace DataFlow.Web.Controllers
 
         private List<CheckBox> GetGradeLevels(List<SchoolGradeLevel> selectedGrades)
         {
-            var gradeLevelCheckBoxes = dataFlowDbContext.EdfiDictionary
+            var gradeLevelCheckBoxes = DataFlowDbContext.EdfiDictionary
                 .Where(x => x.GroupSet == "levelDescriptors")
                 .OrderBy(x => x.DisplayOrder)
                 .Select(x => new CheckBox() {Text = x.OriginalValue})

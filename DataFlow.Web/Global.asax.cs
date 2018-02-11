@@ -5,9 +5,6 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using Autofac;
-using Autofac.Extras.AggregateService;
-using Autofac.Integration.Mvc;
 using CacheManager.Core;
 using DataFlow.Common.DAL;
 using DataFlow.Common.Services;
@@ -50,6 +47,7 @@ namespace DataFlow.Web
             });
             var cacheFactory = CacheFactory.FromConfiguration<string>(appName, cacheConfig);
 
+            /*
             var builder = new ContainerBuilder();
             builder.RegisterControllers(typeof(MvcApplication).Assembly);
             builder.RegisterAggregateService<IBaseServices>();
@@ -72,6 +70,7 @@ namespace DataFlow.Web
 
             var container = builder.Build();
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+            */
 
             GlobalConfiguration.Configure(WebApiConfig.Register);
 
@@ -79,6 +78,7 @@ namespace DataFlow.Web
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            
         }
     }
 }

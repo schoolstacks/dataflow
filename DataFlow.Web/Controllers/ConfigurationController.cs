@@ -11,9 +11,9 @@ namespace DataFlow.Web.Controllers
 {
     public class ConfigurationController : BaseController
     {
-        public ConfigurationController(IBaseServices baseService) : base(baseService)
+        public ConfigurationController()
         {
-            
+
         }
 
         public ActionResult Index()
