@@ -14,16 +14,10 @@ namespace DataFlow.Web.Controllers
 {
     public class MapController : BaseController
     {
-        private readonly DataFlowDbContext dataFlowDbContext;
-
-        public MapController(DataFlowDbContext dataFlowDbContext, IBaseServices baseService) : base(baseService)
-        {
-            this.dataFlowDbContext = dataFlowDbContext;
-        }
 
         public ActionResult Index()
         {
-            var maps = dataFlowDbContext.DataMaps
+            var maps = this.DataFlowDbContext.DataMaps
                 .Include(x => x.Entity)
                 .OrderBy(x => x.Name)
                 .ToList();
@@ -42,7 +36,7 @@ namespace DataFlow.Web.Controllers
 
         public ActionResult Edit(int id)
         {
-            var map = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == id);
+            var map = this.DataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == id);
 
             ViewBag.Entities = new SelectList(GetEntityList, "Value", "Text");
 
@@ -51,13 +45,13 @@ namespace DataFlow.Web.Controllers
 
         public async Task<ActionResult> Delete(int id)
         {
-            var dataMap = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == id);
+            var dataMap = this.DataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == id);
             if (dataMap != null)
             {
                 LogService.Info(LogTemplates.InfoCrud("DataMap", dataMap.Name, dataMap.Id, LogTemplates.EntityAction.Deleted));
 
-                dataFlowDbContext.DataMaps.Remove(dataMap);
-                await dataFlowDbContext.SaveChangesAsync();
+                this.DataFlowDbContext.DataMaps.Remove(dataMap);
+                await this.DataFlowDbContext.SaveChangesAsync();
             }
 
             return RedirectToAction("Index");
@@ -105,7 +99,7 @@ namespace DataFlow.Web.Controllers
 
             if (isUpdate)
             {
-                dataMap = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == vm.Id);
+                dataMap = this.DataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == vm.Id);
                 dataMap.Id = vm.Id;
             }
 
@@ -115,8 +109,8 @@ namespace DataFlow.Web.Controllers
             dataMap.CreateDate = isUpdate ? vm.CreateDate : DateTime.Now;
             dataMap.UpdateDate = DateTime.Now;
 
-            dataFlowDbContext.DataMaps.AddOrUpdate(dataMap);
-            dataFlowDbContext.SaveChanges();
+            this.DataFlowDbContext.DataMaps.AddOrUpdate(dataMap);
+            this.DataFlowDbContext.SaveChanges();
 
             return dataMap;
         }
@@ -129,7 +123,7 @@ namespace DataFlow.Web.Controllers
                 {
                     new SelectListItem {Text = "Select Entity", Value = string.Empty}
                 };
-                entityList.AddRange(dataFlowDbContext.Entities
+                entityList.AddRange(this.DataFlowDbContext.Entities
                     .OrderBy(x => x.Name)
                     .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }));
 

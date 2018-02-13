@@ -12,20 +12,13 @@ namespace DataFlow.Web.Controllers
 {
     public class LogController : BaseController
     {
-        private readonly DataFlowDbContext dataFlowDbContext;
-
-        public LogController(DataFlowDbContext dataFlowDbContext, IBaseServices baseService) : base(baseService)
-        {
-            this.dataFlowDbContext = dataFlowDbContext;
-        }
-
         public ActionResult Index()
         {
             var vm = new LogsViewModel()
             {
-                Files = dataFlowDbContext.Files.Where(x => x.Status != FileStatusEnum.DELETED).Include(x => x.Agent).Take(1000).OrderByDescending(x => x.CreateDate).ToList(),
-                LogIngestions = dataFlowDbContext.LogIngestions.Take(1000).OrderByDescending(x => x.Date).ToList(),
-                NLogs = dataFlowDbContext.NLogs.Take(1000).OrderByDescending(x => x.Logged).ToList()
+                Files = this.DataFlowDbContext.Files.Where(x => x.Status != FileStatusEnum.DELETED).Include(x => x.Agent).Take(1000).OrderByDescending(x => x.CreateDate).ToList(),
+                LogIngestions = this.DataFlowDbContext.LogIngestions.Take(1000).OrderByDescending(x => x.Date).ToList(),
+                NLogs = this.DataFlowDbContext.NLogs.Take(1000).OrderByDescending(x => x.Logged).ToList()
             };
 
             return View(vm);

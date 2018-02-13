@@ -20,14 +20,18 @@ namespace DataFlow.Web.Controllers
 {
     public class DataMapperController : BaseController
     {
-        private readonly DataFlowDbContext dataFlowDbContext;
-        private readonly EdFiMetadataProcessor edFiMetadataProcessor;
+        private readonly EdFiMetadataProcessor _edFiMetadataProcessor;
 
-        public DataMapperController(DataFlowDbContext dataFlowDbContext, EdFiMetadataProcessor edFiMetadataProcessor,
+        /* public DataMapperController(DataFlowDbContext dataFlowDbContext, EdFiMetadataProcessor edFiMetadataProcessor,
             IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
             this.edFiMetadataProcessor = edFiMetadataProcessor;
+        } */
+
+        public DataMapperController()
+        {
+            _edFiMetadataProcessor = new EdFiMetadataProcessor(this.LogService);
         }
 
         public ActionResult Index()
@@ -44,7 +48,7 @@ namespace DataFlow.Web.Controllers
             int mapId;
             if (int.TryParse(Request.QueryString["mapId"], out mapId))
             {
-                var dataMap = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == mapId);
+                var dataMap = this.DataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == mapId);
 
                 if (dataMap != null)
                 {
@@ -103,7 +107,7 @@ namespace DataFlow.Web.Controllers
 
                 if (isUpdate)
                 {
-                    map = dataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == vm.DataMapId);
+                    map = this.DataFlowDbContext.DataMaps.FirstOrDefault(x => x.Id == vm.DataMapId);
                     if (map != null)
                     {
                         map.Id = vm.DataMapId;
@@ -121,8 +125,8 @@ namespace DataFlow.Web.Controllers
                 map.CreateDate = isUpdate ? map.CreateDate : DateTime.Now;
                 map.UpdateDate = DateTime.Now;
 
-                dataFlowDbContext.DataMaps.AddOrUpdate(map);
-                dataFlowDbContext.SaveChanges();
+                this.DataFlowDbContext.DataMaps.AddOrUpdate(map);
+                this.DataFlowDbContext.SaveChanges();
 
                 ModelState.Clear();
 
@@ -188,14 +192,14 @@ namespace DataFlow.Web.Controllers
 
         private DataMapperViewModel GetEntityFields(DataMapperViewModel vm)
         {
-            var entitySelected = dataFlowDbContext.Entities.FirstOrDefault(x => x.Id == vm.MapToEntity);
+            var entitySelected = this.DataFlowDbContext.Entities.FirstOrDefault(x => x.Id == vm.MapToEntity);
             if (!string.IsNullOrWhiteSpace(entitySelected?.Url))
             {
                 string apiUrl = base.ConfigurationService.GetConfigurationByKey(Constants.API_SERVER_URL).Value;
                 apiUrl = DataFlow.Common.Helpers.UrlUtility.GetUntilOrEmpty(apiUrl.Trim(), "/api/"); //get just the base URL
 
-                var entityJson = edFiMetadataProcessor.GetJsonFromUrl(apiUrl, entitySelected.Url);
-                var apiFields = edFiMetadataProcessor.GetFieldListFromJson(entityJson, entitySelected.Name)
+                var entityJson = _edFiMetadataProcessor.GetJsonFromUrl(apiUrl, entitySelected.Url);
+                var apiFields = _edFiMetadataProcessor.GetFieldListFromJson(entityJson, entitySelected.Name)
                     .Where(x => x.Required || GetAdditionalFields(entitySelected.Name).Contains(x.Name))
                     .ToList();
 
@@ -576,7 +580,7 @@ namespace DataFlow.Web.Controllers
                 {
                     new SelectListItem {Text = "Select Entity", Value = string.Empty}
                 };
-                entityList.AddRange(dataFlowDbContext.Entities
+                entityList.AddRange(this.DataFlowDbContext.Entities
                     .OrderBy(x => x.Name)
                     .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }));
 
@@ -608,7 +612,7 @@ namespace DataFlow.Web.Controllers
                 {
                     new SelectListItem {Text = "Select Source Table", Value = string.Empty}
                 };
-                sourceTableList.AddRange(dataFlowDbContext.Lookups
+                sourceTableList.AddRange(this.DataFlowDbContext.Lookups
                     .Select(x => new SelectListItem { Text = x.GroupSet, Value = x.GroupSet })
                     .Distinct());
 

@@ -16,20 +16,20 @@ namespace DataFlow.Web.Controllers
     {
         private readonly EdFiService edFiService;
 
-        public SchoolController(IBaseServices baseService) : base(baseService)
+        /* public SchoolController(IBaseServices baseService) : base(baseService)
         {
             
-        }
+        } */
 
         public SchoolController()
         {
             this.edFiService = new EdFiService(this.DataFlowDbContext, this.ConfigurationService);
         }
 
-        public SchoolController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService, IBaseServices baseService) : base(baseService)
+        /* public SchoolController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService, IBaseServices baseService) : base(baseService)
         {
             this.edFiService = edFiService;
-        }
+        } */
 
         public ActionResult Index()
         {

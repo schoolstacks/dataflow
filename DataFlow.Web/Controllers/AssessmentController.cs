@@ -14,18 +14,16 @@ namespace DataFlow.Web.Controllers
 {
     public class AssessmentController : BaseController
     {
-        private readonly DataFlowDbContext dataFlowDbContext;
-        private readonly EdFiService edFiService;
+        private readonly EdFiService _edFiService;
 
-        public AssessmentController(DataFlowDbContext dataFlowDbContext, EdFiService edFiService, IBaseServices baseService) : base(baseService)
+        public AssessmentController()
         {
-            this.dataFlowDbContext = dataFlowDbContext;
-            this.edFiService = edFiService;
+            _edFiService = new EdFiService(this.DataFlowDbContext, this.ConfigurationService);
         }
 
         public ActionResult Index()
         {
-            var assessments = edFiService.GetResourceAssessments(null, null)
+            var assessments = _edFiService.GetResourceAssessments(null, null)
                 .OrderBy(x=>x.Title)
                 .ToList();
 
@@ -52,8 +50,8 @@ namespace DataFlow.Web.Controllers
             ViewBag.IdentificationSystems = new SelectList(GetIdentificationSystemList, "Value", "Text");
             ViewBag.AssessmentCategories = new SelectList(GetAssessmentCategoryList, "Value", "Text");
 
-            var assessment = edFiService.GetResourceAssessmentById(id);
-            var objectiveAssessments = edFiService.GetObjectiveAssessments(0, 100, assessment.Title);
+            var assessment = _edFiService.GetResourceAssessmentById(id);
+            var objectiveAssessments = _edFiService.GetObjectiveAssessments(0, 100, assessment.Title);
 
             var vm = new Models.AssessmentViewModel.AddOrEdit
             {
@@ -71,15 +69,15 @@ namespace DataFlow.Web.Controllers
 
         public ActionResult Delete(string id)
         {
-            var assessment = edFiService.GetResourceAssessmentById(id);
-            var objectiveAssessments = edFiService.GetObjectiveAssessments(0, 100, assessment.Title);
+            var assessment = _edFiService.GetResourceAssessmentById(id);
+            var objectiveAssessments = _edFiService.GetObjectiveAssessments(0, 100, assessment.Title);
 
             objectiveAssessments.ForEach(x =>
             {
-                edFiService.DeleteObjectiveAssessment(x.id);
+                _edFiService.DeleteObjectiveAssessment(x.id);
             });
 
-            edFiService.DeleteAssessment(id);
+            _edFiService.DeleteAssessment(id);
             return RedirectToAction("Index");
         }
 
@@ -160,7 +158,7 @@ namespace DataFlow.Web.Controllers
                         }
                     };
 
-                    var assementResponse = edFiService.CreateAssessment(assessment);
+                    var assementResponse = _edFiService.CreateAssessment(assessment);
                     responseMsg = assementResponse.StatusDescription;
 
                     if (assementResponse.StatusCode == HttpStatusCode.Created)
@@ -181,7 +179,7 @@ namespace DataFlow.Web.Controllers
                                 }
                             };
 
-                            edFiService.CreateObjectiveAssessment(objectiveAssessment);
+                            _edFiService.CreateObjectiveAssessment(objectiveAssessment);
                         });
                     }
                 });
@@ -199,7 +197,7 @@ namespace DataFlow.Web.Controllers
             {
                 var subjectList = new List<SelectListItem>();
                 subjectList.Add(new SelectListItem() { Text = "Select Subject", Value = string.Empty });
-                subjectList.AddRange(edFiService.GetAcademicSubjects(null,null).Select(x =>
+                subjectList.AddRange(_edFiService.GetAcademicSubjects(null,null).Select(x =>
                     new SelectListItem()
                     {
                         Text = x.description,
@@ -216,7 +214,7 @@ namespace DataFlow.Web.Controllers
             {
                 var identificationList = new List<SelectListItem>();
                 identificationList.Add(new SelectListItem() { Text = "Select System", Value = string.Empty });
-                identificationList.AddRange(edFiService.GetAssessmentIdentificationSystems(null, null).Select(x =>
+                identificationList.AddRange(_edFiService.GetAssessmentIdentificationSystems(null, null).Select(x =>
                     new SelectListItem()
                     {
                         Text = x.description,
@@ -233,7 +231,7 @@ namespace DataFlow.Web.Controllers
             {
                 var assessmentCategoryList = new List<SelectListItem>();
                 assessmentCategoryList.Add(new SelectListItem() { Text = "Select Category", Value = string.Empty });
-                assessmentCategoryList.AddRange(edFiService.GetAssessmentCategories(null, null).Select(x =>
+                assessmentCategoryList.AddRange(_edFiService.GetAssessmentCategories(null, null).Select(x =>
                     new SelectListItem()
                     {
                         Text = x.description,
@@ -257,7 +255,7 @@ namespace DataFlow.Web.Controllers
 
         private List<CheckBox> GetGradeLevels(List<SchoolGradeLevel> selectedGrades)
         {
-            var gradeLevelCheckBoxes = dataFlowDbContext.EdfiDictionary
+            var gradeLevelCheckBoxes = this.DataFlowDbContext.EdfiDictionary
                 .Where(x => x.GroupSet == "levelDescriptors")
                 .OrderBy(x => x.DisplayOrder)
                 .Select(x => new CheckBox() { Text = x.OriginalValue })

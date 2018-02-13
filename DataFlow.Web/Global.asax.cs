@@ -37,7 +37,12 @@ namespace DataFlow.Web
                     GlobalFilters.Filters.Add(new RequireHttpsAttribute());
             }
 
-            var cacheConfig = ConfigurationBuilder.BuildConfiguration(appName, settings =>
+            var config = new AutoMapper.MapperConfiguration(cfg => cfg.CreateMap<AgentService, AgentService>());
+
+            var mapper = config.CreateMapper();
+
+
+            /* var cacheConfig = ConfigurationBuilder.BuildConfiguration(appName, settings =>
             {
                 settings.WithUpdateMode(CacheUpdateMode.None)
                     .WithSystemRuntimeCacheHandle(appName)
@@ -46,6 +51,7 @@ namespace DataFlow.Web
                     .WithExpiration(ExpirationMode.Sliding, TimeSpan.FromHours(2));
             });
             var cacheFactory = CacheFactory.FromConfiguration<string>(appName, cacheConfig);
+            */
 
             /*
             var builder = new ContainerBuilder();

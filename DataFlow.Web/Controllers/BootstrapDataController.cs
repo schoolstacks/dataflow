@@ -13,16 +13,10 @@ namespace DataFlow.Web.Controllers
 {
     public class BootstrapDataController : BaseController
     {
-        private readonly DataFlowDbContext dataFlowDbContext;
-
-        public BootstrapDataController(DataFlowDbContext dataFlowDbContext, IBaseServices baseServices) : base(baseServices)
-        {
-            this.dataFlowDbContext = dataFlowDbContext;
-        }
 
         public ActionResult Index()
         {
-            var bootstrapdata = dataFlowDbContext.BootstrapData
+            var bootstrapdata = this.DataFlowDbContext.BootstrapData
                 .Include(x => x.Entity)
                 .OrderBy(x => x.ProcessingOrder)
                 .ToList();
@@ -40,7 +34,7 @@ namespace DataFlow.Web.Controllers
 
         public ActionResult Edit(int id)
         {
-            var bootstrapData = dataFlowDbContext.BootstrapData.FirstOrDefault(x => x.Id == id);
+            var bootstrapData = this.DataFlowDbContext.BootstrapData.FirstOrDefault(x => x.Id == id);
             ViewBag.Entities = GetEntityList;
 
             return View(bootstrapData);
@@ -48,15 +42,15 @@ namespace DataFlow.Web.Controllers
 
         public ActionResult Delete(int id)
         {
-            var bootstrapData = dataFlowDbContext.BootstrapData.FirstOrDefault(x => x.Id == id);
+            var bootstrapData = this.DataFlowDbContext.BootstrapData.FirstOrDefault(x => x.Id == id);
             if (bootstrapData != null)
             {
                 LogService.Info(LogTemplates.InfoCrud("BootstrapData", bootstrapData.EntityId.ToString(), bootstrapData.Id, LogTemplates.EntityAction.Deleted));
 
                 var startFrom = bootstrapData.ProcessingOrder;
 
-                dataFlowDbContext.BootstrapData.Remove(bootstrapData);
-                dataFlowDbContext.SaveChanges();
+                this.DataFlowDbContext.BootstrapData.Remove(bootstrapData);
+                this.DataFlowDbContext.SaveChanges();
 
                 ReorderBootstrapData(startFrom, 0, true, false);
             }
@@ -109,7 +103,7 @@ namespace DataFlow.Web.Controllers
 
             if (isUpdate)
             {
-                bootstrapData = dataFlowDbContext.BootstrapData.FirstOrDefault(x => x.Id == vm.Id);
+                bootstrapData = this.DataFlowDbContext.BootstrapData.FirstOrDefault(x => x.Id == vm.Id);
                 bootstrapData.Id = vm.Id;
 
                 processedOrderChanged = bootstrapData.ProcessingOrder != vm.ProcessingOrder;
@@ -122,8 +116,8 @@ namespace DataFlow.Web.Controllers
             bootstrapData.CreateDate = isUpdate ? vm.CreateDate : DateTime.Now;
             bootstrapData.UpdateDate = DateTime.Now;
 
-            dataFlowDbContext.BootstrapData.AddOrUpdate(bootstrapData);
-            dataFlowDbContext.SaveChanges();
+            this.DataFlowDbContext.BootstrapData.AddOrUpdate(bootstrapData);
+            this.DataFlowDbContext.SaveChanges();
 
             LogService.Info(LogTemplates.InfoCrud("BootstrapData", bootstrapData.EntityId.ToString(), bootstrapData.Id, LogTemplates.EntityAction.Added));
 
@@ -134,7 +128,7 @@ namespace DataFlow.Web.Controllers
 
         private void ReorderBootstrapData(int startFrom, int ignoreId, bool remove, bool edit)
         {
-            var updateBootstrap = dataFlowDbContext.BootstrapData
+            var updateBootstrap = this.DataFlowDbContext.BootstrapData
                 .Where(x => x.ProcessingOrder >= startFrom && x.Id != ignoreId)
                 .ToList();
 
@@ -145,16 +139,16 @@ namespace DataFlow.Web.Controllers
                 updateBootstrap.ForEach(x =>
                 {
                     x.ProcessingOrder = reOrder;
-                    dataFlowDbContext.BootstrapData.AddOrUpdate(x);
+                    this.DataFlowDbContext.BootstrapData.AddOrUpdate(x);
                     reOrder++;
                 });
 
-                dataFlowDbContext.SaveChanges();
+                this.DataFlowDbContext.SaveChanges();
             }
 
             if (edit)
             {
-                updateBootstrap = dataFlowDbContext.BootstrapData
+                updateBootstrap = this.DataFlowDbContext.BootstrapData
                     .Where(x => x.ProcessingOrder <= startFrom && x.Id != ignoreId)
                     .ToList();
 
@@ -165,11 +159,11 @@ namespace DataFlow.Web.Controllers
                     updateBootstrap.ForEach(x =>
                     {
                         x.ProcessingOrder = reOrder;
-                        dataFlowDbContext.BootstrapData.AddOrUpdate(x);
+                        this.DataFlowDbContext.BootstrapData.AddOrUpdate(x);
                         reOrder++;
                     });
 
-                    dataFlowDbContext.SaveChanges();
+                    this.DataFlowDbContext.SaveChanges();
                 }
             }
         }
@@ -182,7 +176,7 @@ namespace DataFlow.Web.Controllers
                 {
                     new SelectListItem {Text = "Select Entity", Value = string.Empty}
                 };
-                entityList.AddRange(dataFlowDbContext.Entities
+                entityList.AddRange(this.DataFlowDbContext.Entities
                     .OrderBy(x => x.Name)
                     .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }));
 

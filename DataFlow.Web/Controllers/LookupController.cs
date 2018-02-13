@@ -10,16 +10,10 @@ namespace DataFlow.Web.Controllers
 {
     public class LookupController : BaseController
     {
-        private readonly DataFlowDbContext dataFlowDbContext;
-
-        public LookupController(DataFlowDbContext dataFlowDbContext, IBaseServices baseService) : base(baseService)
-        {
-            this.dataFlowDbContext = dataFlowDbContext;
-        }
 
         public ActionResult Index()
         {
-            var vm = dataFlowDbContext.Lookups
+            var vm = this.DataFlowDbContext.Lookups
                 .OrderBy(x => x.GroupSet)
                 .ThenBy(x => x.Key)
                 .ToList();
@@ -36,19 +30,19 @@ namespace DataFlow.Web.Controllers
 
         public ActionResult Edit(int id)
         {
-            var lookup = dataFlowDbContext.Lookups.FirstOrDefault(x => x.Id == id);
+            var lookup = this.DataFlowDbContext.Lookups.FirstOrDefault(x => x.Id == id);
 
             return View(lookup);
         }
 
         public async Task<ActionResult> Delete(int id)
         {
-            var lookup = dataFlowDbContext.Lookups.FirstOrDefault(x => x.Id == id);
+            var lookup = this.DataFlowDbContext.Lookups.FirstOrDefault(x => x.Id == id);
             if (lookup != null)
             {
                 LogService.Info(LogTemplates.InfoCrud("Lookup", lookup.Key, lookup.Id, LogTemplates.EntityAction.Deleted));
-                dataFlowDbContext.Lookups.Remove(lookup);
-                await dataFlowDbContext.SaveChangesAsync();
+                this.DataFlowDbContext.Lookups.Remove(lookup);
+                await this.DataFlowDbContext.SaveChangesAsync();
             }
 
             return RedirectToAction("Index");
@@ -86,7 +80,7 @@ namespace DataFlow.Web.Controllers
 
             if (isUpdate)
             {
-                lookup = dataFlowDbContext.Lookups.FirstOrDefault(x => x.Id == vm.Id);
+                lookup = this.DataFlowDbContext.Lookups.FirstOrDefault(x => x.Id == vm.Id);
                 lookup.Id = vm.Id;
             }
 
@@ -94,8 +88,8 @@ namespace DataFlow.Web.Controllers
             lookup.Key = vm.Key;
             lookup.Value = vm.Value;
 
-            dataFlowDbContext.Lookups.AddOrUpdate(lookup);
-            dataFlowDbContext.SaveChanges();
+            this.DataFlowDbContext.Lookups.AddOrUpdate(lookup);
+            this.DataFlowDbContext.SaveChanges();
 
             LogService.Info(LogTemplates.InfoCrud("Lookup", lookup.Key, lookup.Id,
                 isUpdate ? LogTemplates.EntityAction.Modified : LogTemplates.EntityAction.Added));

@@ -6,9 +6,9 @@ namespace DataFlow.Web.Controllers
 {
     public class CacheController : BaseController
     {
-        public CacheController(IBaseServices baseServices) : base(baseServices)
+        /* public CacheController(IBaseServices baseServices) : base(baseServices)
         {
-        }
+        } */
 
         public ActionResult Index()
         {

@@ -17,15 +17,15 @@ namespace DataFlow.Web.Controllers
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
-        public ManageController(IBaseServices baseService) : base(baseService)
+        /* public ManageController(IBaseServices baseService) : base(baseService)
         {
-        }
+        } */
 
-        public ManageController(ApplicationUserManager userManager, ApplicationSignInManager signInManager, IBaseServices baseService) : base(baseService)
+        /* public ManageController(ApplicationUserManager userManager, ApplicationSignInManager signInManager, IBaseServices baseService) : base(baseService)
         {
             UserManager = userManager;
             SignInManager = signInManager;
-        }
+        } */
 
         public ApplicationSignInManager SignInManager
         {

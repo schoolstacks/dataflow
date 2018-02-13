@@ -21,7 +21,7 @@ namespace DataFlow.Web.Helpers
         public readonly IMapper MapperService;
         public readonly DataFlowDbContext DataFlowDbContext;
 
-        public BaseController(IBaseServices baseServices)
+        /* public BaseController(IBaseServices baseServices)
         {
             this.LogService = baseServices.LogService;
             this.CacheService = baseServices.CacheService;
@@ -35,7 +35,7 @@ namespace DataFlow.Web.Helpers
             ViewBag.OrganizationLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_ORGANIZATION_LOGO).Value;
             ViewBag.OrganizationUrl = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_ORGANIZATION_URL).Value;
             ViewBag.EducationText = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT).Value;
-        }
+        } */
 
         public BaseController()
         {
@@ -53,8 +53,25 @@ namespace DataFlow.Web.Helpers
 
             this.DataFlowDbContext = new DataFlowDbContext();
 
-            CacheService = new CacheService(cacheConfig, cacheFactory);
-            ConfigurationService = new ConfigurationService(this.DataFlowDbContext, CacheService);
+            this.CacheService = new CacheService(cacheConfig, cacheFactory);
+            this.ConfigurationService = new ConfigurationService(this.DataFlowDbContext, CacheService);
+
+            NLog.Logger logger = LogManager.GetCurrentClassLogger();
+            this.LogService = new NLogService(logger);
+
+            this.WebConfigAppSettingsService = new WebConfigAppSettingsService();
+            //this.MapperService = new AutoMapper.Mapper();  // TODO:  Find path to instantate object 
+
+            var config = new AutoMapper.MapperConfiguration(cfg => cfg.CreateMap<DataFlow.Models.Agent, DataFlow.Web.Models.AgentViewModel>());
+            this.MapperService = new AutoMapper.Mapper(config);
+
+            if (LogService != null)
+                this.LogService.Name = GetType().FullName;
+
+            ViewBag.OrganizationLogo = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_ORGANIZATION_LOGO).Value;
+            ViewBag.OrganizationUrl = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_ORGANIZATION_URL).Value;
+            ViewBag.EducationText = ConfigurationService.GetConfigurationByKey(Constants.INSTANCE_EDU_USE_TEXT).Value;
+
 
         }
     }

@@ -24,10 +24,10 @@ namespace DataFlow.Web.Controllers
         private ApplicationUserManager _userManager;
         private ConfigurationService _configService;
 
-        public AccountController(DataFlowDbContext dataFlowDbContext, IBaseServices baseService) : base(baseService)
+        /* public AccountController(DataFlowDbContext dataFlowDbContext, IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
-        }
+        } */
 
         public AccountController()
         {
@@ -48,12 +48,12 @@ namespace DataFlow.Web.Controllers
             _configService = new ConfigurationService(this.dataFlowDbContext, cacheService);
         }
 
-        public AccountController(DataFlowDbContext dataFlowDbContext, ApplicationUserManager userManager, ApplicationSignInManager signInManager, IBaseServices baseService) : base(baseService)
+        /* public AccountController(DataFlowDbContext dataFlowDbContext, ApplicationUserManager userManager, ApplicationSignInManager signInManager, IBaseServices baseService) : base(baseService)
         {
             this.dataFlowDbContext = dataFlowDbContext;
             UserManager = userManager;
             SignInManager = signInManager;
-        }
+        } */
 
         public ApplicationSignInManager SignInManager
         {

@@ -22,20 +22,24 @@ namespace DataFlow.Web.Controllers
 {
     public class AgentController : BaseController
     {
-        private readonly DataFlowDbContext dataFlowDbContext;
-        private readonly AgentService agentService;
-        private readonly string EncryptionKey;
+        private readonly AgentService _agentService;
+        private readonly string _encryptionKey;
 
-        public AgentController(DataFlowDbContext dataFlowDbContext, AgentService agentService, IBaseServices baseService) : base(baseService)
+        public AgentController()
         {
-            this.dataFlowDbContext = dataFlowDbContext;
-            this.agentService = agentService;
-            this.EncryptionKey = WebConfigAppSettingsService.GetSetting<string>(Constants.AppSettingEncryptionKey);
+            _encryptionKey = WebConfigAppSettingsService.GetSetting<string>(Constants.AppSettingEncryptionKey);
+            _agentService = new AgentService(this.DataFlowDbContext, this.LogService);
+
+
+            //this.MapperService = new AutoMapper.Mapper()
+
+
+            //AutoMapper.AutoMapperModule
         }
 
         public ActionResult Index()
         {
-            var agents = dataFlowDbContext.Agents
+            var agents = this.DataFlowDbContext.Agents
                 .Include(x => x.Files)
                 .OrderBy(x => x.Name)
                 .ToList();
@@ -47,14 +51,14 @@ namespace DataFlow.Web.Controllers
 
         public ActionResult ToggleAgentStatus(int id)
         {
-            var agent = dataFlowDbContext.Agents.FirstOrDefault(x => x.Id == id);
+            var agent = this.DataFlowDbContext.Agents.FirstOrDefault(x => x.Id == id);
             if (agent != null)
             {
                 agent.Enabled = !agent.Enabled;
 
-                dataFlowDbContext.Agents.Add(agent);
-                dataFlowDbContext.Entry(agent).State = EntityState.Modified;
-                dataFlowDbContext.SaveChanges();
+                this.DataFlowDbContext.Agents.Add(agent);
+                this.DataFlowDbContext.Entry(agent).State = EntityState.Modified;
+                this.DataFlowDbContext.SaveChanges();
             }
             return RedirectToAction("Index");
         }
@@ -88,7 +92,7 @@ namespace DataFlow.Web.Controllers
 
         public ActionResult Edit(int id, bool? success)
         {
-            var agent = dataFlowDbContext.Agents
+            var agent = this.DataFlowDbContext.Agents
                 .Include(x => x.AgentSchedules)
                 .Include(x => x.DataMapAgents)
                 .Include(x => x.DataMapAgents.Select(y => y.DataMap))
@@ -99,7 +103,7 @@ namespace DataFlow.Web.Controllers
                 return RedirectToAction("Index");
 
             if (agent.Password != null)
-                agent.Password = Encryption.Decrypt(agent.Password, EncryptionKey);
+                agent.Password = Encryption.Decrypt(agent.Password, _encryptionKey);
 
             ViewBag.DataMaps = GetDataMapList;
             ViewBag.AgentTypes = GetAgentTypes;
@@ -123,14 +127,14 @@ namespace DataFlow.Web.Controllers
 
         public async Task<ActionResult> Delete(int id)
         {
-            var agent = dataFlowDbContext.Agents.FirstOrDefault(x => x.Id == id);
+            var agent = this.DataFlowDbContext.Agents.FirstOrDefault(x => x.Id == id);
             if (agent != null)
             {
                 LogService.Info(LogTemplates.InfoCrud("Agent", agent.Name, agent.Id,
                     LogTemplates.EntityAction.Deleted));
 
-                dataFlowDbContext.Agents.Remove(agent);
-                await dataFlowDbContext.SaveChangesAsync();
+                this.DataFlowDbContext.Agents.Remove(agent);
+                await this.DataFlowDbContext.SaveChangesAsync();
             }
 
             return RedirectToAction("Index");
@@ -190,7 +194,7 @@ namespace DataFlow.Web.Controllers
             if (vm.Id > 0)
             {
                 isUpdate = true;
-                agent = dataFlowDbContext.Agents.FirstOrDefault(x => x.Id == vm.Id);
+                agent = this.DataFlowDbContext.Agents.FirstOrDefault(x => x.Id == vm.Id);
                 agent.Id = vm.Id;
             }
 
@@ -201,7 +205,7 @@ namespace DataFlow.Web.Controllers
             agent.LoginUrl = vm.LoginUrl;
             agent.Username = vm.Username;
             if (vm.Password != null)
-                agent.Password = Encryption.Encrypt(vm.Password, EncryptionKey);
+                agent.Password = Encryption.Encrypt(vm.Password, _encryptionKey);
             agent.Directory = vm.Directory ?? GetManualAgentBaseDirectory(agent);
             agent.FilePattern = vm.FilePattern;
             agent.Enabled = vm.Enabled;
@@ -214,7 +218,8 @@ namespace DataFlow.Web.Controllers
                 agent.Created = DateTime.Now;
             }
 
-            if (btnAddChrome != null && int.TryParse(ddlAgentChromes, out var agentChromeId))
+            int agentChromeId;
+            if (btnAddChrome != null && int.TryParse(ddlAgentChromes, out agentChromeId))
             {
                 agent.AgentAgentChromes = new List<AgentAgentChrome>
                 {
@@ -225,7 +230,8 @@ namespace DataFlow.Web.Controllers
                 };
             }
 
-            if (btnAddMap != null && int.TryParse(ddlDataMaps, out var dataMapId))
+            int dataMapId;
+            if (btnAddMap != null && int.TryParse(ddlDataMaps, out dataMapId))
             {
                 var lastProcessOrder = Convert.ToInt32(dataMapAgentNextOrder) + 1;
 
@@ -239,7 +245,8 @@ namespace DataFlow.Web.Controllers
                 };
             }
 
-            if (btnAddSchedule != null && int.TryParse(ddlDay, out var day) && int.TryParse(ddlHour, out var hour) && int.TryParse(ddlMinute, out var minute))
+            int day; int minute; int hour;
+            if (btnAddSchedule != null && int.TryParse(ddlDay, out day) && int.TryParse(ddlHour, out hour) && int.TryParse(ddlMinute, out minute))
             {
                 agent.AgentSchedules = new List<AgentSchedule>
                 {
@@ -252,8 +259,8 @@ namespace DataFlow.Web.Controllers
                 };
             }
 
-            dataFlowDbContext.Agents.AddOrUpdate(agent);
-            dataFlowDbContext.SaveChanges();
+            this.DataFlowDbContext.Agents.AddOrUpdate(agent);
+            this.DataFlowDbContext.SaveChanges();
 
             var savevm = MapperService.Map<AgentViewModel>(agent);
 
@@ -330,29 +337,29 @@ namespace DataFlow.Web.Controllers
 
         public async Task<ActionResult> DeleteDataMap(int agentId, int id)
         {
-            var agentMap = dataFlowDbContext.DatamapAgents.FirstOrDefault(x => x.Id == id);
+            var agentMap = this.DataFlowDbContext.DatamapAgents.FirstOrDefault(x => x.Id == id);
 
             if (agentMap != null)
             {
                 LogService.Info($"Data Map {agentMap.DataMap.Name} was removed from {agentMap.Agent.Name}.");
 
-                dataFlowDbContext.DatamapAgents.Remove(agentMap);
-                await dataFlowDbContext.SaveChangesAsync();
+                this.DataFlowDbContext.DatamapAgents.Remove(agentMap);
+                await this.DataFlowDbContext.SaveChangesAsync();
             }
             return RedirectToAction("Edit", new { id = agentId });
         }
 
         public async Task<ActionResult> DeleteSchedule(int agentId, int id)
         {
-            var agentScedhule = dataFlowDbContext.AgentSchedules.FirstOrDefault(x => x.Id == id);
+            var agentScedhule = this.DataFlowDbContext.AgentSchedules.FirstOrDefault(x => x.Id == id);
 
             if (agentScedhule != null)
             {
                 var dayOfWeek = Enum.GetName(typeof(DayOfWeek), agentScedhule.Day);
                 LogService.Info($"Schedule that occured every {dayOfWeek} at {Convert.ToString(agentScedhule.Hour).PadLeft(2, '0')}:{Convert.ToString(agentScedhule.Minute).PadLeft(2, '0')} was removed from {agentScedhule.Agent.Name}.");
 
-                dataFlowDbContext.AgentSchedules.Remove(agentScedhule);
-                await dataFlowDbContext.SaveChangesAsync();
+                this.DataFlowDbContext.AgentSchedules.Remove(agentScedhule);
+                await this.DataFlowDbContext.SaveChangesAsync();
             }
             return RedirectToAction("Edit", new { id = agentId });
         }
@@ -373,9 +380,9 @@ namespace DataFlow.Web.Controllers
                 if (File.ContentLength > 0)
                 {
                     var agentId = Convert.ToInt32(Agents);
-                    var agent = dataFlowDbContext.Agents.FirstOrDefault(x => x.Id == agentId);
+                    var agent = this.DataFlowDbContext.Agents.FirstOrDefault(x => x.Id == agentId);
 
-                    var uploadFile = agentService.UploadFile(File.FileName, File.InputStream, agent);
+                    var uploadFile = _agentService.UploadFile(File.FileName, File.InputStream, agent);
 
                     formResult.IsSuccess = uploadFile.Item1;
                     formResult.ShowInfoMessage = true;
@@ -451,7 +458,7 @@ namespace DataFlow.Web.Controllers
             {
                 var entityList = new List<SelectListItem>();
                 entityList.Add(new SelectListItem { Text = "Select Agent", Value = string.Empty });
-                entityList.AddRange(dataFlowDbContext.Agents.Select(x =>
+                entityList.AddRange(this.DataFlowDbContext.Agents.Select(x =>
                     new SelectListItem
                     {
                         Text = x.Name,
@@ -468,7 +475,7 @@ namespace DataFlow.Web.Controllers
             {
                 var entityList = new List<SelectListItem>();
                 entityList.Add(new SelectListItem { Text = "Select Chrome Agent", Value = string.Empty });
-                entityList.AddRange(dataFlowDbContext.AgentChromes.Select(x =>
+                entityList.AddRange(this.DataFlowDbContext.AgentChromes.Select(x =>
                     new SelectListItem
                     {
                         Text = x.AgentUuid.ToString(),
@@ -485,7 +492,7 @@ namespace DataFlow.Web.Controllers
             {
                 var entityList = new List<SelectListItem>();
                 entityList.Add(new SelectListItem { Text = "Select Map", Value = string.Empty });
-                entityList.AddRange(dataFlowDbContext.DataMaps.Select(x =>
+                entityList.AddRange(this.DataFlowDbContext.DataMaps.Select(x =>
                     new SelectListItem
                     {
                         Text = x.Name,
