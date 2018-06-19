@@ -19,7 +19,7 @@
             @Html.LabelFor(m => m.API_SERVER_URL, new { @class = "control-label" })
         </div>
         <div class="col-sm-10">
-            @Html.TextBoxFor(m => m.API_SERVER_URL, new { @class = "form-control", type = "url", placeholder = "API Server Base URL (Example: https://[url]/api/v2.0/2017)" })
+            @Html.TextBoxFor(m => m.API_SERVER_URL, new { @class = "form-control", type = "text", placeholder = "API Server Base URL (Example: https://[url]/api/v2.0/2017)" })
             <span class="help-block">Example: https://[url]/api/v2.0/2017</span>
             @Html.ValidationMessageFor(m => m.API_SERVER_URL)
         </div>
