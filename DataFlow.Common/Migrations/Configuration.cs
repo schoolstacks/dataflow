@@ -10,6 +10,11 @@ namespace DataFlow.Common.Migrations
             AutomaticMigrationsEnabled = false;
         }
 
+        public void ForceSeed(DataFlow.Common.DAL.DataFlowDbContext context)
+        {
+            this.Seed(context);
+        }
+
         protected override void Seed(DataFlow.Common.DAL.DataFlowDbContext context)
         {
             context.FileStatuses.AddOrUpdate(x => x.Value,
@@ -57,6 +62,8 @@ namespace DataFlow.Common.Migrations
                 new Entity() {Name = "objectiveAssessment", Url = "/metadata/resources/api-docs/objectiveAssessments"},
                 new Entity() {Name = "performanceLevels", Url = "/metadata/descriptors/api-docs/performanceLevelDescriptors"}
             );
+
+            context.SaveChanges();
         }
     }
 }
