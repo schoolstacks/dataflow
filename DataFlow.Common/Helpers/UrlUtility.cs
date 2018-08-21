@@ -12,7 +12,7 @@ namespace DataFlow.Common.Helpers
         {
             if (!string.IsNullOrWhiteSpace(text))
             {
-                int charLocation = text.IndexOf(stopAt, StringComparison.Ordinal);
+                int charLocation = text.LastIndexOf(stopAt, StringComparison.Ordinal);
 
                 if (charLocation > 0)
                     return text.Substring(0, charLocation);
