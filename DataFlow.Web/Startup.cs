@@ -5,6 +5,8 @@ using DataFlow.Common.DAL;
 using System.Data.Entity.Migrations;
 using System.Data.Entity;
 using System.Linq;
+using System.Net;
+using System.Security.Authentication;
 
 [assembly: OwinStartupAttribute(typeof(DataFlow.Web.Startup))]
 namespace DataFlow.Web
@@ -44,6 +46,8 @@ namespace DataFlow.Web
 
 
             ConfigureAuth(app);
+
+            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
         }
     }
 }

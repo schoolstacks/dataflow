@@ -8,6 +8,7 @@ using NLog;
 using FluentEmail;
 using System.Data.Entity;
 using System.Net.Mail;
+using System.Net;
 using SysConfig = System.Configuration;
 using System.Net.Configuration;
 
@@ -20,6 +21,9 @@ namespace DataFlow.Server.ReportingCleanup
 
         static void Main(string[] args)
         {
+            // Force TLS 1.2 as per Ed-Fi ODS-2403 -- https://tracker.ed-fi.org/browse/ODS-2403
+            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             _log.Info("Reporting and Cleanup Janitor starting");
 
             EmailMessage emailMessage = new EmailMessage() { EmailDate = DateTime.Now.ToShortDateString() };

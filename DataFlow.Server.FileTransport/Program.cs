@@ -9,6 +9,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.File;
 using System.Linq;
 using System.Data;
+using System.Net;
 using DataFlow.Common;
 using DataFlow.Common.DAL;
 using DataFlow.Common.ExtensionMethods;
@@ -33,6 +34,9 @@ namespace DataFlow.Server.FileTransport
 
         public static void Main(string[] args)
         {
+            // Force TLS 1.2 as per Ed-Fi ODS-2403 -- https://tracker.ed-fi.org/browse/ODS-2403
+            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             _log.Info("File Transport Janitor starting");
 
             if (HaveConfigurationValues())

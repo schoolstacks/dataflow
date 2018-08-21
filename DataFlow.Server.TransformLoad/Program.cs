@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using CsvHelper;
+using System.Net;
 using System.Net.Http;
 using NLog;
 using System.Configuration;
@@ -46,6 +47,9 @@ namespace DataFlow.Server.TransformLoad
         #endregion Parallel/Multi-Threading variables
         public static void Main(string[] args)
         {
+            // Force TLS 1.2 as per Ed-Fi ODS-2403 -- https://tracker.ed-fi.org/browse/ODS-2403
+            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             RunAsync().Wait();
         }
 
